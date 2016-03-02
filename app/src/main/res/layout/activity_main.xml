@@ -14,4 +14,12 @@
         android:text="Hello World!"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
+    <Button
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:text="Connect"
+            android:id="@+id/btnConnect"
+            android:onClick="onBtnConnectTap"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true" />
 </RelativeLayout>
