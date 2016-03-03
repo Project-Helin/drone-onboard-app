@@ -13,7 +13,7 @@
     <Button
             android:layout_width="150dp"
             android:layout_height="wrap_content"
-            android:text="Connect"
+            android:text="Connect To Drone"
             android:id="@+id/btnConnect"
             android:onClick="onBtnConnectTap"
             android:layout_alignParentTop="true" android:layout_alignParentStart="true"/>
@@ -164,4 +164,24 @@
         </TableRow>
 
     </TableLayout>
+
+
+
+    <Button
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:text="Connect To Messaging Server"
+        android:id="@+id/btnConnectToServer"
+        android:onClick="onBtnConnectToServerTap"
+        android:layout_alignParentBottom="true" android:layout_alignParentLeft="true"/>
+    <Button
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:text="Send Message"
+        android:id="@+id/btnSendMessage"
+        android:onClick="onSendMessageTap" android:layout_alignParentBottom="true" android:layout_alignParentRight="true"/><![CDATA[
+
+    />
+
+]]>
 </RelativeLayout>

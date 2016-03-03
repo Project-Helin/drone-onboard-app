@@ -51,7 +51,6 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
         connectionSelector = (Spinner)findViewById(R.id.connectionSelect);
         setupConnectionModeSpinner();
 
-        messagingConnectionService = new MessagingConnectionService();
     }
 
 
@@ -79,7 +78,14 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
         } else {
             this.drone.connect(connectionParams);
         }
-        messagingConnectionService.sendMessage("hallo");
+    }
+
+    public void onBtnConnectToServerTap(View view) {
+        messagingConnectionService = new MessagingConnectionService();
+    }
+
+    public void onSendMessageTap(View view) {
+        messagingConnectionService.sendMessage("Test Message");
     }
 
     protected void alertUser(String message) {
