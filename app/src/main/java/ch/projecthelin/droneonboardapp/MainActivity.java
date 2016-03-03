@@ -25,11 +25,16 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements DroneListener, TowerListener {
 
+    public static final String TCP_SERVER_IP = "192.168.57.1";
+    public static final int BAUD_RATE_FOR_USB = 115200;
+    public static final int TCP_SERVER_PORT = 5760;
     private ControlTower controlTower;
     private Drone drone;
     private int droneType = Type.TYPE_UNKNOWN;
     private final Handler handler = new Handler();
     Spinner modeSelector;
+    Spinner connectionSelector;
+    ConnectionParameter connectionParams;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,17 +43,12 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
 
         this.controlTower = new ControlTower(getApplicationContext());
         this.drone = new Drone(getApplicationContext());
+
         this.modeSelector = (Spinner)findViewById(R.id.modeSelect);
-        this.modeSelector.setOnItemSelectedListener(new Spinner.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                onFlightModeSelected(view);
-            }
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-                // Do nothing
-            }
-        });
+
+        connectionSelector = (Spinner)findViewById(R.id.connectionSelect);
+        setupConnectionModeSpinner();
+
     }
 
     @Override
@@ -73,12 +73,6 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
         if(this.drone.isConnected()) {
             this.drone.disconnect();
         } else {
-            Bundle extraParams = new Bundle();
-            extraParams.putInt(ConnectionType.EXTRA_USB_BAUD_RATE, 115200); //only for USB
-            ConnectionParameter connectionParams = new ConnectionParameter(ConnectionType.TYPE_USB, extraParams, null);
-            //extraParams.putString(ConnectionType.EXTRA_TCP_SERVER_IP, "192.168.57.1");
-            //extraParams.putInt(ConnectionType.EXTRA_TCP_SERVER_PORT, 5762);// Set default port to 14550
-            //ConnectionParameter connectionParams = new ConnectionParameter(ConnectionType.TYPE_TCP, extraParams, null);
             this.drone.connect(connectionParams);
         }
     }
@@ -163,7 +157,6 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
                 }
                 break;
 
-
             case AttributeEvent.SPEED_UPDATED:
                 updateAltitude();
                 updateSpeed();
@@ -184,16 +177,16 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
         if (vehicleState.isFlying()) {
             // Land
             DroneStateApi.setVehicleMode(drone, VehicleMode.COPTER_LAND);
-            this.drone.changeVehicleMode(VehicleMode.COPTER_LAND);
         } else if (vehicleState.isArmed()) {
             // Take off
+            DroneStateApi.setVehicleMode(drone, VehicleMode.COPTER_GUIDED);
             GuidedApi.takeoff(drone, 10);
         } else if (!vehicleState.isConnected()) {
             // Connect
             alertUser("Connect to a drone first");
         } else if (vehicleState.isConnected() && !vehicleState.isArmed()){
             // Connected but not Armed
-            this.drone.arm(true);
+            DroneStateApi.arm(drone, false);
         }
     }
 
@@ -202,11 +195,57 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
         DroneStateApi.setVehicleMode(drone, vehicleMode);
     }
 
+    public void onConnectionSelected(View view) {
+        int connectionType = (int) this.connectionSelector.getSelectedItemPosition();
+
+        Bundle extraParams = new Bundle();
+
+        if (connectionType == ConnectionType.TYPE_USB) {
+            extraParams.putInt(ConnectionType.EXTRA_USB_BAUD_RATE, BAUD_RATE_FOR_USB);
+        } else if (connectionType == ConnectionType.TYPE_TCP) {
+            extraParams.putString(ConnectionType.EXTRA_TCP_SERVER_IP, TCP_SERVER_IP);
+            extraParams.putInt(ConnectionType.EXTRA_TCP_SERVER_PORT, TCP_SERVER_PORT);
+        }
+
+        connectionParams = new ConnectionParameter(connectionType, extraParams, null);
+    }
+
     protected void updateVehicleModesForType(int droneType) {
         List<VehicleMode> vehicleModes =  VehicleMode.getVehicleModePerDroneType(droneType);
         ArrayAdapter<VehicleMode> vehicleModeArrayAdapter = new ArrayAdapter<VehicleMode>(this, android.R.layout.simple_spinner_item, vehicleModes);
         vehicleModeArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        this.modeSelector.setAdapter(vehicleModeArrayAdapter);
+        modeSelector.setAdapter(vehicleModeArrayAdapter);
+
+        modeSelector.setOnItemSelectedListener(new Spinner.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                onFlightModeSelected(view);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                // Do nothing
+            }
+        });
+    }
+
+    protected void setupConnectionModeSpinner() {
+        String[] connectionModes = {"USB", "UDP", "TCP"};
+        Spinner spinner = (Spinner) findViewById(R.id.connectionSelect);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, connectionModes);
+        spinner.setAdapter(adapter);
+
+        spinner.setOnItemSelectedListener(new Spinner.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                onConnectionSelected(view);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                // Do nothing
+            }
+        });
     }
 
     protected void updateVehicleMode() {
