@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.*;
+import ch.projecthelin.droneonboardapp.services.MessagingConnectionService;
 import com.o3dr.android.client.ControlTower;
 import com.o3dr.android.client.Drone;
 import com.o3dr.android.client.apis.drone.DroneStateApi;
@@ -35,6 +36,7 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
     Spinner modeSelector;
     Spinner connectionSelector;
     ConnectionParameter connectionParams;
+    private MessagingConnectionService messagingConnectionService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,7 +51,9 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
         connectionSelector = (Spinner)findViewById(R.id.connectionSelect);
         setupConnectionModeSpinner();
 
+        messagingConnectionService = new MessagingConnectionService();
     }
+
 
     @Override
     public void onStart() {
@@ -75,6 +79,7 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
         } else {
             this.drone.connect(connectionParams);
         }
+        messagingConnectionService.sendMessage("hallo");
     }
 
     protected void alertUser(String message) {
@@ -179,14 +184,13 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
             DroneStateApi.setVehicleMode(drone, VehicleMode.COPTER_LAND);
         } else if (vehicleState.isArmed()) {
             // Take off
-            DroneStateApi.setVehicleMode(drone, VehicleMode.COPTER_GUIDED);
             GuidedApi.takeoff(drone, 10);
         } else if (!vehicleState.isConnected()) {
             // Connect
             alertUser("Connect to a drone first");
         } else if (vehicleState.isConnected() && !vehicleState.isArmed()){
             // Connected but not Armed
-            DroneStateApi.arm(drone, false);
+            DroneStateApi.arm(drone, true);
         }
     }
 
