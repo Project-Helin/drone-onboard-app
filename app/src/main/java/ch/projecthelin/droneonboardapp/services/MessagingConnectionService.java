@@ -17,7 +17,8 @@ public class MessagingConnectionService {
         SERVER_TO_DRONE
     }
 
-
+    public static final String RMQ_REMOTE_SERVER_ADDR = "151.80.44.117:5672";
+    public static final String RMQ_LOCAL_SERVER_ADDR = "192.168.57.1:5672";
     private Channel channel;
     private Connection connection;
     private MessageListener listener;
@@ -35,7 +36,7 @@ public class MessagingConnectionService {
                                         .withMaxAttempts(20));
 
                         ConnectionOptions options = new ConnectionOptions()
-                                .withAddresses("192.168.57.1:5672")
+                                .withAddresses(RMQ_REMOTE_SERVER_ADDR)
                                 .withUsername("admin").
                                         withPassword("helin");
 
