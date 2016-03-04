@@ -3,7 +3,6 @@ package ch.projecthelin.droneonboardapp;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.*;
 import ch.projecthelin.droneonboardapp.services.MessagingConnectionService;
@@ -37,6 +36,7 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
     Spinner connectionSelector;
     ConnectionParameter connectionParams;
     private MessagingConnectionService messagingConnectionService;
+    private boolean takeoffWhenArmed;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -156,6 +156,10 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
             case AttributeEvent.STATE_UPDATED:
             case AttributeEvent.STATE_ARMING:
                 updateArmButton();
+                if (takeoffWhenArmed) {
+                    GuidedApi.takeoff(drone, 10);
+                    takeoffWhenArmed = false;
+                }
                 break;
             case AttributeEvent.STATE_VEHICLE_MODE:
                 updateVehicleMode();
@@ -315,7 +319,7 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
 
     private void takeOff() {
         DroneStateApi.arm(drone, true);
-        GuidedApi.takeoff(drone, 10);
+        takeoffWhenArmed = true;
     }
 
     @Override

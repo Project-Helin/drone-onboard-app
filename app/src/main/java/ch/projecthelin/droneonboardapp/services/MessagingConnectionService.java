@@ -36,7 +36,7 @@ public class MessagingConnectionService {
                                         .withMaxAttempts(20));
 
                         ConnectionOptions options = new ConnectionOptions()
-                                .withAddresses(RMQ_REMOTE_SERVER_ADDR)
+                                .withAddresses(RMQ_LOCAL_SERVER_ADDR)
                                 .withUsername("admin").
                                         withPassword("helin");
 
