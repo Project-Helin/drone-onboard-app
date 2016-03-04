@@ -179,7 +179,8 @@
         android:layout_height="wrap_content"
         android:text="Send Message"
         android:id="@+id/btnSendMessage"
-        android:onClick="onSendMessageTap" android:layout_alignParentBottom="true" android:layout_alignParentRight="true"/><![CDATA[
+        android:onClick="onSendMessageTap" android:layout_alignParentBottom="true" android:layout_alignParentRight="true"
+        android:visibility="invisible" /><![CDATA[
 
     />
 

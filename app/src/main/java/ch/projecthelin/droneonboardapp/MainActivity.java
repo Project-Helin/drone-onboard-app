@@ -81,7 +81,8 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
 
     public void onBtnConnectToServerTap(View view) {
         messagingConnectionService = new MessagingConnectionService(this);
-        alertUser("Connected To Messaging Server");
+        Button sendMessageBtn = (Button) findViewById(R.id.btnSendMessage);
+        sendMessageBtn.setVisibility(View.VISIBLE);
     }
 
     public void onSendMessageTap(View view) {
@@ -318,6 +319,7 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
     }
 
     private void takeOff() {
+        DroneStateApi.setVehicleMode(drone, VehicleMode.COPTER_GUIDED);
         DroneStateApi.arm(drone, true);
         takeoffWhenArmed = true;
     }
