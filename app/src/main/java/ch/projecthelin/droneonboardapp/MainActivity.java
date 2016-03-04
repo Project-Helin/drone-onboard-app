@@ -24,7 +24,7 @@ import com.o3dr.services.android.lib.drone.property.*;
 
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements DroneListener, TowerListener {
+public class MainActivity extends AppCompatActivity implements DroneListener, TowerListener, MessageListener {
 
     public static final String TCP_SERVER_IP = "192.168.57.1";
     public static final int BAUD_RATE_FOR_USB = 115200;
@@ -46,11 +46,10 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
         this.controlTower = new ControlTower(getApplicationContext());
         this.drone = new Drone(getApplicationContext());
 
-        this.modeSelector = (Spinner)findViewById(R.id.modeSelect);
+        this.modeSelector = (Spinner) findViewById(R.id.modeSelect);
 
-        connectionSelector = (Spinner)findViewById(R.id.connectionSelect);
+        connectionSelector = (Spinner) findViewById(R.id.connectionSelect);
         setupConnectionModeSpinner();
-
     }
 
 
@@ -73,7 +72,7 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
     }
 
     public void onBtnConnectTap(View view) {
-        if(this.drone.isConnected()) {
+        if (this.drone.isConnected()) {
             this.drone.disconnect();
         } else {
             this.drone.connect(connectionParams);
@@ -81,7 +80,7 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
     }
 
     public void onBtnConnectToServerTap(View view) {
-        messagingConnectionService = new MessagingConnectionService();
+        messagingConnectionService = new MessagingConnectionService(this);
     }
 
     public void onSendMessageTap(View view) {
@@ -93,7 +92,7 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
     }
 
     protected void updateConnectedButton(Boolean isConnected) {
-        Button connectButton = (Button)findViewById(R.id.btnConnect);
+        Button connectButton = (Button) findViewById(R.id.btnConnect);
         if (isConnected) {
             connectButton.setText("Disconnect");
         } else {
@@ -103,7 +102,7 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
 
     protected void updateArmButton() {
         State vehicleState = this.drone.getAttribute(AttributeType.STATE);
-        Button armButton = (Button)findViewById(R.id.btnArmTakeOff);
+        Button armButton = (Button) findViewById(R.id.btnArmTakeOff);
 
         if (!this.drone.isConnected()) {
             armButton.setVisibility(View.INVISIBLE);
@@ -117,7 +116,7 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
         } else if (vehicleState.isArmed()) {
             // Take off
             armButton.setText("TAKE OFF");
-        } else if (vehicleState.isConnected()){
+        } else if (vehicleState.isConnected()) {
             // Connected but not Armed
             armButton.setText("ARM");
         }
@@ -181,8 +180,9 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
                 break;
         }
     }
+
     public void onArmButtonTap(View view) {
-        Button thisButton = (Button)view;
+        Button thisButton = (Button) view;
         State vehicleState = this.drone.getAttribute(AttributeType.STATE);
 
         if (vehicleState.isFlying()) {
@@ -194,7 +194,7 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
         } else if (!vehicleState.isConnected()) {
             // Connect
             alertUser("Connect to a drone first");
-        } else if (vehicleState.isConnected() && !vehicleState.isArmed()){
+        } else if (vehicleState.isConnected() && !vehicleState.isArmed()) {
             // Connected but not Armed
             DroneStateApi.arm(drone, true);
         }
@@ -221,7 +221,7 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
     }
 
     protected void updateVehicleModesForType(int droneType) {
-        List<VehicleMode> vehicleModes =  VehicleMode.getVehicleModePerDroneType(droneType);
+        List<VehicleMode> vehicleModes = VehicleMode.getVehicleModePerDroneType(droneType);
         ArrayAdapter<VehicleMode> vehicleModeArrayAdapter = new ArrayAdapter<VehicleMode>(this, android.R.layout.simple_spinner_item, vehicleModes);
         vehicleModeArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         modeSelector.setAdapter(vehicleModeArrayAdapter);
@@ -261,30 +261,30 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
     protected void updateVehicleMode() {
         State vehicleState = this.drone.getAttribute(AttributeType.STATE);
         VehicleMode vehicleMode = vehicleState.getVehicleMode();
-        ArrayAdapter arrayAdapter = (ArrayAdapter)this.modeSelector.getAdapter();
+        ArrayAdapter arrayAdapter = (ArrayAdapter) this.modeSelector.getAdapter();
         this.modeSelector.setSelection(arrayAdapter.getPosition(vehicleMode));
     }
 
     protected void updateAltitude() {
-        TextView altitudeTextView = (TextView)findViewById(R.id.altitudeValueTextView);
+        TextView altitudeTextView = (TextView) findViewById(R.id.altitudeValueTextView);
         Altitude droneAltitude = this.drone.getAttribute(AttributeType.ALTITUDE);
         altitudeTextView.setText(String.format("%3.1f", droneAltitude.getAltitude()) + "m");
     }
 
     protected void updateSpeed() {
-        TextView speedTextView = (TextView)findViewById(R.id.speedValueTextView);
+        TextView speedTextView = (TextView) findViewById(R.id.speedValueTextView);
         Speed droneSpeed = this.drone.getAttribute(AttributeType.SPEED);
         speedTextView.setText(String.format("%3.1f", droneSpeed.getGroundSpeed()) + "m/s");
     }
 
     protected void updateDistanceFromHome() {
-        TextView distanceTextView = (TextView)findViewById(R.id.distanceValueTextView);
+        TextView distanceTextView = (TextView) findViewById(R.id.distanceValueTextView);
         Altitude droneAltitude = this.drone.getAttribute(AttributeType.ALTITUDE);
         double vehicleAltitude = droneAltitude.getAltitude();
         Gps droneGps = this.drone.getAttribute(AttributeType.GPS);
         LatLong vehiclePosition = droneGps.getPosition();
 
-        double distanceFromHome =  0;
+        double distanceFromHome = 0;
 
         if (droneGps.isValid()) {
             LatLongAlt vehicle3DPosition = new LatLongAlt(vehiclePosition.getLatitude(), vehiclePosition.getLongitude(), vehicleAltitude);
@@ -302,13 +302,31 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
             return 0;
         }
         double dx = pointA.getLatitude() - pointB.getLatitude();
-        double dy  = pointA.getLongitude() - pointB.getLongitude();
+        double dy = pointA.getLongitude() - pointB.getLongitude();
         double dz = pointA.getAltitude() - pointB.getAltitude();
-        return Math.sqrt(dx*dx + dy*dy + dz*dz);
+        return Math.sqrt(dx * dx + dy * dy + dz * dz);
     }
 
     @Override
     public void onDroneServiceInterrupted(String errorMsg) {
 
+    }
+
+    private void takeOff() {
+        DroneStateApi.arm(drone, true);
+        GuidedApi.takeoff(drone, 10);
+    }
+
+    @Override
+    public void onMessageReceived(final String message) {
+        runOnUiThread(new Runnable() {
+
+            @Override
+            public void run() {
+                alertUser(message);
+                takeOff();
+
+            }
+        });
     }
 }

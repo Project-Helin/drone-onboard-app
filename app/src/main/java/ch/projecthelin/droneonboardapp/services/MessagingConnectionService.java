@@ -1,6 +1,7 @@
 package ch.projecthelin.droneonboardapp.services;
 
 import android.util.Log;
+import ch.projecthelin.droneonboardapp.MessageListener;
 import com.rabbitmq.client.*;
 import net.jodah.lyra.ConnectionOptions;
 import net.jodah.lyra.Connections;
@@ -19,9 +20,11 @@ public class MessagingConnectionService {
 
     private Channel channel;
     private Connection connection;
+    private MessageListener listener;
 
-    public MessagingConnectionService() {
+    public MessagingConnectionService(MessageListener listener) {
 
+        this.listener = listener;
         try {
             final Runnable r = new Runnable() {
                 public void run() {
@@ -98,7 +101,9 @@ public class MessagingConnectionService {
             public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body)
                     throws IOException {
                 String message = new String(body, "UTF-8");
+                listener.onMessageReceived(message);
                 Log.d("message", message);
+
             }
         };
 
