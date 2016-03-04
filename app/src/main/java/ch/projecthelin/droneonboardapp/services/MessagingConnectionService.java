@@ -103,7 +103,6 @@ public class MessagingConnectionService {
                 String message = new String(body, "UTF-8");
                 listener.onMessageReceived(message);
                 Log.d("message", message);
-
             }
         };
 

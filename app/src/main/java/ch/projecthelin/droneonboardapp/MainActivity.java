@@ -81,10 +81,12 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
 
     public void onBtnConnectToServerTap(View view) {
         messagingConnectionService = new MessagingConnectionService(this);
+        alertUser("Connected To Messaging Server");
     }
 
     public void onSendMessageTap(View view) {
         messagingConnectionService.sendMessage("Test Message");
+        alertUser("Message sent");
     }
 
     protected void alertUser(String message) {
@@ -175,7 +177,6 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
             case AttributeEvent.HOME_UPDATED:
                 updateDistanceFromHome();
                 break;
-
             default:
                 break;
         }
