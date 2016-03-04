@@ -39,6 +39,11 @@ public class MessagingConnectionService {
                         connection = Connections.create(options, config);
                         channel = connection.createChannel(1);
                         Log.d("Messaging", "connected");
+                        Consumer consumer = createConsumer();
+
+                        channel.basicConsume(QueueName.SERVER_TO_DRONE.name(), true, consumer);
+
+
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -87,9 +92,8 @@ public class MessagingConnectionService {
         }
     }
 
-    public void receiveMessage() {
-
-        Consumer consumer = new DefaultConsumer(channel) {
+    public Consumer createConsumer() {
+        return new DefaultConsumer(channel) {
             @Override
             public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body)
                     throws IOException {
@@ -97,11 +101,6 @@ public class MessagingConnectionService {
                 Log.d("message", message);
             }
         };
-        try {
-            channel.basicConsume(QueueName.SERVER_TO_DRONE.name(), true, consumer);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
 
     }
 
