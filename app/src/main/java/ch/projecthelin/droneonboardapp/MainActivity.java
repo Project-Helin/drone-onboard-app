@@ -25,7 +25,7 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements DroneListener, TowerListener, MessageListener {
 
-    public static final String TCP_SERVER_IP = "192.168.57.1";
+    public static final String TCP_SERVER_IP = "192.168.56.1";
     public static final int BAUD_RATE_FOR_USB = 115200;
     public static final int TCP_SERVER_PORT = 5760;
     private ControlTower controlTower;
@@ -125,6 +125,14 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
         }
     }
 
+    protected void updateGPSstate() {
+        Gps droneGps = drone.getAttribute(AttributeType.GPS);
+        TextView gpsValueTextView = (TextView) findViewById(R.id.gpsValueTextView);
+
+        gpsValueTextView.setText(droneGps.getFixStatus());
+
+    }
+
     @Override
     public void onTowerConnected() {
         this.controlTower.registerDrone(this.drone, this.handler);
@@ -182,6 +190,11 @@ public class MainActivity extends AppCompatActivity implements DroneListener, To
             case AttributeEvent.HOME_UPDATED:
                 updateDistanceFromHome();
                 break;
+
+            case AttributeEvent.GPS_FIX:
+                updateGPSstate();
+                break;
+
             default:
                 break;
         }

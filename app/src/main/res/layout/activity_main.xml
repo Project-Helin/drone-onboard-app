@@ -26,7 +26,7 @@
 
     <TableLayout
             android:layout_width="fill_parent"
-            android:layout_height="200dp"
+            android:layout_height="220dp"
             android:layout_marginTop="41dp" android:layout_below="@+id/btnConnect" android:layout_alignParentStart="true" android:id="@+id/tableLayout">
 
         <TableRow
@@ -161,6 +161,34 @@
                     android:paddingTop="5dp"
                     android:paddingBottom="5dp"
                     android:layout_gravity="left" />
+
+        </TableRow>
+
+        <TableRow
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:id="@+id/tableRow" >
+
+            <TextView
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="GPS:"
+                android:id="@+id/gpsLabelTextView"
+                android:layout_column="0"
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp" />
+
+            <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="-"
+                android:id="@+id/gpsValueTextView"
+                android:layout_column="1"
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp"
+                android:layout_gravity="left" />
         </TableRow>
 
     </TableLayout>
