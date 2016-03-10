@@ -1,10 +1,12 @@
-package ch.projecthelin.droneonboardapp;
+package ch.projecthelin.droneonboardapp.activities;
 
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.*;
+import ch.projecthelin.droneonboardapp.MessageListener;
+import ch.projecthelin.droneonboardapp.R;
 import ch.projecthelin.droneonboardapp.services.MessagingConnectionService;
 import com.o3dr.android.client.ControlTower;
 import com.o3dr.android.client.Drone;
