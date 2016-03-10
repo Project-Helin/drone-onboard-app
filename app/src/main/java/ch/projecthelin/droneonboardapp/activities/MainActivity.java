@@ -1,354 +1,122 @@
 package ch.projecthelin.droneonboardapp.activities;
 
-import android.os.Handler;
+import android.support.design.widget.TabLayout;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
-import android.widget.*;
-import ch.projecthelin.droneonboardapp.MessageListener;
+import android.view.ViewGroup;
+
+import android.widget.TextView;
 import ch.projecthelin.droneonboardapp.R;
-import ch.projecthelin.droneonboardapp.services.MessagingConnectionService;
-import com.o3dr.android.client.ControlTower;
-import com.o3dr.android.client.Drone;
-import com.o3dr.android.client.apis.drone.DroneStateApi;
-import com.o3dr.android.client.apis.drone.GuidedApi;
-import com.o3dr.android.client.interfaces.DroneListener;
-import com.o3dr.android.client.interfaces.TowerListener;
-import com.o3dr.services.android.lib.coordinate.LatLong;
-import com.o3dr.services.android.lib.coordinate.LatLongAlt;
-import com.o3dr.services.android.lib.drone.attribute.AttributeEvent;
-import com.o3dr.services.android.lib.drone.attribute.AttributeType;
-import com.o3dr.services.android.lib.drone.connection.ConnectionParameter;
-import com.o3dr.services.android.lib.drone.connection.ConnectionResult;
-import com.o3dr.services.android.lib.drone.connection.ConnectionType;
-import com.o3dr.services.android.lib.drone.property.*;
+import ch.projecthelin.droneonboardapp.fragments.MainFragment;
+import ch.projecthelin.droneonboardapp.fragments.PlaceholderFragment;
 
-import java.util.List;
+public class MainActivity extends AppCompatActivity {
 
-public class MainActivity extends AppCompatActivity implements DroneListener, TowerListener, MessageListener {
+    private SectionsPagerAdapter mSectionsPagerAdapter;
 
-    public static final String TCP_SERVER_IP = "192.168.56.1";
-    public static final int BAUD_RATE_FOR_USB = 115200;
-    public static final int TCP_SERVER_PORT = 5760;
-    private ControlTower controlTower;
-    private Drone drone;
-    private int droneType = Type.TYPE_UNKNOWN;
-    private final Handler handler = new Handler();
-    Spinner modeSelector;
-    Spinner connectionSelector;
-    ConnectionParameter connectionParams;
-    private MessagingConnectionService messagingConnectionService;
-    private boolean takeoffWhenArmed;
+    /**
+     * The {@link ViewPager} that will host the section contents.
+     */
+    private ViewPager mViewPager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        this.controlTower = new ControlTower(getApplicationContext());
-        this.drone = new Drone(getApplicationContext());
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        // Create the adapter that will return a fragment for each of the three
+        // primary sections of the activity.
+        mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
-        this.modeSelector = (Spinner) findViewById(R.id.modeSelect);
+        // Set up the ViewPager with the sections adapter.
+        mViewPager = (ViewPager) findViewById(R.id.container);
+        mViewPager.setAdapter(mSectionsPagerAdapter);
 
-        connectionSelector = (Spinner) findViewById(R.id.connectionSelect);
-        setupConnectionModeSpinner();
+        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
+        tabLayout.setupWithViewPager(mViewPager);
+
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
+            }
+        });
+
     }
 
 
     @Override
-    public void onStart() {
-        super.onStart();
-        this.controlTower.connect(this);
-
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
     }
 
     @Override
-    public void onStop() {
-        super.onStop();
-        if (this.drone.isConnected()) {
-            this.drone.disconnect();
-            updateConnectedButton(false);
-        }
-        this.controlTower.unregisterDrone(this.drone);
-        this.controlTower.disconnect();
-    }
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
 
-    public void onBtnConnectTap(View view) {
-        if (this.drone.isConnected()) {
-            this.drone.disconnect();
-        } else {
-            this.drone.connect(connectionParams);
-        }
-    }
-
-    public void onBtnConnectToServerTap(View view) {
-        messagingConnectionService = new MessagingConnectionService(this);
-        Button sendMessageBtn = (Button) findViewById(R.id.btnSendMessage);
-        sendMessageBtn.setVisibility(View.VISIBLE);
-    }
-
-    public void onSendMessageTap(View view) {
-        messagingConnectionService.sendMessage("Test Message");
-        alertUser("Message sent");
-    }
-
-    protected void alertUser(String message) {
-        Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
-    }
-
-    protected void updateConnectedButton(Boolean isConnected) {
-        Button connectButton = (Button) findViewById(R.id.btnConnect);
-        if (isConnected) {
-            connectButton.setText("Disconnect");
-        } else {
-            connectButton.setText("Connect");
-        }
-    }
-
-    protected void updateArmButton() {
-        State vehicleState = this.drone.getAttribute(AttributeType.STATE);
-        Button armButton = (Button) findViewById(R.id.btnArmTakeOff);
-
-        if (!this.drone.isConnected()) {
-            armButton.setVisibility(View.INVISIBLE);
-        } else {
-            armButton.setVisibility(View.VISIBLE);
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.action_settings) {
+            return true;
         }
 
-        if (vehicleState.isFlying()) {
-            // Land
-            armButton.setText("LAND");
-        } else if (vehicleState.isArmed()) {
-            // Take off
-            armButton.setText("TAKE OFF");
-        } else if (vehicleState.isConnected()) {
-            // Connected but not Armed
-            armButton.setText("ARM");
+        return super.onOptionsItemSelected(item);
+    }
+
+    public class SectionsPagerAdapter extends FragmentPagerAdapter {
+
+        public SectionsPagerAdapter(FragmentManager fm) {
+            super(fm);
         }
-    }
 
-    protected void updateGPSstate() {
-        Gps droneGps = drone.getAttribute(AttributeType.GPS);
-        TextView gpsValueTextView = (TextView) findViewById(R.id.gpsValueTextView);
-
-        gpsValueTextView.setText(droneGps.getFixStatus());
-
-    }
-
-    @Override
-    public void onTowerConnected() {
-        this.controlTower.registerDrone(this.drone, this.handler);
-        this.drone.registerDroneListener(this);
-    }
-
-    @Override
-    public void onTowerDisconnected() {
-
-    }
-
-    @Override
-    public void onDroneConnectionFailed(ConnectionResult result) {
-
-    }
-
-    @Override
-    public void onDroneEvent(String event, Bundle extras) {
-        switch (event) {
-            case AttributeEvent.STATE_CONNECTED:
-                alertUser("Drone Connected");
-                updateArmButton();
-                updateConnectedButton(this.drone.isConnected());
-                break;
-            case AttributeEvent.STATE_DISCONNECTED:
-                alertUser("Drone Disconnected");
-                updateArmButton();
-                updateConnectedButton(this.drone.isConnected());
-                break;
-            case AttributeEvent.STATE_UPDATED:
-            case AttributeEvent.STATE_ARMING:
-                updateArmButton();
-                if (takeoffWhenArmed) {
-                    GuidedApi.takeoff(drone, 10);
-                    takeoffWhenArmed = false;
+        @Override
+        public Fragment getItem(int position) {
+            switch (position) {
+                case 0: {
+                    return new MainFragment();
                 }
-                break;
-            case AttributeEvent.STATE_VEHICLE_MODE:
-                updateVehicleMode();
-                break;
-
-            case AttributeEvent.TYPE_UPDATED:
-                Type newDroneType = this.drone.getAttribute(AttributeType.TYPE);
-                if (newDroneType.getDroneType() != this.droneType) {
-                    this.droneType = newDroneType.getDroneType();
-                    updateVehicleModesForType(this.droneType);
+                default: {
+                    return PlaceholderFragment.newInstance(position + 1);
                 }
-                break;
-
-            case AttributeEvent.SPEED_UPDATED:
-                updateAltitude();
-                updateSpeed();
-                break;
-
-            case AttributeEvent.HOME_UPDATED:
-                updateDistanceFromHome();
-                break;
-
-            case AttributeEvent.GPS_FIX:
-                updateGPSstate();
-                break;
-
-            default:
-                break;
-        }
-    }
-
-    public void onArmButtonTap(View view) {
-        Button thisButton = (Button) view;
-        State vehicleState = this.drone.getAttribute(AttributeType.STATE);
-
-        if (vehicleState.isFlying()) {
-            // Land
-            DroneStateApi.setVehicleMode(drone, VehicleMode.COPTER_LAND);
-        } else if (vehicleState.isArmed()) {
-            // Take off
-            GuidedApi.takeoff(drone, 10);
-        } else if (!vehicleState.isConnected()) {
-            // Connect
-            alertUser("Connect to a drone first");
-        } else if (vehicleState.isConnected() && !vehicleState.isArmed()) {
-            // Connected but not Armed
-            DroneStateApi.arm(drone, true);
-        }
-    }
-
-    public void onFlightModeSelected(View view) {
-        VehicleMode vehicleMode = (VehicleMode) this.modeSelector.getSelectedItem();
-        DroneStateApi.setVehicleMode(drone, vehicleMode);
-    }
-
-    public void onConnectionSelected(View view) {
-        int connectionType = (int) this.connectionSelector.getSelectedItemPosition();
-
-        Bundle extraParams = new Bundle();
-
-        if (connectionType == ConnectionType.TYPE_USB) {
-            extraParams.putInt(ConnectionType.EXTRA_USB_BAUD_RATE, BAUD_RATE_FOR_USB);
-        } else if (connectionType == ConnectionType.TYPE_TCP) {
-            extraParams.putString(ConnectionType.EXTRA_TCP_SERVER_IP, TCP_SERVER_IP);
-            extraParams.putInt(ConnectionType.EXTRA_TCP_SERVER_PORT, TCP_SERVER_PORT);
+            }
         }
 
-        connectionParams = new ConnectionParameter(connectionType, extraParams, null);
-    }
-
-    protected void updateVehicleModesForType(int droneType) {
-        List<VehicleMode> vehicleModes = VehicleMode.getVehicleModePerDroneType(droneType);
-        ArrayAdapter<VehicleMode> vehicleModeArrayAdapter = new ArrayAdapter<VehicleMode>(this, android.R.layout.simple_spinner_item, vehicleModes);
-        vehicleModeArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        modeSelector.setAdapter(vehicleModeArrayAdapter);
-
-        modeSelector.setOnItemSelectedListener(new Spinner.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                onFlightModeSelected(view);
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-                // Do nothing
-            }
-        });
-    }
-
-    protected void setupConnectionModeSpinner() {
-        String[] connectionModes = {"USB", "UDP", "TCP"};
-        Spinner spinner = (Spinner) findViewById(R.id.connectionSelect);
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, connectionModes);
-        spinner.setAdapter(adapter);
-
-        spinner.setOnItemSelectedListener(new Spinner.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                onConnectionSelected(view);
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-                // Do nothing
-            }
-        });
-    }
-
-    protected void updateVehicleMode() {
-        State vehicleState = this.drone.getAttribute(AttributeType.STATE);
-        VehicleMode vehicleMode = vehicleState.getVehicleMode();
-        ArrayAdapter arrayAdapter = (ArrayAdapter) this.modeSelector.getAdapter();
-        this.modeSelector.setSelection(arrayAdapter.getPosition(vehicleMode));
-    }
-
-    protected void updateAltitude() {
-        TextView altitudeTextView = (TextView) findViewById(R.id.altitudeValueTextView);
-        Altitude droneAltitude = this.drone.getAttribute(AttributeType.ALTITUDE);
-        altitudeTextView.setText(String.format("%3.1f", droneAltitude.getAltitude()) + "m");
-    }
-
-    protected void updateSpeed() {
-        TextView speedTextView = (TextView) findViewById(R.id.speedValueTextView);
-        Speed droneSpeed = this.drone.getAttribute(AttributeType.SPEED);
-        speedTextView.setText(String.format("%3.1f", droneSpeed.getGroundSpeed()) + "m/s");
-    }
-
-    protected void updateDistanceFromHome() {
-        TextView distanceTextView = (TextView) findViewById(R.id.distanceValueTextView);
-        Altitude droneAltitude = this.drone.getAttribute(AttributeType.ALTITUDE);
-        double vehicleAltitude = droneAltitude.getAltitude();
-        Gps droneGps = this.drone.getAttribute(AttributeType.GPS);
-        LatLong vehiclePosition = droneGps.getPosition();
-
-        double distanceFromHome = 0;
-
-        if (droneGps.isValid()) {
-            LatLongAlt vehicle3DPosition = new LatLongAlt(vehiclePosition.getLatitude(), vehiclePosition.getLongitude(), vehicleAltitude);
-            Home droneHome = this.drone.getAttribute(AttributeType.HOME);
-            distanceFromHome = distanceBetweenPoints(droneHome.getCoordinate(), vehicle3DPosition);
-        } else {
-            distanceFromHome = 0;
+        @Override
+        public int getCount() {
+            return 3;
         }
 
-        distanceTextView.setText(String.format("%3.1f", distanceFromHome) + "m");
-    }
-
-    protected double distanceBetweenPoints(LatLongAlt pointA, LatLongAlt pointB) {
-        if (pointA == null || pointB == null) {
-            return 0;
-        }
-        double dx = pointA.getLatitude() - pointB.getLatitude();
-        double dy = pointA.getLongitude() - pointB.getLongitude();
-        double dz = pointA.getAltitude() - pointB.getAltitude();
-        return Math.sqrt(dx * dx + dy * dy + dz * dz);
-    }
-
-    @Override
-    public void onDroneServiceInterrupted(String errorMsg) {
-
-    }
-
-    private void takeOff() {
-        DroneStateApi.setVehicleMode(drone, VehicleMode.COPTER_GUIDED);
-        DroneStateApi.arm(drone, true);
-        takeoffWhenArmed = true;
-    }
-
-    @Override
-    public void onMessageReceived(final String message) {
-        runOnUiThread(new Runnable() {
-
-            @Override
-            public void run() {
-                alertUser(message);
-                takeOff();
-
+        @Override
+        public CharSequence getPageTitle(int position) {
+            switch (position) {
+                case 0:
+                    return "Overview";
+                case 1:
+                    return "Server";
+                case 2:
+                    return "Drone";
             }
-        });
+            return null;
+        }
     }
 }
