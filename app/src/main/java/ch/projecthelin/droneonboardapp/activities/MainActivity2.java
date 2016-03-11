@@ -132,7 +132,6 @@ public class MainActivity2 extends AppCompatActivity implements DroneListener, T
         TextView gpsValueTextView = (TextView) findViewById(R.id.gpsValueTextView);
 
         gpsValueTextView.setText(droneGps.getFixStatus());
-
     }
 
     @Override

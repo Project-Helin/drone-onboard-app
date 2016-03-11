@@ -11,18 +11,22 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import ch.projecthelin.droneonboardapp.R;
 import ch.projecthelin.droneonboardapp.fragments.OverviewFragment;
 import ch.projecthelin.droneonboardapp.fragments.PlaceholderFragment;
+import ch.projecthelin.droneonboardapp.services.DroneConnectionService;
 
 public class MainActivity extends AppCompatActivity {
 
     private SectionsPagerAdapter mSectionsPagerAdapter;
 
     private ViewPager mViewPager;
+
+    private DroneConnectionService droneConnectionService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +46,13 @@ public class MainActivity extends AppCompatActivity {
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
 
+        droneConnectionService = DroneConnectionService.getInstance(this.getApplicationContext());
+
+
+    }
+
+    public void onBtnClick(View view){
+        droneConnectionService.connect();
     }
 
     @Override
