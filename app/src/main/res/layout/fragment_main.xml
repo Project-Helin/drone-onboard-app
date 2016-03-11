@@ -63,24 +63,13 @@
         android:layout_alignParentEnd="true"
         android:background="@color/red" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Mission"
-        android:id="@+id/mission_title"
-        android:layout_below="@+id/server_connection_state"
-        android:layout_alignParentStart="true"
-        android:layout_marginTop="35dp" />
-
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Accept new Mission"
+        android:text="Jump To Mission Screen"
         android:id="@+id/button"
-        android:layout_below="@+id/mission_title"
-        android:layout_alignParentStart="true"
         android:layout_alignParentBottom="true"
-        android:layout_alignEnd="@+id/server_connection_state" />
+        android:layout_alignParentStart="true"
+        android:onClick="goToMissionScreen"/>
 
 </RelativeLayout>

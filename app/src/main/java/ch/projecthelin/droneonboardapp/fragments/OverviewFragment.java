@@ -1,11 +1,14 @@
 package ch.projecthelin.droneonboardapp.fragments;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import ch.projecthelin.droneonboardapp.R;
+import ch.projecthelin.droneonboardapp.activities.MainActivity;
+import ch.projecthelin.droneonboardapp.activities.MissionActivity;
 
 
 public class OverviewFragment extends Fragment {
@@ -43,6 +46,12 @@ public class OverviewFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_main, container, false);
         return view;
+    }
+
+    public void goToMissionScreen(View view) {
+        Intent intent = new Intent(this.getActivity(), MissionActivity.class);
+        startActivity(intent);
+
     }
 
 }
