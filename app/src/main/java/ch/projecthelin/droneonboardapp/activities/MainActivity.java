@@ -1,5 +1,6 @@
 package ch.projecthelin.droneonboardapp.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -48,6 +49,12 @@ public class MainActivity extends AppCompatActivity {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
+    }
+
+    public void goToMissionScreen(View view) {
+        Intent intent = new Intent(this, MissionActivity.class);
+        startActivity(intent);
+
     }
 
     @Override

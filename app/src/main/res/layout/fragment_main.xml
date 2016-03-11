@@ -69,7 +69,8 @@
         android:text="Jump To Mission Screen"
         android:id="@+id/button"
         android:layout_alignParentBottom="true"
-        android:layout_alignParentStart="true"
-        android:onClick="goToMissionScreen"/>
+        android:layout_alignParentStart="false"
+        android:onClick="goToMissionScreen"
+        android:layout_marginBottom="50dp" />
 
 </RelativeLayout>

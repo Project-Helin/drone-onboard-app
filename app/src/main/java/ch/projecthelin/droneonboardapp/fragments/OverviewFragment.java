@@ -48,10 +48,4 @@ public class OverviewFragment extends Fragment {
         return view;
     }
 
-    public void goToMissionScreen(View view) {
-        Intent intent = new Intent(this.getActivity(), MissionActivity.class);
-        startActivity(intent);
-
-    }
-
 }
