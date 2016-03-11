@@ -14,7 +14,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import ch.projecthelin.droneonboardapp.R;
-import ch.projecthelin.droneonboardapp.fragments.MainFragment;
+import ch.projecthelin.droneonboardapp.fragments.OverviewFragment;
 import ch.projecthelin.droneonboardapp.fragments.PlaceholderFragment;
 
 public class MainActivity extends AppCompatActivity {
@@ -52,7 +52,6 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -85,7 +84,7 @@ public class MainActivity extends AppCompatActivity {
         public Fragment getItem(int position) {
             switch (position) {
                 case 0: {
-                    return new MainFragment();
+                    return new OverviewFragment();
                 }
                 default: {
                     return PlaceholderFragment.newInstance(position + 1);

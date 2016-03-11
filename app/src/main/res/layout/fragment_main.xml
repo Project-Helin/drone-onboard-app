@@ -9,9 +9,78 @@
     tools:context="ch.projecthelin.droneonboardapp.activities.MainActivity$PlaceholderFragment">
 
     <TextView
-        android:id="@+id/section_label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Hello, Its me"/>
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Drone"
+        android:id="@+id/droneTitle"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Connection"
+        android:id="@+id/ConnectionState"
+        android:layout_below="@+id/droneTitle"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="20dp"
+        android:layout_alignParentEnd="true"
+        android:background="@color/red" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="GPS"
+        android:id="@+id/gps_state"
+        android:layout_below="@+id/ConnectionState"
+        android:layout_alignParentStart="true"
+        android:background="@color/red"
+        android:layout_marginTop="20dp"
+        android:layout_alignParentEnd="true"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Server"
+        android:id="@+id/server_title"
+        android:layout_below="@+id/gps_state"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="35dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Connection"
+        android:id="@+id/server_connection_state"
+        android:layout_below="@+id/server_title"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="20dp"
+        android:layout_alignParentEnd="true"
+        android:background="@color/red" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Mission"
+        android:id="@+id/mission_title"
+        android:layout_below="@+id/server_connection_state"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="35dp" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Accept new Mission"
+        android:id="@+id/button"
+        android:layout_below="@+id/mission_title"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentBottom="true"
+        android:layout_alignEnd="@+id/server_connection_state" />
 
 </RelativeLayout>
