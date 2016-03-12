@@ -15,7 +15,12 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
+
 import ch.projecthelin.droneonboardapp.R;
+import ch.projecthelin.droneonboardapp.fragments.DroneFragment;
 import ch.projecthelin.droneonboardapp.fragments.OverviewFragment;
 import ch.projecthelin.droneonboardapp.fragments.PlaceholderFragment;
 import ch.projecthelin.droneonboardapp.services.DroneConnectionService;
@@ -47,6 +52,8 @@ public class MainActivity extends AppCompatActivity {
         tabLayout.setupWithViewPager(mViewPager);
 
         droneConnectionService = DroneConnectionService.getInstance(this.getApplicationContext());
+
+
 
 
     }
@@ -94,6 +101,9 @@ public class MainActivity extends AppCompatActivity {
             switch (position) {
                 case 0: {
                     return new OverviewFragment();
+                }
+                case 2: {
+                    return new DroneFragment();
                 }
                 default: {
                     return PlaceholderFragment.newInstance(position + 1);
