@@ -3,7 +3,6 @@ package ch.projecthelin.droneonboardapp.fragments;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,13 +16,14 @@ import com.o3dr.services.android.lib.drone.connection.ConnectionParameter;
 import com.o3dr.services.android.lib.drone.connection.ConnectionType;
 
 import ch.projecthelin.droneonboardapp.R;
+import ch.projecthelin.droneonboardapp.dto.dronestate.AltitudeState;
 import ch.projecthelin.droneonboardapp.dto.dronestate.BatteryState;
 import ch.projecthelin.droneonboardapp.dto.dronestate.ConnectionState;
 import ch.projecthelin.droneonboardapp.dto.dronestate.DroneState;
 import ch.projecthelin.droneonboardapp.dto.dronestate.GPSState;
+import ch.projecthelin.droneonboardapp.dto.dronestate.SpeedState;
 import ch.projecthelin.droneonboardapp.services.DroneConnectionListener;
 import ch.projecthelin.droneonboardapp.services.DroneConnectionService;
-import ch.projecthelin.droneonboardapp.dto.dronestate.DroneState2;
 
 public class DroneFragment extends Fragment implements DroneConnectionListener {
     // TODO: Rename parameter arguments, choose names that match
@@ -51,6 +51,9 @@ public class DroneFragment extends Fragment implements DroneConnectionListener {
     private TextView txtGps;
     private TextView txtPosition;
     private TextView txtBattery;
+    private TextView txtAltitude;
+    private TextView txtSpeed;
+
 
     private Button btnConnect;
     private DroneState droneState;
@@ -145,6 +148,8 @@ public class DroneFragment extends Fragment implements DroneConnectionListener {
         txtGps = (TextView) view.findViewById(R.id.txtGPS);
         txtPosition = (TextView) view.findViewById(R.id.txtPosition);
         txtBattery = (TextView) view.findViewById(R.id.txtBattery);
+        txtAltitude = (TextView) view.findViewById(R.id.txtAltitude);
+        txtSpeed = (TextView) view.findViewById(R.id.txtSpeed);
 
         btnConnect = (Button) view.findViewById(R.id.btnConnectToDrone);
         btnConnect.setOnClickListener(new View.OnClickListener() {
@@ -194,6 +199,17 @@ public class DroneFragment extends Fragment implements DroneConnectionListener {
                 btnConnect.setText("Connect");
                 btnConnect.setEnabled(true);
             }
+
+        }
+        if(state instanceof AltitudeState){
+            AltitudeState altitudeState = (AltitudeState) state;
+            txtAltitude.setText((int) altitudeState.getAltitude() + " / " + (int) altitudeState.getTargetAltitude());
+
+        }
+        if(state instanceof SpeedState){
+            SpeedState speedState = (SpeedState) state;
+            txtSpeed.setText("Ground: " + (int) (speedState.getGroundSpeed()) + "m/s Vertical: " + (int) (speedState.getVerticalSpeed()) + "m/s");
+
 
         }
         if(state instanceof BatteryState){

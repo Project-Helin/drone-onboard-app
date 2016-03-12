@@ -117,7 +117,7 @@
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:text=""
-                android:id="@+id/textView7"
+                android:id="@+id/txtSpeed"
                 android:layout_column="1" />
         </TableRow>
 
@@ -132,7 +132,7 @@
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:text="Altitude:"
-                android:id="@+id/lblAlt"
+                android:id="@+id/lblAltitude"
                 android:layout_column="0"
                 android:layout_marginRight="10dp" />
 
@@ -141,7 +141,7 @@
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:text=""
-                android:id="@+id/textView5"
+                android:id="@+id/txtAltitude"
                 android:layout_column="1" />
         </TableRow>
 

@@ -3,6 +3,7 @@ package ch.projecthelin.droneonboardapp.services;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Parcelable;
 import android.util.Log;
 
 import com.o3dr.android.client.ControlTower;
@@ -17,12 +18,15 @@ import com.o3dr.services.android.lib.drone.connection.ConnectionType;
 import com.o3dr.services.android.lib.drone.property.Altitude;
 import com.o3dr.services.android.lib.drone.property.Battery;
 import com.o3dr.services.android.lib.drone.property.Gps;
+import com.o3dr.services.android.lib.drone.property.Speed;
+import com.o3dr.services.android.lib.drone.property.Type;
 
+import ch.projecthelin.droneonboardapp.dto.dronestate.AltitudeState;
 import ch.projecthelin.droneonboardapp.dto.dronestate.BatteryState;
 import ch.projecthelin.droneonboardapp.dto.dronestate.ConnectionState;
 import ch.projecthelin.droneonboardapp.dto.dronestate.DroneState;
-import ch.projecthelin.droneonboardapp.dto.dronestate.DroneState2;
 import ch.projecthelin.droneonboardapp.dto.dronestate.GPSState;
+import ch.projecthelin.droneonboardapp.dto.dronestate.SpeedState;
 
 public class DroneConnectionService implements DroneListener, TowerListener, DroneConnectionListener{
 
@@ -44,10 +48,11 @@ public class DroneConnectionService implements DroneListener, TowerListener, Dro
     private DroneConnectionService(Context applicationContext){
         controlTower = new ControlTower(applicationContext);
         drone = new Drone(applicationContext);
+
+        controlTower.connect(this);
     }
 
     public void connect(){
-        controlTower.connect(this);
 
         Bundle extraParams = new Bundle();
         extraParams.putString(ConnectionType.EXTRA_TCP_SERVER_IP, TCP_SERVER_IP);
@@ -59,7 +64,6 @@ public class DroneConnectionService implements DroneListener, TowerListener, Dro
 
     public void disconnect(){
         drone.disconnect();
-        controlTower.disconnect();
     }
 
     public static DroneConnectionService getInstance(Context applicationContext) {
@@ -111,14 +115,24 @@ public class DroneConnectionService implements DroneListener, TowerListener, Dro
 
             case AttributeEvent.STATE_VEHICLE_MODE:
                 Log.d(getClass().getCanonicalName(), "STATE_VEHICLE_MODE");
+
+
                 break;
 
             case AttributeEvent.TYPE_UPDATED:
                 Log.d(getClass().getCanonicalName(), "TYPE_UPDATED");
+
+                Type type = drone.getAttribute(AttributeType.TYPE);
+                type.getFirmware().getLabel();
                 break;
 
             case AttributeEvent.SPEED_UPDATED:
                 Log.d(getClass().getCanonicalName(), "SPEED_UPDATED");
+
+                Speed speed = drone.getAttribute(AttributeType.SPEED);
+                SpeedState speedState = new SpeedState(speed.getVerticalSpeed(), speed.getAirSpeed(), speed.getGroundSpeed());
+                connectionListener.onConnectionStateChange(speedState);
+
                 break;
 
             case AttributeEvent.HOME_UPDATED:
@@ -128,8 +142,10 @@ public class DroneConnectionService implements DroneListener, TowerListener, Dro
             case AttributeEvent.ALTITUDE_UPDATED:
                 Log.d(getClass().getCanonicalName(), "ALTITUDE_UPDATED");
                 Altitude altitude = drone.getAttribute(AttributeType.ALTITUDE);
-                altitude.getAltitude();
-                altitude.getAltitude();
+
+                AltitudeState altitudeState = new AltitudeState(altitude.getAltitude(), altitude.getTargetAltitude());
+                connectionListener.onConnectionStateChange(altitudeState);
+                break;
 
             case AttributeEvent.BATTERY_UPDATED:
                 Log.d(getClass().getCanonicalName(), "BATTERY_UPDATED");
@@ -156,7 +172,6 @@ public class DroneConnectionService implements DroneListener, TowerListener, Dro
 
             default:
                 break;
-
         }
     }
 

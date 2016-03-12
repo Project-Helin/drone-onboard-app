@@ -20,7 +20,6 @@ import ch.projecthelin.droneonboardapp.fragments.OverviewFragment;
 import ch.projecthelin.droneonboardapp.fragments.PlaceholderFragment;
 import ch.projecthelin.droneonboardapp.services.DroneConnectionListener;
 import ch.projecthelin.droneonboardapp.services.DroneConnectionService;
-import ch.projecthelin.droneonboardapp.dto.dronestate.DroneState2;
 
 public class MainActivity extends AppCompatActivity implements DroneConnectionListener{
 
