@@ -4,16 +4,18 @@ public class GPSState {
 
     private String fixType;
     private int sattelitesCount;
-    private String latLong;
+    private double posLat;
+    private double posLon;
 
     public GPSState(){
         //default constructor
     }
 
-    public GPSState(String fixType, int sattelitesCount, String latLong){
+    public GPSState(String fixType, int sattelitesCount, double posLat, double posLon){
         this.fixType = fixType;
         this.sattelitesCount = sattelitesCount;
-        this.latLong = latLong;
+        this.posLat = posLat;
+        this.posLon = posLon;
     }
 
     public String getFixType() {
@@ -25,7 +27,7 @@ public class GPSState {
     }
 
     public String getLatLong() {
-        return latLong;
+        return posLat + " " + posLon;
     }
 
     public void setFixType(String fixType) {
@@ -36,16 +38,13 @@ public class GPSState {
         this.sattelitesCount = sattelitesCount;
     }
 
-    public void setLatLong(String latLong) {
-        this.latLong = latLong;
-    }
-
     @Override
     public String toString() {
         return "GPSState{" +
                 "fixType='" + fixType + '\'' +
                 ", sattelitesCount=" + sattelitesCount +
-                ", latLong='" + latLong + '\'' +
+                ", posLat=" + posLat +
+                ", posLon=" + posLon +
                 '}';
     }
 }

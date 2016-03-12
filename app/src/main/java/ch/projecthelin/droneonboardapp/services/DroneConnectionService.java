@@ -16,6 +16,7 @@ import com.o3dr.services.android.lib.drone.attribute.AttributeType;
 import com.o3dr.services.android.lib.drone.connection.ConnectionParameter;
 import com.o3dr.services.android.lib.drone.connection.ConnectionResult;
 import com.o3dr.services.android.lib.drone.connection.ConnectionType;
+import com.o3dr.services.android.lib.drone.property.Battery;
 import com.o3dr.services.android.lib.drone.property.Gps;
 import com.o3dr.services.android.lib.drone.property.Type;
 
@@ -111,6 +112,16 @@ public class DroneConnectionService implements DroneListener, TowerListener, Dro
                 break;
 
             case AttributeEvent.BATTERY_UPDATED:
+                Log.d(getClass().getCanonicalName(), "BATTERY_UPDATED");
+
+                Battery droneBattery = drone.getAttribute(AttributeType.BATTERY);
+                BatteryState batteryState = new BatteryState(droneBattery.getBatteryVoltage(),
+                        droneBattery.getBatteryCurrent(),
+                        droneBattery.getBatteryDischarge(),
+                        droneBattery.getBatteryRemain());
+                droneState.setBatteryState(batteryState);
+
+                connectionListener.onConnectionStateChange(droneState);
                 break;
 
             case AttributeEvent.GPS_FIX:
@@ -118,8 +129,8 @@ public class DroneConnectionService implements DroneListener, TowerListener, Dro
 
                 Gps droneGPS = drone.getAttribute(AttributeType.GPS);
                 GPSState gpsState = new GPSState(droneGPS.getFixStatus(),
-                        droneGPS.getSatellitesCount(),droneGPS.getPosition() + "");
-
+                        droneGPS.getSatellitesCount(),droneGPS.getPosition().getLatitude(),
+                        droneGPS.getPosition().getLongitude());
                 droneState.setGPSState(gpsState);
 
                 connectionListener.onConnectionStateChange(droneState);

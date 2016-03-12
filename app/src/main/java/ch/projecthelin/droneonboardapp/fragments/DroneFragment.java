@@ -48,6 +48,7 @@ public class DroneFragment extends Fragment implements View.OnClickListener, Dro
     private TextView lblSetting;
     private TextView txtGps;
     private TextView txtPosition;
+    private TextView txtBattery;
 
     private Button b;
 
@@ -140,6 +141,7 @@ public class DroneFragment extends Fragment implements View.OnClickListener, Dro
 
         txtGps = (TextView) view.findViewById(R.id.txtGPS);
         txtPosition = (TextView) view.findViewById(R.id.txtPosition);
+        txtBattery = (TextView) view.findViewById(R.id.txtBattery);
 
         b = (Button) view.findViewById(R.id.btnConnectToDrone);
         b.setOnClickListener(this);
@@ -181,6 +183,10 @@ public class DroneFragment extends Fragment implements View.OnClickListener, Dro
             txtGps.setText(state.getGPSState().getFixType() + " - Sattelites: "
                     + state.getGPSState().getSattelitesCount());
             txtPosition.setText(state.getGPSState().getLatLong());
+        }
+
+        if(state.getBatteryState() != null){
+            txtBattery.setText(state.getBatteryState().getRemain() + "% - " + state.getBatteryState().getVoltage() + "V, " + state.getBatteryState().getCurrent() + "A");
         }
     }
 }
