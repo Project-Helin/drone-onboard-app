@@ -58,9 +58,9 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void onBtnClick(View view){
-        droneConnectionService.connect();
-    }
+    //public void onBtnClick(View view){
+      //  droneConnectionService.connect();
+    //}
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

@@ -4,13 +4,16 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
+import android.widget.TextView;
 
 import com.o3dr.services.android.lib.drone.connection.ConnectionParameter;
 import com.o3dr.services.android.lib.drone.connection.ConnectionType;
@@ -18,7 +21,7 @@ import com.o3dr.services.android.lib.drone.connection.ConnectionType;
 import ch.projecthelin.droneonboardapp.R;
 import ch.projecthelin.droneonboardapp.services.DroneConnectionService;
 
-public class DroneFragment extends Fragment {
+public class DroneFragment extends Fragment implements View.OnClickListener {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -38,6 +41,10 @@ public class DroneFragment extends Fragment {
     private DroneConnectionService droneConnectionService;
 
     private ConnectionParameter connectionParams;
+
+    private TextView txtSetting;
+    private TextView lblSetting;
+    private Button b;
 
     public DroneFragment() {
         // Required empty public constructor
@@ -93,9 +100,9 @@ public class DroneFragment extends Fragment {
             }
         });
     }
-    public void btnConnect(View view){
-        droneConnectionService.connect();
-    }
+    //public void btnConnect(View view){
+    //    droneConnectionService.connect();
+    //}
 
     public void onConnectionSelected(View view) {
         int connectionType = (int) this.connectionSelector.getSelectedItemPosition();
@@ -103,11 +110,15 @@ public class DroneFragment extends Fragment {
         Bundle extraParams = new Bundle();
 
         if (connectionType == ConnectionType.TYPE_USB) {
+            lblSetting.setText("Baud:");
+            txtSetting.setText("1234");
             extraParams.putInt(ConnectionType.EXTRA_USB_BAUD_RATE, BAUD_RATE_FOR_USB);
         } else if (connectionType == ConnectionType.TYPE_TCP) {
+            lblSetting.setText("IP address:");
+            txtSetting.setText("192.168.1.1:5555");
             extraParams.putString(ConnectionType.EXTRA_TCP_SERVER_IP, TCP_SERVER_IP);
             extraParams.putInt(ConnectionType.EXTRA_TCP_SERVER_PORT, TCP_SERVER_PORT);
-        }
+        } else if (connectionType == ConnectionType.TYPE_UDP)
 
         connectionParams = new ConnectionParameter(connectionType, extraParams, null);
     }
@@ -118,13 +129,16 @@ public class DroneFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_drone, container, false);
 
+        lblSetting = (TextView) view.findViewById(R.id.lblSetting);
+        txtSetting = (TextView) view.findViewById(R.id.txtSetting);
+
+        b = (Button) view.findViewById(R.id.btnConnectToDrone);
+        b.setOnClickListener(this);
+
         connectionSelector = (Spinner) view.findViewById(R.id.spnConnectionMode);
         setupConnectionModeSpinner(connectionSelector);
 
         return view;
-    }
-
-    public void onButtonPressed(Uri uri) {
     }
 
     @Override
@@ -137,4 +151,12 @@ public class DroneFragment extends Fragment {
         super.onDetach();
     }
 
+    @Override
+    public void onClick(View v) {
+        switch(v.getId()){
+            case R.id.btnConnectToDrone:
+                droneConnectionService.connect();
+        }
+
+    }
 }
