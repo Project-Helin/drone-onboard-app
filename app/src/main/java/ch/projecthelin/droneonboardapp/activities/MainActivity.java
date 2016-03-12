@@ -23,9 +23,11 @@ import ch.projecthelin.droneonboardapp.R;
 import ch.projecthelin.droneonboardapp.fragments.DroneFragment;
 import ch.projecthelin.droneonboardapp.fragments.OverviewFragment;
 import ch.projecthelin.droneonboardapp.fragments.PlaceholderFragment;
+import ch.projecthelin.droneonboardapp.services.DroneConnectionListener;
 import ch.projecthelin.droneonboardapp.services.DroneConnectionService;
+import ch.projecthelin.droneonboardapp.services.DroneState;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements DroneConnectionListener{
 
     private SectionsPagerAdapter mSectionsPagerAdapter;
 
@@ -53,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
 
         droneConnectionService = DroneConnectionService.getInstance(this.getApplicationContext());
 
-        droneConnectionService.addConnectionListener(this);
+//        droneConnectionService.addConnectionListener(this);
 
 
     }
@@ -88,6 +90,11 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onConnectionStateChange(DroneState state) {
+
     }
 
     public class SectionsPagerAdapter extends FragmentPagerAdapter {

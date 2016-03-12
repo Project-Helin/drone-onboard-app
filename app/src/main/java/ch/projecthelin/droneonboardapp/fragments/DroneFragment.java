@@ -19,9 +19,11 @@ import com.o3dr.services.android.lib.drone.connection.ConnectionParameter;
 import com.o3dr.services.android.lib.drone.connection.ConnectionType;
 
 import ch.projecthelin.droneonboardapp.R;
+import ch.projecthelin.droneonboardapp.services.DroneConnectionListener;
 import ch.projecthelin.droneonboardapp.services.DroneConnectionService;
+import ch.projecthelin.droneonboardapp.services.DroneState;
 
-public class DroneFragment extends Fragment implements View.OnClickListener {
+public class DroneFragment extends Fragment implements View.OnClickListener, DroneConnectionListener {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -44,11 +46,15 @@ public class DroneFragment extends Fragment implements View.OnClickListener {
 
     private TextView txtSetting;
     private TextView lblSetting;
+    private TextView txtGps;
+    private TextView txtPosition;
+
     private Button b;
 
     public DroneFragment() {
         // Required empty public constructor
         droneConnectionService = DroneConnectionService.getInstance(this.getContext());
+        droneConnectionService.addConnectionListener(this);
 
 
     }
@@ -132,6 +138,9 @@ public class DroneFragment extends Fragment implements View.OnClickListener {
         lblSetting = (TextView) view.findViewById(R.id.lblSetting);
         txtSetting = (TextView) view.findViewById(R.id.txtSetting);
 
+        txtGps = (TextView) view.findViewById(R.id.txtGPS);
+        txtPosition = (TextView) view.findViewById(R.id.txtPosition);
+
         b = (Button) view.findViewById(R.id.btnConnectToDrone);
         b.setOnClickListener(this);
 
@@ -160,4 +169,18 @@ public class DroneFragment extends Fragment implements View.OnClickListener {
 
     }
 
+    @Override
+    public void onConnectionStateChange(DroneState state) {
+        Log.d("DroneFragment", state.toString());
+        if(state.getIsConnected() == true){
+            b.setText("disconnect");
+        } if(state.getIsConnected() == false){
+            b.setText("Connect");
+        }
+        if(state.getGPSState() != null){
+            txtGps.setText(state.getGPSState().getFixType() + " - Sattelites: "
+                    + state.getGPSState().getSattelitesCount());
+            txtPosition.setText(state.getGPSState().getLatLong());
+        }
+    }
 }

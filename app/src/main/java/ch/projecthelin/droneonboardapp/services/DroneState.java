@@ -2,14 +2,39 @@ package ch.projecthelin.droneonboardapp.services;
 
 public class DroneState {
 
-    private String test;
+    private boolean isConnected;
 
+    private GPSState gpsState;
 
-    public DroneState(String test) {
-        this.test = test;
+    public void setGPSState(GPSState gpsState){
+        this.gpsState = gpsState;
     }
 
-    public String getTest(){
-        return test;
+    public GPSState getGPSState(){
+        return this.gpsState;
+    }
+
+    private String gpsStatus;
+
+    public DroneState(){
+
+    }
+
+    public void setIsConnected(boolean isConnected){
+        this.isConnected = isConnected;
+    }
+
+    public boolean getIsConnected(){
+        return isConnected;
+    }
+
+    @Override
+    public String toString() {
+        return "DroneState{" +
+                "isConnected=" + isConnected +
+                ", gpsState=" + gpsState +
+                ", gpsStatus='" + gpsStatus + '\'' +
+                '}';
     }
 }
+

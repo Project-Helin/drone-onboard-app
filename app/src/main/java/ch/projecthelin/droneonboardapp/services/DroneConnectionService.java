@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
+import android.widget.TextView;
 
 import com.o3dr.android.client.ControlTower;
 import com.o3dr.android.client.Drone;
@@ -15,9 +16,12 @@ import com.o3dr.services.android.lib.drone.attribute.AttributeType;
 import com.o3dr.services.android.lib.drone.connection.ConnectionParameter;
 import com.o3dr.services.android.lib.drone.connection.ConnectionResult;
 import com.o3dr.services.android.lib.drone.connection.ConnectionType;
+import com.o3dr.services.android.lib.drone.property.Gps;
 import com.o3dr.services.android.lib.drone.property.Type;
 
 import java.util.ResourceBundle;
+
+import ch.projecthelin.droneonboardapp.R;
 
 public class DroneConnectionService implements DroneListener, TowerListener, DroneConnectionListener{
 
@@ -76,17 +80,18 @@ public class DroneConnectionService implements DroneListener, TowerListener, Dro
 
     @Override
     public void onDroneEvent(String event, Bundle extras) {
+        DroneState droneState = new DroneState();
         switch (event) {
             case AttributeEvent.STATE_CONNECTED:
-                // null check
-           //     connectionListener.onConnectionStateChange(new DroneState("test"));
-                Log.d(this.getClass().getName(), "STATE_CONNECTED");
-//                drone.getAttribute("MODE");
+                Log.d(getClass().getCanonicalName(), "STATE_CONNECTED");
+                droneState.setIsConnected(true);
+                connectionListener.onConnectionStateChange(droneState);
                 break;
-
             case AttributeEvent.STATE_DISCONNECTED:
+                Log.d(getClass().getCanonicalName(), "STATE_DISCONNECTED");
+                droneState.setIsConnected(false);
+                connectionListener.onConnectionStateChange(droneState);
                 break;
-
             case AttributeEvent.STATE_UPDATED:
                 break;
 
@@ -105,14 +110,25 @@ public class DroneConnectionService implements DroneListener, TowerListener, Dro
             case AttributeEvent.HOME_UPDATED:
                 break;
 
-            case AttributeEvent.GPS_FIX:
+            case AttributeEvent.BATTERY_UPDATED:
+                break;
 
+            case AttributeEvent.GPS_FIX:
+                Log.d(getClass().getCanonicalName(), "GPS_FIX");
+
+                Gps droneGPS = drone.getAttribute(AttributeType.GPS);
+                GPSState gpsState = new GPSState(droneGPS.getFixStatus(),
+                        droneGPS.getSatellitesCount(),droneGPS.getPosition() + "");
+
+                droneState.setGPSState(gpsState);
+
+                connectionListener.onConnectionStateChange(droneState);
                 break;
 
             default:
                 break;
-        }
 
+        }
     }
 
     @Override
