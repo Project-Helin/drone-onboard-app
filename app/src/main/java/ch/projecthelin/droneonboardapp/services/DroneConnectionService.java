@@ -4,11 +4,9 @@ import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
-import android.widget.TextView;
 
 import com.o3dr.android.client.ControlTower;
 import com.o3dr.android.client.Drone;
-import com.o3dr.android.client.apis.drone.GuidedApi;
 import com.o3dr.android.client.interfaces.DroneListener;
 import com.o3dr.android.client.interfaces.TowerListener;
 import com.o3dr.services.android.lib.drone.attribute.AttributeEvent;
@@ -16,13 +14,15 @@ import com.o3dr.services.android.lib.drone.attribute.AttributeType;
 import com.o3dr.services.android.lib.drone.connection.ConnectionParameter;
 import com.o3dr.services.android.lib.drone.connection.ConnectionResult;
 import com.o3dr.services.android.lib.drone.connection.ConnectionType;
+import com.o3dr.services.android.lib.drone.property.Altitude;
 import com.o3dr.services.android.lib.drone.property.Battery;
 import com.o3dr.services.android.lib.drone.property.Gps;
-import com.o3dr.services.android.lib.drone.property.Type;
 
-import java.util.ResourceBundle;
-
-import ch.projecthelin.droneonboardapp.R;
+import ch.projecthelin.droneonboardapp.dto.dronestate.BatteryState;
+import ch.projecthelin.droneonboardapp.dto.dronestate.ConnectionState;
+import ch.projecthelin.droneonboardapp.dto.dronestate.DroneState;
+import ch.projecthelin.droneonboardapp.dto.dronestate.DroneState2;
+import ch.projecthelin.droneonboardapp.dto.dronestate.GPSState;
 
 public class DroneConnectionService implements DroneListener, TowerListener, DroneConnectionListener{
 
@@ -44,18 +44,22 @@ public class DroneConnectionService implements DroneListener, TowerListener, Dro
     private DroneConnectionService(Context applicationContext){
         controlTower = new ControlTower(applicationContext);
         drone = new Drone(applicationContext);
-
-        controlTower.connect(this);
-
     }
 
     public void connect(){
+        controlTower.connect(this);
+
         Bundle extraParams = new Bundle();
         extraParams.putString(ConnectionType.EXTRA_TCP_SERVER_IP, TCP_SERVER_IP);
         extraParams.putInt(ConnectionType.EXTRA_TCP_SERVER_PORT, TCP_SERVER_PORT);
         connectionParameter = new ConnectionParameter(ConnectionType.TYPE_TCP, extraParams, null);
 
         drone.connect(connectionParameter);
+    }
+
+    public void disconnect(){
+        drone.disconnect();
+        controlTower.disconnect();
     }
 
     public static DroneConnectionService getInstance(Context applicationContext) {
@@ -79,37 +83,53 @@ public class DroneConnectionService implements DroneListener, TowerListener, Dro
 
     }
 
+   // Map<String, StateMapper> stateNameToMapper;
     @Override
     public void onDroneEvent(String event, Bundle extras) {
-        DroneState droneState = new DroneState();
+        //Log.d(getClass().getCanonicalName(), event.toString());
+     //   StateMapper mapper = stateNameToMapper.get(event);
+      //  DroneState state = mapper.getState(drone);
         switch (event) {
             case AttributeEvent.STATE_CONNECTED:
                 Log.d(getClass().getCanonicalName(), "STATE_CONNECTED");
-                droneState.setIsConnected(true);
-                connectionListener.onConnectionStateChange(droneState);
+                connectionListener.onConnectionStateChange(new ConnectionState(true));
                 break;
+
             case AttributeEvent.STATE_DISCONNECTED:
                 Log.d(getClass().getCanonicalName(), "STATE_DISCONNECTED");
-                droneState.setIsConnected(false);
-                connectionListener.onConnectionStateChange(droneState);
+                connectionListener.onConnectionStateChange(new ConnectionState(false));
                 break;
             case AttributeEvent.STATE_UPDATED:
+                Log.d(getClass().getCanonicalName(), "STATE_UPDATED");
+
                 break;
 
             case AttributeEvent.STATE_ARMING:
+                Log.d(getClass().getCanonicalName(), "STATE_ARMING");
+
                 break;
 
             case AttributeEvent.STATE_VEHICLE_MODE:
+                Log.d(getClass().getCanonicalName(), "STATE_VEHICLE_MODE");
                 break;
 
             case AttributeEvent.TYPE_UPDATED:
+                Log.d(getClass().getCanonicalName(), "TYPE_UPDATED");
                 break;
 
             case AttributeEvent.SPEED_UPDATED:
+                Log.d(getClass().getCanonicalName(), "SPEED_UPDATED");
                 break;
 
             case AttributeEvent.HOME_UPDATED:
+                Log.d(getClass().getCanonicalName(), "HOME_UPDATED");
                 break;
+
+            case AttributeEvent.ALTITUDE_UPDATED:
+                Log.d(getClass().getCanonicalName(), "ALTITUDE_UPDATED");
+                Altitude altitude = drone.getAttribute(AttributeType.ALTITUDE);
+                altitude.getAltitude();
+                altitude.getAltitude();
 
             case AttributeEvent.BATTERY_UPDATED:
                 Log.d(getClass().getCanonicalName(), "BATTERY_UPDATED");
@@ -119,9 +139,8 @@ public class DroneConnectionService implements DroneListener, TowerListener, Dro
                         droneBattery.getBatteryCurrent(),
                         droneBattery.getBatteryDischarge(),
                         droneBattery.getBatteryRemain());
-                droneState.setBatteryState(batteryState);
 
-                connectionListener.onConnectionStateChange(droneState);
+                connectionListener.onConnectionStateChange(batteryState);
                 break;
 
             case AttributeEvent.GPS_FIX:
@@ -131,9 +150,8 @@ public class DroneConnectionService implements DroneListener, TowerListener, Dro
                 GPSState gpsState = new GPSState(droneGPS.getFixStatus(),
                         droneGPS.getSatellitesCount(),droneGPS.getPosition().getLatitude(),
                         droneGPS.getPosition().getLongitude());
-                droneState.setGPSState(gpsState);
 
-                connectionListener.onConnectionStateChange(droneState);
+                connectionListener.onConnectionStateChange(gpsState);
                 break;
 
             default:

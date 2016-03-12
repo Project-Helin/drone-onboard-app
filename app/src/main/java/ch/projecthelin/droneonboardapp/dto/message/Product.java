@@ -1,4 +1,4 @@
-package ch.projecthelin.droneonboardapp.dto;
+package ch.projecthelin.droneonboardapp.dto.message;
 
 public class Product {
     private String name;

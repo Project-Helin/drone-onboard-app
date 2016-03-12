@@ -1,7 +1,6 @@
 package ch.projecthelin.droneonboardapp.fragments;
 
 import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -12,18 +11,21 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
-import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 
 import com.o3dr.services.android.lib.drone.connection.ConnectionParameter;
 import com.o3dr.services.android.lib.drone.connection.ConnectionType;
 
 import ch.projecthelin.droneonboardapp.R;
+import ch.projecthelin.droneonboardapp.dto.dronestate.BatteryState;
+import ch.projecthelin.droneonboardapp.dto.dronestate.ConnectionState;
+import ch.projecthelin.droneonboardapp.dto.dronestate.DroneState;
+import ch.projecthelin.droneonboardapp.dto.dronestate.GPSState;
 import ch.projecthelin.droneonboardapp.services.DroneConnectionListener;
 import ch.projecthelin.droneonboardapp.services.DroneConnectionService;
-import ch.projecthelin.droneonboardapp.services.DroneState;
+import ch.projecthelin.droneonboardapp.dto.dronestate.DroneState2;
 
-public class DroneFragment extends Fragment implements View.OnClickListener, DroneConnectionListener {
+public class DroneFragment extends Fragment implements DroneConnectionListener {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -50,7 +52,9 @@ public class DroneFragment extends Fragment implements View.OnClickListener, Dro
     private TextView txtPosition;
     private TextView txtBattery;
 
-    private Button b;
+    private Button btnConnect;
+    private DroneState droneState;
+    private boolean isConnected = false;
 
     public DroneFragment() {
         // Required empty public constructor
@@ -138,13 +142,27 @@ public class DroneFragment extends Fragment implements View.OnClickListener, Dro
 
         lblSetting = (TextView) view.findViewById(R.id.lblSetting);
         txtSetting = (TextView) view.findViewById(R.id.txtSetting);
-
         txtGps = (TextView) view.findViewById(R.id.txtGPS);
         txtPosition = (TextView) view.findViewById(R.id.txtPosition);
         txtBattery = (TextView) view.findViewById(R.id.txtBattery);
 
-        b = (Button) view.findViewById(R.id.btnConnectToDrone);
-        b.setOnClickListener(this);
+        btnConnect = (Button) view.findViewById(R.id.btnConnectToDrone);
+        btnConnect.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                switch(v.getId()){
+                    case R.id.btnConnectToDrone:
+                        if(isConnected == false){
+                            btnConnect.setText("Connecting ...");
+                            btnConnect.setEnabled(false);
+                            droneConnectionService.connect();
+                        } else{
+                            droneConnectionService.disconnect();
+                            btnConnect.setText("Connect");
+                        }
+                }
+            }
+        });
 
         connectionSelector = (Spinner) view.findViewById(R.id.spnConnectionMode);
         setupConnectionModeSpinner(connectionSelector);
@@ -162,31 +180,44 @@ public class DroneFragment extends Fragment implements View.OnClickListener, Dro
         super.onDetach();
     }
 
-    @Override
-    public void onClick(View v) {
-        switch(v.getId()){
-            case R.id.btnConnectToDrone:
-                droneConnectionService.connect();
-        }
-
-    }
 
     @Override
     public void onConnectionStateChange(DroneState state) {
-        Log.d("DroneFragment", state.toString());
+        this.droneState = state;
+        if(state instanceof ConnectionState){
+            ConnectionState connectionState = (ConnectionState) state;
+            this.isConnected = connectionState.isConnected();
+            if(this.isConnected == true){
+                btnConnect.setText("Disconnect");
+                btnConnect.setEnabled(true);
+            } if(this.isConnected == false) {
+                btnConnect.setText("Connect");
+                btnConnect.setEnabled(true);
+            }
+
+        }
+        if(state instanceof BatteryState){
+            BatteryState batteryState = (BatteryState) state;
+            txtBattery.setText(batteryState.getRemain() + "% - " + batteryState.getVoltage() + "V, " + batteryState.getCurrent() + "A");
+
+        }
+        if(state instanceof GPSState){
+            GPSState gpsState =  (GPSState) state;
+            txtGps.setText(gpsState.getFixType() + " - Sattelites: "
+                    + gpsState.getSattelitesCount());
+            txtPosition.setText(gpsState.getLatLong());
+        }
+    }/*        Log.d("DroneFragment", state.toString());
         if(state.getIsConnected() == true){
             b.setText("disconnect");
         } if(state.getIsConnected() == false){
             b.setText("Connect");
         }
         if(state.getGPSState() != null){
-            txtGps.setText(state.getGPSState().getFixType() + " - Sattelites: "
-                    + state.getGPSState().getSattelitesCount());
-            txtPosition.setText(state.getGPSState().getLatLong());
+
         }
 
         if(state.getBatteryState() != null){
-            txtBattery.setText(state.getBatteryState().getRemain() + "% - " + state.getBatteryState().getVoltage() + "V, " + state.getBatteryState().getCurrent() + "A");
         }
-    }
+    }*/
 }

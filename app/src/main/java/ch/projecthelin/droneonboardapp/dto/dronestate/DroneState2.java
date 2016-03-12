@@ -1,13 +1,13 @@
-package ch.projecthelin.droneonboardapp.services;
+package ch.projecthelin.droneonboardapp.dto.dronestate;
 
-public class DroneState {
+public class DroneState2 {
 
     private boolean isConnected;
 
     private BatteryState batteryState;
     private GPSState gpsState;
 
-    public DroneState(){
+    public DroneState2(){
 
     }
 
@@ -41,5 +41,6 @@ public class DroneState {
                 ", gpsState=" + gpsState +
                 '}';
     }
+
 }
 

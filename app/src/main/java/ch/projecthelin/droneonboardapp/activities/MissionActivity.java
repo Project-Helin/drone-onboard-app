@@ -10,9 +10,9 @@ import android.widget.ListView;
 import android.widget.Toast;
 import ch.projecthelin.droneonboardapp.R;
 import ch.projecthelin.droneonboardapp.adapters.MissionProductAdapter;
-import ch.projecthelin.droneonboardapp.dto.Mission;
-import ch.projecthelin.droneonboardapp.dto.MissionProduct;
-import ch.projecthelin.droneonboardapp.dto.Product;
+import ch.projecthelin.droneonboardapp.dto.message.Mission;
+import ch.projecthelin.droneonboardapp.dto.message.MissionProduct;
+import ch.projecthelin.droneonboardapp.dto.message.Product;
 
 import java.util.ArrayList;
 

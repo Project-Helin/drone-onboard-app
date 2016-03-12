@@ -7,7 +7,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 import ch.projecthelin.droneonboardapp.R;
-import ch.projecthelin.droneonboardapp.dto.MissionProduct;
+import ch.projecthelin.droneonboardapp.dto.message.MissionProduct;
 
 import java.util.ArrayList;
 
