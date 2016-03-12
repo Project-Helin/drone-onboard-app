@@ -79,7 +79,7 @@ public class DroneConnectionService implements DroneListener, TowerListener, Dro
         switch (event) {
             case AttributeEvent.STATE_CONNECTED:
                 // null check
-//               connectionListener.onConnectionStateChange(new DroneState("test"));
+           //     connectionListener.onConnectionStateChange(new DroneState("test"));
                 Log.d(this.getClass().getName(), "STATE_CONNECTED");
 //                drone.getAttribute("MODE");
                 break;
@@ -128,7 +128,8 @@ public class DroneConnectionService implements DroneListener, TowerListener, Dro
 
     @Override
     public void onTowerDisconnected() {
-
+        this.drone.unregisterDroneListener(this);
+        this.controlTower.unregisterDrone(this.drone);
     }
 
     @Override

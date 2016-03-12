@@ -159,4 +159,5 @@ public class DroneFragment extends Fragment implements View.OnClickListener {
         }
 
     }
+
 }

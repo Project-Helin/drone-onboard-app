@@ -53,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
 
         droneConnectionService = DroneConnectionService.getInstance(this.getApplicationContext());
 
-
+        droneConnectionService.addConnectionListener(this);
 
 
     }
