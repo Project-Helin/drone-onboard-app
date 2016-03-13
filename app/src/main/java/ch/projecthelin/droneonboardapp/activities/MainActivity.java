@@ -13,8 +13,13 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import java.util.Observable;
+import java.util.Observer;
+
 import ch.projecthelin.droneonboardapp.R;
+import ch.projecthelin.droneonboardapp.dto.dronestate.BatteryState;
 import ch.projecthelin.droneonboardapp.dto.dronestate.DroneState;
+import ch.projecthelin.droneonboardapp.dto.dronestate.GPSState;
 import ch.projecthelin.droneonboardapp.fragments.DroneFragment;
 import ch.projecthelin.droneonboardapp.fragments.OverviewFragment;
 import ch.projecthelin.droneonboardapp.fragments.PlaceholderFragment;
@@ -28,6 +33,8 @@ public class MainActivity extends AppCompatActivity implements DroneConnectionLi
     private ViewPager mViewPager;
 
     private DroneConnectionService droneConnectionService;
+
+    private GPSState gpsState;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,8 +93,21 @@ public class MainActivity extends AppCompatActivity implements DroneConnectionLi
         return super.onOptionsItemSelected(item);
     }
 
+
     @Override
-    public void onConnectionStateChange(DroneState state) {
+    public void onDroneStateChange(DroneState state) {
+
+    }
+
+    @Override
+    public void onGPSStateChange(GPSState state) {
+        this.gpsState = state;
+
+
+    }
+
+    @Override
+    public void onBatteryStateChange(BatteryState state) {
 
     }
 

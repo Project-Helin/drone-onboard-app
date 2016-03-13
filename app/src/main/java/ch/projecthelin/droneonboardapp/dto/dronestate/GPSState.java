@@ -1,6 +1,6 @@
 package ch.projecthelin.droneonboardapp.dto.dronestate;
 
-public class GPSState implements DroneState {
+public class GPSState {
 
     private String fixType;
     private int sattelitesCount;
@@ -8,7 +8,10 @@ public class GPSState implements DroneState {
     private double posLon;
 
     public GPSState(){
-        //default constructor
+        this.fixType = "no Signal";
+        this.sattelitesCount = 0;
+        this.posLat = 0;
+        this.posLon = 0;
     }
 
     public GPSState(String fixType, int sattelitesCount, double posLat, double posLon){

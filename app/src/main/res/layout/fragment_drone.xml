@@ -44,6 +44,7 @@
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:text=""
                 android:id="@+id/txtPosition"
+                android:freezesText="true"
                 android:layout_column="1" />
 
         </TableRow>
@@ -69,6 +70,7 @@
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:text=""
                 android:id="@+id/txtGPS"
+                android:freezesText="true"
                 android:layout_column="1" />
 
         </TableRow>
@@ -94,6 +96,7 @@
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:text=""
                 android:id="@+id/textView6"
+                android:freezesText="true"
                 android:layout_column="1" />
         </TableRow>
 
@@ -117,6 +120,7 @@
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:text=""
+                android:freezesText="true"
                 android:id="@+id/txtSpeed"
                 android:layout_column="1" />
         </TableRow>
@@ -141,6 +145,7 @@
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:text=""
+                android:freezesText="true"
                 android:id="@+id/txtAltitude"
                 android:layout_column="1" />
         </TableRow>
@@ -166,82 +171,7 @@
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:text=""
                 android:id="@+id/txtBattery"
-                android:layout_column="1" />
-        </TableRow>
-    </TableLayout>
-
-    <TextView
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Configuration"
-        android:id="@+id/txtConfig"
-        android:layout_below="@+id/tblStatus"
-        android:layout_alignStart="@+id/txtStatus"
-        android:layout_marginTop="5dp"
-        android:layout_marginBottom="5dp" />
-
-    <TableLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/txtConfig"
-        android:layout_alignParentStart="true"
-        android:id="@+id/tblConfig">
-
-        <TableRow
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:text="Connection:"
-                android:id="@+id/textView3"
-                android:layout_column="0" />
-
-            <Spinner
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/spnConnectionMode"
-                android:layout_column="1" />
-        </TableRow>
-
-        <TableRow
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:text="Medium Text"
-                android:id="@+id/lblSetting" />
-
-            <EditText
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/txtSetting"
-                android:layout_column="1" />
-
-        </TableRow>
-
-        <TableRow
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:text="Mode:"
-                android:id="@+id/textView4"
-                android:layout_column="0" />
-
-            <Spinner
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
-                android:id="@+id/spinner2"
+                android:freezesText="true"
                 android:layout_column="1" />
         </TableRow>
     </TableLayout>
@@ -252,7 +182,7 @@
         android:text="Connect"
         android:id="@+id/btnConnectToDrone"
         android:layout_alignParentStart="true"
-        android:layout_below="@+id/tblConfig" />
+        android:layout_below="@+id/tblStatus" />
 
     <TextView
         android:layout_width="match_parent"

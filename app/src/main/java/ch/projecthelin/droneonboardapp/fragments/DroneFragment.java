@@ -18,10 +18,8 @@ import com.o3dr.services.android.lib.drone.connection.ConnectionType;
 import ch.projecthelin.droneonboardapp.R;
 import ch.projecthelin.droneonboardapp.dto.dronestate.AltitudeState;
 import ch.projecthelin.droneonboardapp.dto.dronestate.BatteryState;
-import ch.projecthelin.droneonboardapp.dto.dronestate.ConnectionState;
 import ch.projecthelin.droneonboardapp.dto.dronestate.DroneState;
 import ch.projecthelin.droneonboardapp.dto.dronestate.GPSState;
-import ch.projecthelin.droneonboardapp.dto.dronestate.SpeedState;
 import ch.projecthelin.droneonboardapp.services.DroneConnectionListener;
 import ch.projecthelin.droneonboardapp.services.DroneConnectionService;
 
@@ -143,8 +141,6 @@ public class DroneFragment extends Fragment implements DroneConnectionListener {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_drone, container, false);
 
-        lblSetting = (TextView) view.findViewById(R.id.lblSetting);
-        txtSetting = (TextView) view.findViewById(R.id.txtSetting);
         txtGps = (TextView) view.findViewById(R.id.txtGPS);
         txtPosition = (TextView) view.findViewById(R.id.txtPosition);
         txtBattery = (TextView) view.findViewById(R.id.txtBattery);
@@ -169,9 +165,6 @@ public class DroneFragment extends Fragment implements DroneConnectionListener {
             }
         });
 
-        connectionSelector = (Spinner) view.findViewById(R.id.spnConnectionMode);
-        setupConnectionModeSpinner(connectionSelector);
-
         return view;
     }
 
@@ -186,9 +179,9 @@ public class DroneFragment extends Fragment implements DroneConnectionListener {
     }
 
 
-    @Override
+  /*//  @Override
     public void onConnectionStateChange(DroneState state) {
-        this.droneState = state;
+      *//*  this.droneState = state;
         if(state instanceof ConnectionState){
             ConnectionState connectionState = (ConnectionState) state;
             this.isConnected = connectionState.isConnected();
@@ -221,9 +214,9 @@ public class DroneFragment extends Fragment implements DroneConnectionListener {
             GPSState gpsState =  (GPSState) state;
             txtGps.setText(gpsState.getFixType() + " - Sattelites: "
                     + gpsState.getSattelitesCount());
-            txtPosition.setText(gpsState.getLatLong());
+            txtPosition.setText(gpsState.getLatLong());*//*
         }
-    }/*        Log.d("DroneFragment", state.toString());
+    }*//*        Log.d("DroneFragment", state.toString());
         if(state.getIsConnected() == true){
             b.setText("disconnect");
         } if(state.getIsConnected() == false){
@@ -236,4 +229,22 @@ public class DroneFragment extends Fragment implements DroneConnectionListener {
         if(state.getBatteryState() != null){
         }
     }*/
+
+    @Override
+    public void onDroneStateChange(DroneState state) {
+
+    }
+
+    @Override
+    public void onGPSStateChange(GPSState state) {
+        txtGps.setText(state.getFixType() + " - Sattelites: "
+                + state.getSattelitesCount());
+        txtPosition.setText(state.getLatLong());
+    }
+
+    @Override
+    public void onBatteryStateChange(BatteryState state) {
+        txtBattery.setText(state.getRemain() + "% - " + state.getVoltage() + "V, " + state.getCurrent() + "A");
+
+    }
 }

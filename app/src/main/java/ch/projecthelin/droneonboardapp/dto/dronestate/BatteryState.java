@@ -1,6 +1,6 @@
 package ch.projecthelin.droneonboardapp.dto.dronestate;
 
-public class BatteryState implements DroneState{
+public class BatteryState{
 
     private double voltage;
     private double remain;
