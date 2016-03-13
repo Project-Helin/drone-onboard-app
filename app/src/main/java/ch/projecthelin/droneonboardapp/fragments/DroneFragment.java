@@ -7,17 +7,12 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.o3dr.services.android.lib.drone.connection.ConnectionParameter;
-import com.o3dr.services.android.lib.drone.connection.ConnectionType;
 
 import ch.projecthelin.droneonboardapp.R;
-import ch.projecthelin.droneonboardapp.dto.dronestate.AltitudeState;
 import ch.projecthelin.droneonboardapp.dto.dronestate.BatteryState;
 import ch.projecthelin.droneonboardapp.dto.dronestate.DroneState;
 import ch.projecthelin.droneonboardapp.dto.dronestate.GPSState;
