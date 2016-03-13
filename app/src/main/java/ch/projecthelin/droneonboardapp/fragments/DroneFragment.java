@@ -3,6 +3,7 @@ package ch.projecthelin.droneonboardapp.fragments;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -57,8 +58,6 @@ public class DroneFragment extends Fragment implements DroneConnectionListener {
         // Required empty public constructor
         droneConnectionService = DroneConnectionService.getInstance(this.getContext());
         droneConnectionService.addConnectionListener(this);
-
-
     }
 
     /**
@@ -109,13 +108,10 @@ public class DroneFragment extends Fragment implements DroneConnectionListener {
             public void onClick(View v) {
                 switch (v.getId()) {
                     case R.id.btnConnectToDrone:
-                        if (isConnected == false) {
-                            btnConnect.setText("Connecting ...");
-                            btnConnect.setEnabled(false);
-                            droneConnectionService.connect();
-                        } else {
+                        if (droneConnectionService.getDroneState().isConnected()) {
                             droneConnectionService.disconnect();
-                            btnConnect.setText("Connect");
+                        } else {
+                            droneConnectionService.connect();
                         }
                 }
             }
@@ -134,63 +130,19 @@ public class DroneFragment extends Fragment implements DroneConnectionListener {
         super.onDetach();
     }
 
-
-  /*//  @Override
-    public void onConnectionStateChange(DroneState state) {
-      *//*  this.droneState = state;
-        if(state instanceof ConnectionState){
-            ConnectionState connectionState = (ConnectionState) state;
-            this.isConnected = connectionState.isConnected();
-            if(this.isConnected == true){
-                btnConnect.setText("Disconnect");
-                btnConnect.setEnabled(true);
-            } if(this.isConnected == false) {
-                btnConnect.setText("Connect");
-                btnConnect.setEnabled(true);
-            }
-
-        }
-        if(state instanceof AltitudeState){
-            AltitudeState altitudeState = (AltitudeState) state;
-            txtAltitude.setText((int) altitudeState.getAltitude() + " / " + (int) altitudeState.getTargetAltitude());
-
-        }
-        if(state instanceof SpeedState){
-            SpeedState speedState = (SpeedState) state;
-            txtSpeed.setText("Ground: " + (int) (speedState.getGroundSpeed()) + "m/s Vertical: " + (int) (speedState.getVerticalSpeed()) + "m/s");
-
-
-        }
-        if(state instanceof BatteryState){
-            BatteryState batteryState = (BatteryState) state;
-            txtBattery.setText(batteryState.getRemain() + "% - " + batteryState.getVoltage() + "V, " + batteryState.getCurrent() + "A");
-
-        }
-        if(state instanceof GPSState){
-            GPSState gpsState =  (GPSState) state;
-            txtGps.setText(gpsState.getFixType() + " - Sattelites: "
-                    + gpsState.getSattelitesCount());
-            txtPosition.setText(gpsState.getLatLong());*//*
-        }
-    }*//*        Log.d("DroneFragment", state.toString());
-        if(state.getIsConnected() == true){
-            b.setText("disconnect");
-        } if(state.getIsConnected() == false){
-            b.setText("Connect");
-        }
-        if(state.getGPSState() != null){
-
-        }
-
-        if(state.getBatteryState() != null){
-        }
-    }*/
-
     @Override
     public void onDroneStateChange(DroneState state) {
+        Log.d(getClass().getCanonicalName(), String.valueOf(state));
         txtSpeed.setText("Ground: " + (int) (state.getGroundSpeed()) + "m/s Vertical: " + (int) (state.getVerticalSpeed()) + "m/s");
         txtAltitude.setText((int) state.getAltitude() + " / " + (int) state.getTargetAltitude());
         txtFirmware.setText(state.getFirmware());
+
+        if (state.isConnected()) {
+            btnConnect.setText("Disconnect");
+        } else {
+            btnConnect.setText("Connect");
+        }
+
     }
 
     @Override

@@ -59,4 +59,17 @@ public class DroneState {
     public String getFirmware(){
         return this.firmware;
     }
+
+    @Override
+    public String toString() {
+        return "DroneState{" +
+                "isConnected=" + isConnected +
+                ", isGPSconnected=" + isGPSconnected +
+                ", verticalSpeed=" + verticalSpeed +
+                ", groundSpeed=" + groundSpeed +
+                ", altitude=" + altitude +
+                ", targetAltitude=" + targetAltitude +
+                ", firmware='" + firmware + '\'' +
+                '}';
+    }
 }

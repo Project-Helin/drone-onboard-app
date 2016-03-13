@@ -26,15 +26,13 @@ import ch.projecthelin.droneonboardapp.fragments.PlaceholderFragment;
 import ch.projecthelin.droneonboardapp.services.DroneConnectionListener;
 import ch.projecthelin.droneonboardapp.services.DroneConnectionService;
 
-public class MainActivity extends AppCompatActivity implements DroneConnectionListener{
+public class MainActivity extends AppCompatActivity{
 
     private SectionsPagerAdapter mSectionsPagerAdapter;
 
     private ViewPager mViewPager;
 
     private DroneConnectionService droneConnectionService;
-
-    private GPSState gpsState;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,14 +54,7 @@ public class MainActivity extends AppCompatActivity implements DroneConnectionLi
 
         droneConnectionService = DroneConnectionService.getInstance(this.getApplicationContext());
 
-//        droneConnectionService.addConnectionListener(this);
-
-
     }
-
-    //public void onBtnClick(View view){
-      //  droneConnectionService.connect();
-    //}
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -91,24 +82,6 @@ public class MainActivity extends AppCompatActivity implements DroneConnectionLi
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-
-    @Override
-    public void onDroneStateChange(DroneState state) {
-
-    }
-
-    @Override
-    public void onGPSStateChange(GPSState state) {
-        this.gpsState = state;
-
-
-    }
-
-    @Override
-    public void onBatteryStateChange(BatteryState state) {
-
     }
 
     public class SectionsPagerAdapter extends FragmentPagerAdapter {

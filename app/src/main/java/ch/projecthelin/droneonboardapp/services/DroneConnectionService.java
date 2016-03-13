@@ -44,6 +44,8 @@ public class DroneConnectionService implements DroneListener, TowerListener, Dro
     private static Drone drone;
     private final Handler handler = new Handler();
 
+    private DroneState droneState = new DroneState();
+
     private DroneConnectionService(Context applicationContext){
         controlTower = new ControlTower(applicationContext);
         drone = new Drone(applicationContext);
@@ -66,16 +68,18 @@ public class DroneConnectionService implements DroneListener, TowerListener, Dro
         drone.disconnect();
     }
 
+    public DroneState getDroneState(){
+        return droneState;
+    }
+
+
+
     public static DroneConnectionService getInstance(Context applicationContext) {
         if(instance == null){
             instance = new DroneConnectionService(applicationContext);
         }
         return instance;
     }    
-
-    public String test(){
-        return "Test";
-    }
 
 
     public void addConnectionListener(DroneConnectionListener connectionListener){
@@ -95,19 +99,18 @@ public class DroneConnectionService implements DroneListener, TowerListener, Dro
       //  DroneState state = mapper.getState(drone);
         switch (event) {
 
-            /*    Log.d(getClass().getCanonicalName(), "STATE_CONNECTED");
-                Log.d(getClass().getCanonicalName(), AttributeEvent.STATE_CONNECTED.toString());
-
-                //State state = drone.getAttribute(AttributeType.STATE);
-
-              //  state
-                //connectionListener.onConnectionStateChange(new ConnectionState(true));
+            case AttributeEvent.STATE_CONNECTED:
+                Log.d(getClass().getCanonicalName(), "STATE_CONNECTED");
+                droneState.setIsConnected(true);
+                connectionListener.onDroneStateChange(droneState);
                 break;
 
-
+            case AttributeEvent.STATE_DISCONNECTED:
                 Log.d(getClass().getCanonicalName(), "STATE_DISCONNECTED");
-                //connectionListener.onConnectionStateChange(new ConnectionState(false));
-                break;*/
+                droneState.setIsConnected(false);
+                connectionListener.onDroneStateChange(droneState);
+                break;
+
             case AttributeEvent.STATE_UPDATED:
                 Log.d(getClass().getCanonicalName(), "STATE_UPDATED");
 
@@ -126,15 +129,12 @@ public class DroneConnectionService implements DroneListener, TowerListener, Dro
                 Log.d(getClass().getCanonicalName(), "HOME_UPDATED");
                 break;
 
+
             case AttributeEvent.TYPE_UPDATED:
-            case AttributeEvent.STATE_CONNECTED:
-            case AttributeEvent.STATE_DISCONNECTED:
             case AttributeEvent.ATTITUDE_UPDATED:
             case AttributeEvent.ALTITUDE_UPDATED:
             case AttributeEvent.SPEED_UPDATED:
                 Log.d(getClass().getCanonicalName(), "SPEED_UPDATED / ALTITUDE_UPDATED");
-
-                DroneState droneState = new DroneState();
 
                 Altitude altitude = drone.getAttribute(AttributeType.ALTITUDE);
                 droneState.setTargetAltitude(altitude.getTargetAltitude());
@@ -147,11 +147,7 @@ public class DroneConnectionService implements DroneListener, TowerListener, Dro
                 Type type = drone.getAttribute(AttributeType.TYPE);
                 droneState.setFirmeware(type.getFirmware().getLabel());
 
-
                 connectionListener.onDroneStateChange(droneState);
-
-                //SpeedState speedState = new SpeedState(speed.getVerticalSpeed(), speed.getAirSpeed(), speed.getGroundSpeed());
-                //connectionListener.onConnectionStateChange(speedState);
 
                 break;
 
