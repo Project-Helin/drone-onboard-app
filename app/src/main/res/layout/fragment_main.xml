@@ -22,7 +22,7 @@
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:text="Connection"
-        android:id="@+id/ConnectionState"
+        android:id="@+id/txtConnection"
         android:layout_below="@+id/droneTitle"
         android:layout_alignParentStart="true"
         android:layout_marginTop="20dp"
@@ -34,8 +34,21 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="GPS"
-        android:id="@+id/gps_state"
-        android:layout_below="@+id/ConnectionState"
+        android:id="@+id/txtGPS"
+        android:layout_below="@+id/txtConnection"
+        android:layout_alignParentStart="true"
+        android:background="@color/red"
+        android:layout_marginTop="20dp"
+        android:layout_alignParentEnd="true"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:padding="10dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Battery"
+        android:id="@+id/txtBattery"
+        android:layout_below="@+id/txtGPS"
         android:layout_alignParentStart="true"
         android:background="@color/red"
         android:layout_marginTop="20dp"
@@ -49,7 +62,7 @@
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:text="Server"
         android:id="@+id/server_title"
-        android:layout_below="@+id/gps_state"
+        android:layout_below="@+id/txtBattery"
         android:layout_alignParentStart="true"
         android:layout_marginTop="35dp" />
 

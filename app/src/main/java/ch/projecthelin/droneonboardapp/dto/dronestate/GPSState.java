@@ -2,6 +2,7 @@ package ch.projecthelin.droneonboardapp.dto.dronestate;
 
 public class GPSState {
 
+    private boolean isGPSgood;
     private String fixType;
     private int sattelitesCount;
     private double posLat;
@@ -19,6 +20,14 @@ public class GPSState {
         this.sattelitesCount = sattelitesCount;
         this.posLat = posLat;
         this.posLon = posLon;
+    }
+
+    public void setIsGPSGood(boolean isGPSgood){
+        this.isGPSgood = isGPSgood;
+    }
+
+    public boolean isGPSGood(){
+        return this.isGPSgood;
     }
 
     public String getFixType() {

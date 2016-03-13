@@ -50,7 +50,6 @@ public class DroneFragment extends Fragment implements DroneConnectionListener {
     private boolean isConnected = false;
 
     public DroneFragment() {
-        // Required empty public constructor
         droneConnectionService = DroneConnectionService.getInstance(this.getContext());
         droneConnectionService.addConnectionListener(this);
     }

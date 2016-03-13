@@ -189,6 +189,13 @@ public class DroneConnectionService implements DroneListener, TowerListener, Dro
                         droneGPS.getSatellitesCount(),droneGPS.getPosition().getLatitude(),
                         droneGPS.getPosition().getLongitude());
 
+                //Todo: Fix workaround - if smaller than 2, GPS is not fixed not 2D, nor 3D.
+                if(droneGPS.getFixType() < 2){
+                    gpsState.setIsGPSGood(false);
+                } else{
+                    gpsState.setIsGPSGood(true);
+                }
+
                 triggerGPSStateChange(gpsState);
                 break;
 
