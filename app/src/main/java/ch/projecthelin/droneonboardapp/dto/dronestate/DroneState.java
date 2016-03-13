@@ -2,7 +2,6 @@ package ch.projecthelin.droneonboardapp.dto.dronestate;
 
 public class DroneState {
 
-    private String firmware;
     private boolean isConnected;
     private boolean isGPSconnected;
 
@@ -11,6 +10,7 @@ public class DroneState {
 
     private double altitude;
     private double targetAltitude;
+    private String firmware;
 
 
     public boolean isConnected() {
@@ -52,5 +52,11 @@ public class DroneState {
         this.targetAltitude = targetAltitude;
     }
 
+    public void setFirmeware(String firmware) {
+        this.firmware = firmware;
+    }
 
+    public String getFirmware(){
+        return this.firmware;
+    }
 }

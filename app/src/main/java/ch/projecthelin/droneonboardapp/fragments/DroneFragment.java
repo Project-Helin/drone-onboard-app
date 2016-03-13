@@ -34,8 +34,6 @@ public class DroneFragment extends Fragment implements DroneConnectionListener {
     private String mParam2;
 
     // here comment
-    private Spinner connectionSelector;
-
     public static final String TCP_SERVER_IP = "192.168.56.1";
     public static final int BAUD_RATE_FOR_USB = 115200;
     public static final int TCP_SERVER_PORT = 5760;
@@ -44,14 +42,12 @@ public class DroneFragment extends Fragment implements DroneConnectionListener {
 
     private ConnectionParameter connectionParams;
 
-    private TextView txtSetting;
-    private TextView lblSetting;
     private TextView txtGps;
     private TextView txtPosition;
     private TextView txtBattery;
     private TextView txtAltitude;
     private TextView txtSpeed;
-
+    private TextView txtFirmware;
 
     private Button btnConnect;
     private DroneState droneState;
@@ -94,47 +90,6 @@ public class DroneFragment extends Fragment implements DroneConnectionListener {
         }
     }
 
-    protected void setupConnectionModeSpinner(Spinner spinner) {
-        String[] connectionModes = {"USB", "UDP", "TCP"};
-
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this.getActivity(), android.R.layout.simple_spinner_item, connectionModes);
-        spinner.setAdapter(adapter);
-
-        spinner.setOnItemSelectedListener(new Spinner.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                onConnectionSelected(view);
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-                // Do nothing
-            }
-        });
-    }
-    //public void btnConnect(View view){
-    //    droneConnectionService.connect();
-    //}
-
-    public void onConnectionSelected(View view) {
-        int connectionType = (int) this.connectionSelector.getSelectedItemPosition();
-
-        Bundle extraParams = new Bundle();
-
-        if (connectionType == ConnectionType.TYPE_USB) {
-            lblSetting.setText("Baud:");
-            txtSetting.setText("1234");
-            extraParams.putInt(ConnectionType.EXTRA_USB_BAUD_RATE, BAUD_RATE_FOR_USB);
-        } else if (connectionType == ConnectionType.TYPE_TCP) {
-            lblSetting.setText("IP address:");
-            txtSetting.setText("192.168.1.1:5555");
-            extraParams.putString(ConnectionType.EXTRA_TCP_SERVER_IP, TCP_SERVER_IP);
-            extraParams.putInt(ConnectionType.EXTRA_TCP_SERVER_PORT, TCP_SERVER_PORT);
-        } else if (connectionType == ConnectionType.TYPE_UDP)
-
-        connectionParams = new ConnectionParameter(connectionType, extraParams, null);
-    }
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -146,18 +101,19 @@ public class DroneFragment extends Fragment implements DroneConnectionListener {
         txtBattery = (TextView) view.findViewById(R.id.txtBattery);
         txtAltitude = (TextView) view.findViewById(R.id.txtAltitude);
         txtSpeed = (TextView) view.findViewById(R.id.txtSpeed);
+        txtFirmware = (TextView) view.findViewById(R.id.txtFirmware);
 
         btnConnect = (Button) view.findViewById(R.id.btnConnectToDrone);
         btnConnect.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                switch(v.getId()){
+                switch (v.getId()) {
                     case R.id.btnConnectToDrone:
-                        if(isConnected == false){
+                        if (isConnected == false) {
                             btnConnect.setText("Connecting ...");
                             btnConnect.setEnabled(false);
                             droneConnectionService.connect();
-                        } else{
+                        } else {
                             droneConnectionService.disconnect();
                             btnConnect.setText("Connect");
                         }
@@ -232,7 +188,9 @@ public class DroneFragment extends Fragment implements DroneConnectionListener {
 
     @Override
     public void onDroneStateChange(DroneState state) {
-
+        txtSpeed.setText("Ground: " + (int) (state.getGroundSpeed()) + "m/s Vertical: " + (int) (state.getVerticalSpeed()) + "m/s");
+        txtAltitude.setText((int) state.getAltitude() + " / " + (int) state.getTargetAltitude());
+        txtFirmware.setText(state.getFirmware());
     }
 
     @Override

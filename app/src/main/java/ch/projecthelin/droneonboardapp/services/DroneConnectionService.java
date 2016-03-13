@@ -94,8 +94,8 @@ public class DroneConnectionService implements DroneListener, TowerListener, Dro
      //   StateMapper mapper = stateNameToMapper.get(event);
       //  DroneState state = mapper.getState(drone);
         switch (event) {
-            case AttributeEvent.STATE_CONNECTED:
-                Log.d(getClass().getCanonicalName(), "STATE_CONNECTED");
+
+            /*    Log.d(getClass().getCanonicalName(), "STATE_CONNECTED");
                 Log.d(getClass().getCanonicalName(), AttributeEvent.STATE_CONNECTED.toString());
 
                 //State state = drone.getAttribute(AttributeType.STATE);
@@ -104,10 +104,10 @@ public class DroneConnectionService implements DroneListener, TowerListener, Dro
                 //connectionListener.onConnectionStateChange(new ConnectionState(true));
                 break;
 
-            case AttributeEvent.STATE_DISCONNECTED:
+
                 Log.d(getClass().getCanonicalName(), "STATE_DISCONNECTED");
                 //connectionListener.onConnectionStateChange(new ConnectionState(false));
-                break;
+                break;*/
             case AttributeEvent.STATE_UPDATED:
                 Log.d(getClass().getCanonicalName(), "STATE_UPDATED");
 
@@ -120,36 +120,39 @@ public class DroneConnectionService implements DroneListener, TowerListener, Dro
 
             case AttributeEvent.STATE_VEHICLE_MODE:
                 Log.d(getClass().getCanonicalName(), "STATE_VEHICLE_MODE");
-
-
-                break;
-
-            case AttributeEvent.TYPE_UPDATED:
-                Log.d(getClass().getCanonicalName(), "TYPE_UPDATED");
-
-                Type type = drone.getAttribute(AttributeType.TYPE);
-                type.getFirmware().getLabel();
-                break;
-
-            case AttributeEvent.SPEED_UPDATED:
-                Log.d(getClass().getCanonicalName(), "SPEED_UPDATED");
-
-                Speed speed = drone.getAttribute(AttributeType.SPEED);
-                //SpeedState speedState = new SpeedState(speed.getVerticalSpeed(), speed.getAirSpeed(), speed.getGroundSpeed());
-                //connectionListener.onConnectionStateChange(speedState);
-
                 break;
 
             case AttributeEvent.HOME_UPDATED:
                 Log.d(getClass().getCanonicalName(), "HOME_UPDATED");
                 break;
 
+            case AttributeEvent.TYPE_UPDATED:
+            case AttributeEvent.STATE_CONNECTED:
+            case AttributeEvent.STATE_DISCONNECTED:
+            case AttributeEvent.ATTITUDE_UPDATED:
             case AttributeEvent.ALTITUDE_UPDATED:
-                Log.d(getClass().getCanonicalName(), "ALTITUDE_UPDATED");
-                Altitude altitude = drone.getAttribute(AttributeType.ALTITUDE);
+            case AttributeEvent.SPEED_UPDATED:
+                Log.d(getClass().getCanonicalName(), "SPEED_UPDATED / ALTITUDE_UPDATED");
 
-             //   AltitudeState altitudeState = new AltitudeState(altitude.getAltitude(), altitude.getTargetAltitude());
-                //connectionListener.onConnectionStateChange(altitudeState);
+                DroneState droneState = new DroneState();
+
+                Altitude altitude = drone.getAttribute(AttributeType.ALTITUDE);
+                droneState.setTargetAltitude(altitude.getTargetAltitude());
+                droneState.setTargetAltitude(altitude.getAltitude());
+
+                Speed speed = drone.getAttribute(AttributeType.SPEED);
+                droneState.setVerticalSpeed(speed.getVerticalSpeed());
+                droneState.setGroundSpeed(speed.getGroundSpeed());
+
+                Type type = drone.getAttribute(AttributeType.TYPE);
+                droneState.setFirmeware(type.getFirmware().getLabel());
+
+
+                connectionListener.onDroneStateChange(droneState);
+
+                //SpeedState speedState = new SpeedState(speed.getVerticalSpeed(), speed.getAirSpeed(), speed.getGroundSpeed());
+                //connectionListener.onConnectionStateChange(speedState);
+
                 break;
 
             case AttributeEvent.BATTERY_UPDATED:
