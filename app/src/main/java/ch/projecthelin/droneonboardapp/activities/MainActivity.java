@@ -25,8 +25,10 @@ import ch.projecthelin.droneonboardapp.fragments.OverviewFragment;
 import ch.projecthelin.droneonboardapp.fragments.PlaceholderFragment;
 import ch.projecthelin.droneonboardapp.services.DroneConnectionListener;
 import ch.projecthelin.droneonboardapp.services.DroneConnectionService;
+import com.o3dr.android.client.ControlTower;
+import com.o3dr.android.client.Drone;
 
-public class MainActivity extends AppCompatActivity{
+public class MainActivity extends AppCompatActivity {
 
     private SectionsPagerAdapter mSectionsPagerAdapter;
 
@@ -52,7 +54,9 @@ public class MainActivity extends AppCompatActivity{
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
 
-        droneConnectionService = DroneConnectionService.getInstance(this.getApplicationContext());
+        Drone drone = new Drone(this.getApplicationContext());
+        ControlTower controlTower = new ControlTower(this.getApplicationContext());
+        droneConnectionService = DroneConnectionService.getInstance(controlTower, drone);
 
     }
 

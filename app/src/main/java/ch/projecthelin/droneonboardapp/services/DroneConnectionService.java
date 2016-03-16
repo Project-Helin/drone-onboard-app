@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 
+import ch.projecthelin.droneonboardapp.mappers.DroneStateMapper;
 import com.o3dr.android.client.ControlTower;
 import com.o3dr.android.client.Drone;
 import com.o3dr.android.client.interfaces.DroneListener;
@@ -27,7 +28,7 @@ import ch.projecthelin.droneonboardapp.dto.dronestate.BatteryState;
 import ch.projecthelin.droneonboardapp.dto.dronestate.DroneState;
 import ch.projecthelin.droneonboardapp.dto.dronestate.GPSState;
 
-public class DroneConnectionService implements DroneListener, TowerListener, DroneConnectionListener{
+public class DroneConnectionService implements DroneListener, TowerListener {
 
     // remove later!
     public static final String TCP_SERVER_IP = "192.168.57.1";
@@ -38,22 +39,31 @@ public class DroneConnectionService implements DroneListener, TowerListener, Dro
 
     private static DroneConnectionService instance;
 
-    private static ControlTower controlTower;
-    private static Drone drone;
+    private ControlTower controlTower;
+    private Drone drone;
     private final Handler handler = new Handler();
 
     private List<DroneConnectionListener> connectionListeners = new ArrayList<>();
     private DroneState droneState = new DroneState();
 
-    private DroneConnectionService(Context applicationContext){
-        controlTower = new ControlTower(applicationContext);
-        drone = new Drone(applicationContext);
 
-        controlTower.connect(this);
+    public static DroneConnectionService getInstance(ControlTower tower, Drone drone) {
+        instance = new DroneConnectionService(tower, drone);
+        return instance;
+    }
+
+    public static DroneConnectionService getInstance() {
+        return instance;
+    }
+
+    private DroneConnectionService(ControlTower controlTower, Drone drone) {
+        this.controlTower = controlTower;
+        this.drone = drone;
+        this.controlTower.connect(this);
 
     }
 
-    public void connect(){
+    public void connect() {
 
         Bundle extraParams = new Bundle();
         extraParams.putString(ConnectionType.EXTRA_TCP_SERVER_IP, TCP_SERVER_IP);
@@ -63,43 +73,32 @@ public class DroneConnectionService implements DroneListener, TowerListener, Dro
         drone.connect(connectionParameter);
     }
 
-    public void disconnect(){
+    public void disconnect() {
         drone.disconnect();
     }
 
-    public DroneState getDroneState(){
+    public DroneState getDroneState() {
         return droneState;
     }
 
-
-
-    public static DroneConnectionService getInstance(Context applicationContext) {
-        if(instance == null){
-            instance = new DroneConnectionService(applicationContext);
-        }
-        return instance;
-    }    
-
-
-    public void addConnectionListener(DroneConnectionListener connectionListener)
-    {
+    public void addConnectionListener(DroneConnectionListener connectionListener) {
         connectionListeners.add(connectionListener);
     }
 
-    public void triggerDroneStateChange(DroneState state){
-        for(DroneConnectionListener connectionListener : connectionListeners){
+    public void triggerDroneStateChange(DroneState state) {
+        for (DroneConnectionListener connectionListener : connectionListeners) {
             connectionListener.onDroneStateChange(state);
         }
     }
 
-    public void triggerGPSStateChange(GPSState state){
-        for(DroneConnectionListener connectionListener : connectionListeners){
+    public void triggerGPSStateChange(GPSState state) {
+        for (DroneConnectionListener connectionListener : connectionListeners) {
             connectionListener.onGPSStateChange(state);
         }
     }
 
-    public void triggerBatteryStateChange(BatteryState state){
-        for(DroneConnectionListener connectionListener : connectionListeners){
+    public void triggerBatteryStateChange(BatteryState state) {
+        for (DroneConnectionListener connectionListener : connectionListeners) {
             connectionListener.onBatteryStateChange(state);
         }
     }
@@ -116,14 +115,12 @@ public class DroneConnectionService implements DroneListener, TowerListener, Dro
 
             case AttributeEvent.STATE_CONNECTED:
                 Log.d(getClass().getCanonicalName(), "STATE_CONNECTED");
-                droneState.setIsConnected(true);
-                this.triggerDroneStateChange(droneState);
+                this.triggerDroneStateChange(DroneStateMapper.getDroneState(drone));
                 break;
 
             case AttributeEvent.STATE_DISCONNECTED:
                 Log.d(getClass().getCanonicalName(), "STATE_DISCONNECTED");
-                droneState.setIsConnected(false);
-                this.triggerDroneStateChange(droneState);
+                this.triggerDroneStateChange(DroneStateMapper.getDroneState(drone));
                 break;
 
             case AttributeEvent.STATE_UPDATED:
@@ -151,18 +148,9 @@ public class DroneConnectionService implements DroneListener, TowerListener, Dro
             case AttributeEvent.SPEED_UPDATED:
                 Log.d(getClass().getCanonicalName(), "SPEED_UPDATED / ALTITUDE_UPDATED");
 
-                Altitude altitude = drone.getAttribute(AttributeType.ALTITUDE);
-                droneState.setTargetAltitude(altitude.getTargetAltitude());
-                droneState.setTargetAltitude(altitude.getAltitude());
+                DroneState state = DroneStateMapper.getDroneState(drone);
 
-                Speed speed = drone.getAttribute(AttributeType.SPEED);
-                droneState.setVerticalSpeed(speed.getVerticalSpeed());
-                droneState.setGroundSpeed(speed.getGroundSpeed());
-
-                Type type = drone.getAttribute(AttributeType.TYPE);
-                droneState.setFirmeware(type.getFirmware().getLabel());
-
-                triggerDroneStateChange(droneState);
+                triggerDroneStateChange(state);
 
                 break;
 
@@ -184,18 +172,7 @@ public class DroneConnectionService implements DroneListener, TowerListener, Dro
             case AttributeEvent.WARNING_NO_GPS:
                 Log.d(getClass().getCanonicalName(), "GPS_POSITION / GPS_FIX / GPS_COUNT / WARNING_NO_GPS");
 
-                Gps droneGPS = drone.getAttribute(AttributeType.GPS);
-                GPSState gpsState = new GPSState(droneGPS.getFixStatus(),
-                        droneGPS.getSatellitesCount(),droneGPS.getPosition().getLatitude(),
-                        droneGPS.getPosition().getLongitude());
-
-                //Todo: Fix workaround - if smaller than 2, GPS is not fixed not 2D, nor 3D.
-                if(droneGPS.getFixType() < 2){
-                    gpsState.setIsGPSGood(false);
-                } else{
-                    gpsState.setIsGPSGood(true);
-                }
-
+                GPSState gpsState = DroneStateMapper.getGPSState((Gps)drone.getAttribute(AttributeType.GPS));
                 triggerGPSStateChange(gpsState);
                 break;
 
@@ -221,19 +198,6 @@ public class DroneConnectionService implements DroneListener, TowerListener, Dro
         this.controlTower.unregisterDrone(this.drone);
     }
 
-    @Override
-    public void onDroneStateChange(DroneState state) {
 
-    }
-
-    @Override
-    public void onGPSStateChange(GPSState state) {
-
-    }
-
-    @Override
-    public void onBatteryStateChange(BatteryState state) {
-
-    }
 }
 

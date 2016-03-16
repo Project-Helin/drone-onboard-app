@@ -28,7 +28,7 @@ public class DroneFragment extends Fragment implements DroneConnectionListener {
     private Button btnConnect;
 
     public DroneFragment() {
-        droneConnectionService = DroneConnectionService.getInstance(this.getContext());
+        droneConnectionService = DroneConnectionService.getInstance();
         droneConnectionService.addConnectionListener(this);
     }
 
@@ -93,7 +93,7 @@ public class DroneFragment extends Fragment implements DroneConnectionListener {
     @Override
     public void onGPSStateChange(GPSState state) {
         txtGps.setText(state.getFixType() + " - Satellites: "
-                + state.getSattelitesCount());
+                + state.getSatellitesCount());
         txtPosition.setText(state.getLatLong());
     }
 

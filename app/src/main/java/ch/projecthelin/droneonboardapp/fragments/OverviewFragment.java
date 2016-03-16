@@ -35,7 +35,7 @@ public class OverviewFragment extends Fragment implements DroneConnectionListene
     private DroneConnectionService droneConnectionService;
 
     public OverviewFragment() {
-        droneConnectionService = DroneConnectionService.getInstance(this.getContext());
+        droneConnectionService = DroneConnectionService.getInstance();
         droneConnectionService.addConnectionListener(this);
     }
 

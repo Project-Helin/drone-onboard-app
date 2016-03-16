@@ -1,60 +1,88 @@
 package ch.projecthelin.droneonboardapp.dto.dronestate;
 
+import com.o3dr.services.android.lib.coordinate.LatLong;
+
 public class GPSState {
 
-    private boolean isGPSgood;
-    private String fixType;
-    private int sattelitesCount;
+    private int fixType;
+    private int satellitesCount;
     private double posLat;
     private double posLon;
 
-    public GPSState(){
-        this.fixType = "no Signal";
-        this.sattelitesCount = 0;
+    public GPSState() {
+        this.satellitesCount = 0;
         this.posLat = 0;
         this.posLon = 0;
     }
 
-    public GPSState(String fixType, int sattelitesCount, double posLat, double posLon){
-        this.fixType = fixType;
-        this.sattelitesCount = sattelitesCount;
-        this.posLat = posLat;
-        this.posLon = posLon;
+    public boolean isGPSGood() {
+        //if smaller than 2, GPS is not fixed not 2D, nor 3D
+        return getFixType() < 2;
     }
 
-    public void setIsGPSGood(boolean isGPSgood){
-        this.isGPSgood = isGPSgood;
-    }
-
-    public boolean isGPSGood(){
-        return this.isGPSgood;
-    }
-
-    public String getFixType() {
+    public int getFixType() {
         return fixType;
     }
 
-    public int getSattelitesCount() {
-        return sattelitesCount;
+    public String getFixTypeLabel() {
+        return fixType < 2 ? "no connection" : this.fixType + "D";
+    }
+
+    public int getSatellitesCount() {
+        return satellitesCount;
     }
 
     public String getLatLong() {
         return posLat + " " + posLon;
     }
 
-    public void setFixType(String fixType) {
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        GPSState gpsState = (GPSState) o;
+
+        if (fixType != gpsState.fixType) return false;
+        if (satellitesCount != gpsState.satellitesCount) return false;
+        if (Double.compare(gpsState.posLat, posLat) != 0) return false;
+        return Double.compare(gpsState.posLon, posLon) == 0;
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result;
+        long temp;
+        result = fixType;
+        result = 31 * result + satellitesCount;
+        temp = Double.doubleToLongBits(posLat);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        temp = Double.doubleToLongBits(posLon);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        return result;
+    }
+
+    public void setPosition(LatLong position) {
+        if (position != null) {
+            this.posLat = position.getLatitude();
+            this.posLon = position.getLongitude();
+        }
+    }
+
+    public void setFixType(int fixType) {
         this.fixType = fixType;
     }
 
-    public void setSattelitesCount(int sattelitesCount) {
-        this.sattelitesCount = sattelitesCount;
+    public void setSatellitesCount(int satellitesCount) {
+        this.satellitesCount = satellitesCount;
     }
 
     @Override
     public String toString() {
         return "GPSState{" +
                 "fixType='" + fixType + '\'' +
-                ", sattelitesCount=" + sattelitesCount +
+                ", satellitesCount=" + satellitesCount +
                 ", posLat=" + posLat +
                 ", posLon=" + posLon +
                 '}';
