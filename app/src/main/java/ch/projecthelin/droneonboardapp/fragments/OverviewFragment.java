@@ -17,6 +17,8 @@ import ch.projecthelin.droneonboardapp.dto.dronestate.GPSState;
 import ch.projecthelin.droneonboardapp.services.DroneConnectionListener;
 import ch.projecthelin.droneonboardapp.services.DroneConnectionService;
 
+import javax.inject.Inject;
+
 
 public class OverviewFragment extends Fragment implements DroneConnectionListener{
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -32,10 +34,10 @@ public class OverviewFragment extends Fragment implements DroneConnectionListene
 
     private static final int BATTERY_LOW = 10; // If battery bellow 10%
 
-    private DroneConnectionService droneConnectionService;
+    @Inject
+    DroneConnectionService droneConnectionService;
 
     public OverviewFragment() {
-        droneConnectionService = DroneConnectionService.getInstance();
         droneConnectionService.addConnectionListener(this);
     }
 

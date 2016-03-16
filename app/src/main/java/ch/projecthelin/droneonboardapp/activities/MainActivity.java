@@ -28,13 +28,16 @@ import ch.projecthelin.droneonboardapp.services.DroneConnectionService;
 import com.o3dr.android.client.ControlTower;
 import com.o3dr.android.client.Drone;
 
+import javax.inject.Inject;
+
 public class MainActivity extends AppCompatActivity {
 
     private SectionsPagerAdapter mSectionsPagerAdapter;
 
     private ViewPager mViewPager;
 
-    private DroneConnectionService droneConnectionService;
+    @Inject
+    public DroneConnectionService droneConnectionService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,11 +56,6 @@ public class MainActivity extends AppCompatActivity {
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
-
-        Drone drone = new Drone(this.getApplicationContext());
-        ControlTower controlTower = new ControlTower(this.getApplicationContext());
-        droneConnectionService = DroneConnectionService.getInstance(controlTower, drone);
-
     }
 
     @Override

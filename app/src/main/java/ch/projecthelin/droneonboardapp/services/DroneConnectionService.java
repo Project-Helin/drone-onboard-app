@@ -28,6 +28,8 @@ import ch.projecthelin.droneonboardapp.dto.dronestate.BatteryState;
 import ch.projecthelin.droneonboardapp.dto.dronestate.DroneState;
 import ch.projecthelin.droneonboardapp.dto.dronestate.GPSState;
 
+import javax.inject.Inject;
+
 public class DroneConnectionService implements DroneListener, TowerListener {
 
     // remove later!
@@ -46,21 +48,11 @@ public class DroneConnectionService implements DroneListener, TowerListener {
     private List<DroneConnectionListener> connectionListeners = new ArrayList<>();
     private DroneState droneState = new DroneState();
 
-
-    public static DroneConnectionService getInstance(ControlTower tower, Drone drone) {
-        instance = new DroneConnectionService(tower, drone);
-        return instance;
-    }
-
-    public static DroneConnectionService getInstance() {
-        return instance;
-    }
-
-    private DroneConnectionService(ControlTower controlTower, Drone drone) {
+    @Inject
+    public DroneConnectionService(ControlTower controlTower, Drone drone) {
         this.controlTower = controlTower;
         this.drone = drone;
         this.controlTower.connect(this);
-
     }
 
     public void connect() {

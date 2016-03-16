@@ -15,8 +15,12 @@ import ch.projecthelin.droneonboardapp.dto.dronestate.GPSState;
 import ch.projecthelin.droneonboardapp.services.DroneConnectionListener;
 import ch.projecthelin.droneonboardapp.services.DroneConnectionService;
 
+import javax.inject.Inject;
+
 public class DroneFragment extends Fragment implements DroneConnectionListener {
-    private DroneConnectionService droneConnectionService;
+
+    @Inject
+    public DroneConnectionService droneConnectionService;
 
     private TextView txtGps;
     private TextView txtPosition;
@@ -28,7 +32,6 @@ public class DroneFragment extends Fragment implements DroneConnectionListener {
     private Button btnConnect;
 
     public DroneFragment() {
-        droneConnectionService = DroneConnectionService.getInstance();
         droneConnectionService.addConnectionListener(this);
     }
 

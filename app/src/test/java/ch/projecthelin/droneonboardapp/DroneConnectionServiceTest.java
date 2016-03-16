@@ -1,8 +1,6 @@
 package ch.projecthelin.droneonboardapp;
 
-import android.content.Context;
 import android.os.Bundle;
-import ch.projecthelin.droneonboardapp.dto.dronestate.GPSState;
 import ch.projecthelin.droneonboardapp.mappers.DroneStateMapper;
 import ch.projecthelin.droneonboardapp.services.DroneConnectionListener;
 import ch.projecthelin.droneonboardapp.services.DroneConnectionService;
@@ -17,24 +15,30 @@ import com.o3dr.services.android.lib.drone.property.Type;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import static org.fest.assertions.Assertions.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+
+import javax.inject.Inject;
+
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DroneConnectionServiceTest {
 
+    private DroneConnectionService service;
+    private DroneConnectionListener droneConnectionListener;
+    private ControlTower tower;
+    private Drone drone;
+
+    @Before
+    public void setupServiceAndListener() {
+        tower = mock(ControlTower.class);
+        drone = mock(Drone.class);
+        service = new DroneConnectionService(tower, drone);
+        DroneConnectionListener droneConnectionListener = mock(DroneConnectionListener.class);
+    }
 
     @Test
     public void ChangedGPSState() throws Exception {
-        Drone drone = mock(Drone.class);
-        ControlTower tower = mock(ControlTower.class);
-        DroneConnectionService service = DroneConnectionService.getInstance(tower, drone);
-        DroneConnectionListener droneConnectionListener = mock(DroneConnectionListener.class);
-
         Gps gps = new Gps();
         gps.setFixType(3);
         gps.setSatCount(10);
@@ -49,11 +53,6 @@ public class DroneConnectionServiceTest {
 
     @Test
     public void ChangedConnectionState() throws Exception {
-        Drone drone = mock(Drone.class);
-        ControlTower tower = mock(ControlTower.class);
-        DroneConnectionService service = DroneConnectionService.getInstance(tower, drone);
-        DroneConnectionListener droneConnectionListener = mock(DroneConnectionListener.class);
-
         Altitude altitude = new Altitude();
         altitude.setAltitude(100);
         altitude.setTargetAltitude(150);
