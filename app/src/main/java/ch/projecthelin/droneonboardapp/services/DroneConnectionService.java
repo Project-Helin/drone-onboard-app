@@ -30,7 +30,7 @@ import ch.projecthelin.droneonboardapp.dto.dronestate.GPSState;
 public class DroneConnectionService implements DroneListener, TowerListener, DroneConnectionListener{
 
     // remove later!
-    public static final String TCP_SERVER_IP = "192.168.56.1";
+    public static final String TCP_SERVER_IP = "192.168.57.1";
     // public static final int BAUD_RATE_FOR_USB = 115200;
     public static final int TCP_SERVER_PORT = 5760;
 
@@ -42,7 +42,7 @@ public class DroneConnectionService implements DroneListener, TowerListener, Dro
     private static Drone drone;
     private final Handler handler = new Handler();
 
-    private List<DroneConnectionListener> connectionListeners = new ArrayList<DroneConnectionListener>();
+    private List<DroneConnectionListener> connectionListeners = new ArrayList<>();
     private DroneState droneState = new DroneState();
 
     private DroneConnectionService(Context applicationContext){
