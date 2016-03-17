@@ -1,12 +1,9 @@
-package ch.projecthelin.droneonboardapp;
+package ch.projecthelin.droneonboardapp.services;
 
-import android.app.Application;
 import android.os.Bundle;
-import ch.projecthelin.droneonboardapp.activities.MainActivity;
+import ch.projecthelin.droneonboardapp.DroneOnboardApp;
 import ch.projecthelin.droneonboardapp.di.*;
 import ch.projecthelin.droneonboardapp.mappers.DroneStateMapper;
-import ch.projecthelin.droneonboardapp.services.DroneConnectionListener;
-import ch.projecthelin.droneonboardapp.services.DroneConnectionService;
 import com.o3dr.android.client.ControlTower;
 import com.o3dr.android.client.Drone;
 import com.o3dr.services.android.lib.drone.attribute.AttributeEvent;
@@ -15,14 +12,10 @@ import com.o3dr.services.android.lib.drone.property.Altitude;
 import com.o3dr.services.android.lib.drone.property.Gps;
 import com.o3dr.services.android.lib.drone.property.Speed;
 import com.o3dr.services.android.lib.drone.property.Type;
-import dagger.Component;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import javax.inject.Inject;
-import javax.inject.Singleton;
 
 import static org.mockito.Mockito.*;
 
@@ -31,19 +24,23 @@ public class DroneConnectionServiceTest {
 
     private DroneConnectionService service;
     private DroneConnectionListener droneConnectionListener;
-    private TestAppComponent appComponent;
 
-    @Inject
     ControlTower tower;
 
-    @Inject
     Drone drone;
 
     @Before
     public void setupServiceAndListener() {
-        appComponent = DaggerTestAppComponent.builder()
-                .testAppModule(new TestAppModule(new Application()))
+        tower = mock(ControlTower.class);
+        drone = mock(Drone.class);
+        TestAppModule module = new TestAppModule();
+        module.setControlTower(tower);
+        module.setDrone(drone);
+
+        TestAppComponent component = DaggerTestAppComponent.builder()
+                .testAppModule(module)
                 .build();
+
         droneConnectionListener = mock(DroneConnectionListener.class);
         service = new DroneConnectionService(tower, drone);
     }

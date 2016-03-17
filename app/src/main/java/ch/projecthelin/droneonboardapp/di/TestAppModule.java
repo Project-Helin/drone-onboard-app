@@ -14,35 +14,28 @@ import static org.mockito.Mockito.mock;
 @Module
 public class TestAppModule {
 
-    Application application;
+    private ControlTower controlTower;
+    private Drone drone;
 
-    public TestAppModule(Application application) {
-        this.application = application;
+    public TestAppModule() {
     }
 
     @Provides
-    @Singleton
-    Application providesApplication() {
-        return application;
-    }
-
-    @Provides
-    @Singleton
-    Context provideApplicationContext() {
-        return application;
-    }
-
-    @Provides
-    @Singleton
     ControlTower providesControlTower(Context context) {
-        return mock(ControlTower.class);
+        return controlTower;
     }
 
     @Provides
-    @Singleton
     Drone providesDrone(Context context) {
-        return mock(Drone.class);
+        return drone;
     }
 
 
+    public void setControlTower(ControlTower controlTower) {
+        this.controlTower = controlTower;
+    }
+
+    public void setDrone(Drone drone) {
+        this.drone = drone;
+    }
 }

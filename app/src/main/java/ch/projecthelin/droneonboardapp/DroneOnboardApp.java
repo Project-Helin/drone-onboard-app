@@ -1,9 +1,8 @@
 package ch.projecthelin.droneonboardapp;
 
 import android.app.Application;
-import ch.projecthelin.droneonboardapp.activities.RegisterDroneActivity;
-import ch.projecthelin.droneonboardapp.di.AppModule;
 import ch.projecthelin.droneonboardapp.di.AppComponent;
+import ch.projecthelin.droneonboardapp.di.AppModule;
 import ch.projecthelin.droneonboardapp.di.DaggerAppComponent;
 
 public class DroneOnboardApp extends Application {
@@ -20,12 +19,12 @@ public class DroneOnboardApp extends Application {
                 .build();
     }
 
-    public static void inject(RegisterDroneActivity target) {
-        appComponent.inject(target);
-    }
-
     public AppComponent component() {
         return appComponent;
+    }
+
+    public void setComponent (AppComponent component) {
+        appComponent = component;
     }
 
 }
