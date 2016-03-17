@@ -7,25 +7,41 @@ import net.jodah.lyra.ConnectionOptions;
 import net.jodah.lyra.Connections;
 import net.jodah.lyra.config.Config;
 import net.jodah.lyra.config.RecoveryPolicy;
+import net.jodah.lyra.event.ConnectionListener;
 import net.jodah.lyra.util.Duration;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
-public class MessagingConnectionService {
+@Singleton
+public class MessagingConnectionService implements ConnectionListener{
 
     public enum QueueName {
         SERVER_TO_DRONE
     }
 
+    public enum ConnectionState {
+        DISCONNECTED, CONNECTED, RECONNECTING
+    }
+
     public static final String RMQ_REMOTE_SERVER_ADDR = "151.80.44.117:5672";
     public static final String RMQ_LOCAL_SERVER_ADDR = "192.168.57.1:5672";
+
+    public ConnectionState connectionState = ConnectionState.DISCONNECTED;
     private Channel channel;
     private Connection connection;
-    private MessageListener listener;
 
-    public MessagingConnectionService(MessageListener listener) {
+    private List<MessageListener> listeners = new ArrayList<>();
 
-        this.listener = listener;
+
+
+    @Inject
+    public MessagingConnectionService() {}
+
+    public void connect() {
         try {
             final Runnable r = new Runnable() {
                 public void run() {
@@ -33,7 +49,8 @@ public class MessagingConnectionService {
                         Config config = new Config()
                                 .withRecoveryPolicy(new RecoveryPolicy()
                                         .withBackoff(Duration.seconds(1), Duration.seconds(30))
-                                        .withMaxAttempts(20));
+                                        .withMaxAttempts(20))
+                                .withConnectionListeners(MessagingConnectionService.this);
 
                         ConnectionOptions options = new ConnectionOptions()
                                 .withAddresses(RMQ_LOCAL_SERVER_ADDR)
@@ -60,6 +77,14 @@ public class MessagingConnectionService {
             closeConnection();
             throw new RuntimeException(e);
         }
+    }
+
+    public void addListener(MessageListener listener) {
+        listeners.add(listener);
+    }
+
+    public void removeListener(MessageListener listener) {
+        listeners.remove(listener);
     }
 
     public void closeConnection() {
@@ -102,11 +127,38 @@ public class MessagingConnectionService {
             public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body)
                     throws IOException {
                 String message = new String(body, "UTF-8");
-                listener.onMessageReceived(message);
+                for (MessageListener listener : listeners) {
+                    listener.onMessageReceived(message);
+                }
                 Log.d("message", message);
             }
         };
 
+    }
+
+    @Override
+    public void onChannelRecovery(Connection connection) {
+        connectionState = ConnectionState.CONNECTED;
+    }
+
+    @Override
+    public void onCreate(Connection connection) {
+        connectionState = ConnectionState.CONNECTED;
+    }
+
+    @Override
+    public void onCreateFailure(Throwable failure) {
+        connectionState = ConnectionState.DISCONNECTED;
+    }
+
+    @Override
+    public void onRecovery(Connection connection) {
+        connectionState = ConnectionState.RECONNECTING;
+    }
+
+    @Override
+    public void onRecoveryFailure(Connection connection, Throwable failure) {
+        connectionState = ConnectionState.DISCONNECTED;
     }
 
 

@@ -4,8 +4,7 @@ import ch.projecthelin.droneonboardapp.activities.MainActivity;
 import ch.projecthelin.droneonboardapp.activities.RegisterDroneActivity;
 import ch.projecthelin.droneonboardapp.fragments.DroneFragment;
 import ch.projecthelin.droneonboardapp.fragments.OverviewFragment;
-import com.o3dr.android.client.ControlTower;
-import com.o3dr.android.client.Drone;
+import ch.projecthelin.droneonboardapp.fragments.ServerFragment;
 import dagger.Component;
 
 import javax.inject.Singleton;
@@ -20,5 +19,7 @@ public interface AppComponent {
     void inject(OverviewFragment fragment);
 
     void inject(DroneFragment fragment);
+
+    void inject(ServerFragment fragment);
 
 }

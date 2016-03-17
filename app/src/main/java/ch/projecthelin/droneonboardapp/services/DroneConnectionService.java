@@ -9,6 +9,8 @@ import ch.projecthelin.droneonboardapp.dto.dronestate.GPSState;
 import ch.projecthelin.droneonboardapp.mappers.DroneStateMapper;
 import com.o3dr.android.client.ControlTower;
 import com.o3dr.android.client.Drone;
+import com.o3dr.android.client.apis.drone.DroneStateApi;
+import com.o3dr.android.client.apis.drone.GuidedApi;
 import com.o3dr.android.client.interfaces.DroneListener;
 import com.o3dr.android.client.interfaces.TowerListener;
 import com.o3dr.services.android.lib.drone.attribute.AttributeEvent;
@@ -18,6 +20,7 @@ import com.o3dr.services.android.lib.drone.connection.ConnectionResult;
 import com.o3dr.services.android.lib.drone.connection.ConnectionType;
 import com.o3dr.services.android.lib.drone.property.Battery;
 import com.o3dr.services.android.lib.drone.property.Gps;
+import com.o3dr.services.android.lib.drone.property.VehicleMode;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -42,6 +45,7 @@ public class DroneConnectionService implements DroneListener, TowerListener {
 
     private List<DroneConnectionListener> connectionListeners = new ArrayList<>();
     private DroneState droneState = new DroneState();
+    private boolean takeoffWhenArmed;
 
     @Inject
     public DroneConnectionService(ControlTower controlTower, Drone drone) {
@@ -117,6 +121,10 @@ public class DroneConnectionService implements DroneListener, TowerListener {
 
             case AttributeEvent.STATE_ARMING:
                 Log.d(getClass().getCanonicalName(), "STATE_ARMING");
+                if (takeoffWhenArmed) {
+                    GuidedApi.takeoff(drone, 10);
+                    takeoffWhenArmed = false;
+                }
 
                 break;
 
@@ -127,8 +135,6 @@ public class DroneConnectionService implements DroneListener, TowerListener {
             case AttributeEvent.HOME_UPDATED:
                 Log.d(getClass().getCanonicalName(), "HOME_UPDATED");
                 break;
-
-
             case AttributeEvent.TYPE_UPDATED:
             case AttributeEvent.ATTITUDE_UPDATED:
             case AttributeEvent.ALTITUDE_UPDATED:
@@ -159,13 +165,20 @@ public class DroneConnectionService implements DroneListener, TowerListener {
             case AttributeEvent.WARNING_NO_GPS:
                 Log.d(getClass().getCanonicalName(), "GPS_POSITION / GPS_FIX / GPS_COUNT / WARNING_NO_GPS");
 
-                GPSState gpsState = DroneStateMapper.getGPSState((Gps)drone.getAttribute(AttributeType.GPS));
+                GPSState gpsState = DroneStateMapper.getGPSState((Gps) drone.getAttribute(AttributeType.GPS));
                 triggerGPSStateChange(gpsState);
                 break;
 
             default:
                 break;
         }
+    }
+
+
+    public void takeOff() {
+        DroneStateApi.setVehicleMode(drone, VehicleMode.COPTER_GUIDED);
+        DroneStateApi.arm(drone, true);
+        takeoffWhenArmed = true;
     }
 
     @Override

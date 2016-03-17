@@ -82,7 +82,6 @@ public class MainActivity2 extends AppCompatActivity implements DroneListener, T
     }
 
     public void onBtnConnectToServerTap(View view) {
-        messagingConnectionService = new MessagingConnectionService(this);
         Button sendMessageBtn = (Button) findViewById(R.id.btnSendMessage);
         sendMessageBtn.setVisibility(View.VISIBLE);
     }
