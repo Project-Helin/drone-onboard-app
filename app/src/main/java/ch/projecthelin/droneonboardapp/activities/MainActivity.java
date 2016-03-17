@@ -16,6 +16,7 @@ import android.view.View;
 import java.util.Observable;
 import java.util.Observer;
 
+import ch.projecthelin.droneonboardapp.DroneOnboardApp;
 import ch.projecthelin.droneonboardapp.R;
 import ch.projecthelin.droneonboardapp.dto.dronestate.BatteryState;
 import ch.projecthelin.droneonboardapp.dto.dronestate.DroneState;
@@ -37,11 +38,12 @@ public class MainActivity extends AppCompatActivity {
     private ViewPager mViewPager;
 
     @Inject
-    public DroneConnectionService droneConnectionService;
+    DroneConnectionService droneConnectionService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        ((DroneOnboardApp) getApplication()).component().inject(this);
         setContentView(R.layout.activity_main);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);

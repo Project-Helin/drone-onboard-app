@@ -14,7 +14,8 @@
         android:icon="@mipmap/ic_launcher"
         android:label="Drone Onboard App"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme"
+        android:name="ch.projecthelin.droneonboardapp.DroneOnboardApp">
         <activity android:name=".activities.MainActivity2" />
         <activity
             android:name=".activities.RegisterDroneActivity"

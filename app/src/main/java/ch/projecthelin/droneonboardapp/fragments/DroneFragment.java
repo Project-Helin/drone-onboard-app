@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+import ch.projecthelin.droneonboardapp.DroneOnboardApp;
 import ch.projecthelin.droneonboardapp.R;
 import ch.projecthelin.droneonboardapp.dto.dronestate.BatteryState;
 import ch.projecthelin.droneonboardapp.dto.dronestate.DroneState;
@@ -20,7 +21,7 @@ import javax.inject.Inject;
 public class DroneFragment extends Fragment implements DroneConnectionListener {
 
     @Inject
-    public DroneConnectionService droneConnectionService;
+    DroneConnectionService droneConnectionService;
 
     private TextView txtGps;
     private TextView txtPosition;
@@ -31,13 +32,11 @@ public class DroneFragment extends Fragment implements DroneConnectionListener {
 
     private Button btnConnect;
 
-    public DroneFragment() {
-        droneConnectionService.addConnectionListener(this);
-    }
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        ((DroneOnboardApp) getActivity().getApplication()).component().inject(this);
+        droneConnectionService.addConnectionListener(this);
     }
 
     @Override

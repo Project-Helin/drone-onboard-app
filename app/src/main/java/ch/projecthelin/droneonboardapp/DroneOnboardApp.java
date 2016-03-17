@@ -1,27 +1,31 @@
 package ch.projecthelin.droneonboardapp;
 
-import ch.projecthelin.droneonboardapp.activities.MainActivity;
+import android.app.Application;
+import ch.projecthelin.droneonboardapp.activities.RegisterDroneActivity;
 import ch.projecthelin.droneonboardapp.di.AppModule;
 import ch.projecthelin.droneonboardapp.di.AppComponent;
 import ch.projecthelin.droneonboardapp.di.DaggerAppComponent;
 
-public class DroneOnboardApp extends android.app.Application {
+public class DroneOnboardApp extends Application {
 
     private static AppComponent appComponent;
 
     @Override
     public void onCreate() {
         super.onCreate();
-        
-        // Dagger%COMPONENT_NAME%
+
+        //Here we need the generated Dagger{{myComponentName}} class
         appComponent = DaggerAppComponent.builder()
-                // list of modules that are part of this component need to be created here too
-                .appModule(new AppModule(this)) // This also corresponds to the name of your module: %component_name%Module
+                .appModule(new AppModule(this))
                 .build();
     }
 
-    public static void inject(MainActivity target) {
+    public static void inject(RegisterDroneActivity target) {
         appComponent.inject(target);
+    }
+
+    public AppComponent component() {
+        return appComponent;
     }
 
 }

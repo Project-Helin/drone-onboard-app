@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import ch.projecthelin.droneonboardapp.DroneOnboardApp;
 import ch.projecthelin.droneonboardapp.R;
 import ch.projecthelin.droneonboardapp.activities.MainActivity;
 import ch.projecthelin.droneonboardapp.activities.MissionActivity;
@@ -21,12 +22,6 @@ import javax.inject.Inject;
 
 
 public class OverviewFragment extends Fragment implements DroneConnectionListener{
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    private String mParam1;
-    private String mParam2;
 
     private TextView txtConnection;
     private TextView txtGPS;
@@ -37,26 +32,16 @@ public class OverviewFragment extends Fragment implements DroneConnectionListene
     @Inject
     DroneConnectionService droneConnectionService;
 
-    public OverviewFragment() {
-        droneConnectionService.addConnectionListener(this);
-    }
-
     public static OverviewFragment newInstance(String param1, String param2) {
         OverviewFragment fragment = new OverviewFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
         return fragment;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
+        ((DroneOnboardApp) getActivity().getApplication()).component().inject(this);
+        droneConnectionService.addConnectionListener(this);
     }
 
     @Override
