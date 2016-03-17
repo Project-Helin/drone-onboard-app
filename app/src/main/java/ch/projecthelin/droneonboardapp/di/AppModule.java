@@ -2,7 +2,6 @@ package ch.projecthelin.droneonboardapp.di;
 
 import android.app.Application;
 import android.content.Context;
-import android.content.ContextWrapper;
 import com.o3dr.android.client.ControlTower;
 import com.o3dr.android.client.Drone;
 import dagger.Module;
