@@ -6,8 +6,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.TextView;
+import android.widget.*;
 import ch.projecthelin.droneonboardapp.DroneOnboardApp;
 import ch.projecthelin.droneonboardapp.R;
 import ch.projecthelin.droneonboardapp.dto.dronestate.BatteryState;
@@ -15,6 +14,8 @@ import ch.projecthelin.droneonboardapp.dto.dronestate.DroneState;
 import ch.projecthelin.droneonboardapp.dto.dronestate.GPSState;
 import ch.projecthelin.droneonboardapp.services.DroneConnectionListener;
 import ch.projecthelin.droneonboardapp.services.DroneConnectionService;
+import com.o3dr.services.android.lib.drone.connection.ConnectionParameter;
+import com.o3dr.services.android.lib.drone.connection.ConnectionType;
 
 import javax.inject.Inject;
 
@@ -31,6 +32,7 @@ public class DroneFragment extends Fragment implements DroneConnectionListener {
     private TextView txtFirmware;
 
     private Button btnConnect;
+    private Spinner connectionSelector;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -47,6 +49,7 @@ public class DroneFragment extends Fragment implements DroneConnectionListener {
 
         initializeViewFields(view);
         initializeBtnListeners();
+        initializeConnectionModeSpinner(view);
 
         return view;
     }
@@ -74,6 +77,30 @@ public class DroneFragment extends Fragment implements DroneConnectionListener {
         btnConnect = (Button) view.findViewById(R.id.btnConnectToDrone);
     }
 
+    protected void initializeConnectionModeSpinner(View view) {
+        String[] connectionModes = {"USB", "UDP", "TCP"};
+        connectionSelector = (Spinner) view.findViewById(R.id.connectionSelect);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_item, connectionModes);
+        connectionSelector.setAdapter(adapter);
+
+        connectionSelector.setOnItemSelectedListener(new Spinner.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                onConnectionSelected(view);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                // Do nothing
+            }
+        });
+    }
+
+    public void onConnectionSelected(View view) {
+        int connectionType = (int) connectionSelector.getSelectedItemPosition();
+        droneConnectionService.setConnectionType(connectionType);
+    }
+
     @Override
     public void onDroneStateChange(DroneState state) {
         Log.d(getClass().getCanonicalName(), String.valueOf(state));
@@ -88,6 +115,8 @@ public class DroneFragment extends Fragment implements DroneConnectionListener {
         }
 
     }
+
+
 
     @Override
     public void onGPSStateChange(GPSState state) {

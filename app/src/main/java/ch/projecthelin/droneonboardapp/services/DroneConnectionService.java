@@ -30,14 +30,9 @@ import java.util.List;
 @Singleton
 public class DroneConnectionService implements DroneListener, TowerListener {
 
-    // remove later!
     public static final String TCP_SERVER_IP = "192.168.57.1";
-    // public static final int BAUD_RATE_FOR_USB = 115200;
+    public static final int BAUD_RATE_FOR_USB = 115200;
     public static final int TCP_SERVER_PORT = 5760;
-
-    public ConnectionParameter connectionParameter;
-
-    private static DroneConnectionService instance;
 
     private ControlTower controlTower;
     private Drone drone;
@@ -48,6 +43,7 @@ public class DroneConnectionService implements DroneListener, TowerListener {
     private boolean takeoffWhenArmed;
     private GPSState gpsState;
     private BatteryState batteryState;
+    private int connectionType;
 
     @Inject
     public DroneConnectionService(ControlTower controlTower, Drone drone) {
@@ -57,13 +53,18 @@ public class DroneConnectionService implements DroneListener, TowerListener {
     }
 
     public void connect() {
-
         Bundle extraParams = new Bundle();
-        extraParams.putString(ConnectionType.EXTRA_TCP_SERVER_IP, TCP_SERVER_IP);
-        extraParams.putInt(ConnectionType.EXTRA_TCP_SERVER_PORT, TCP_SERVER_PORT);
-        connectionParameter = new ConnectionParameter(ConnectionType.TYPE_TCP, extraParams, null);
 
-        drone.connect(connectionParameter);
+        if (connectionType == ConnectionType.TYPE_USB) {
+            extraParams.putInt(ConnectionType.EXTRA_USB_BAUD_RATE, BAUD_RATE_FOR_USB);
+        } else if (connectionType == ConnectionType.TYPE_TCP) {
+            extraParams.putString(ConnectionType.EXTRA_TCP_SERVER_IP, TCP_SERVER_IP);
+            extraParams.putInt(ConnectionType.EXTRA_TCP_SERVER_PORT, TCP_SERVER_PORT);
+        }
+
+        ConnectionParameter connectionParams = new ConnectionParameter(connectionType, extraParams, null);
+
+        drone.connect(connectionParams);
     }
 
     public void disconnect() {
@@ -209,6 +210,10 @@ public class DroneConnectionService implements DroneListener, TowerListener {
 
     public BatteryState getBatteryState() {
         return batteryState;
+    }
+
+    public void setConnectionType(int connectionType) {
+        this.connectionType = connectionType;
     }
 }
 
