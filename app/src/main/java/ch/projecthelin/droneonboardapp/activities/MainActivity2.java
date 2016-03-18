@@ -5,7 +5,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.*;
-import ch.projecthelin.droneonboardapp.MessageListener;
+import ch.projecthelin.droneonboardapp.MessagingListener;
 import ch.projecthelin.droneonboardapp.R;
 import ch.projecthelin.droneonboardapp.services.MessagingConnectionService;
 import com.o3dr.android.client.ControlTower;
@@ -25,7 +25,7 @@ import com.o3dr.services.android.lib.drone.property.*;
 
 import java.util.List;
 
-public class MainActivity2 extends AppCompatActivity implements DroneListener, TowerListener, MessageListener {
+public class MainActivity2 extends AppCompatActivity implements DroneListener, TowerListener, MessagingListener {
 
     public static final String TCP_SERVER_IP = "192.168.56.1";
     public static final int BAUD_RATE_FOR_USB = 115200;
@@ -348,5 +348,10 @@ public class MainActivity2 extends AppCompatActivity implements DroneListener, T
 
             }
         });
+    }
+
+    @Override
+    public void onConnectionStateChanged(MessagingConnectionService.ConnectionState state) {
+
     }
 }

@@ -23,7 +23,10 @@ public class DroneStateMapper {
         droneState.setTargetAltitude(altitude.getAltitude());
 
         Type type = drone.getAttribute(AttributeType.TYPE);
-        droneState.setFirmeware(type.getFirmware().getLabel());
+
+        if (type != null && type.getFirmware() != null) {
+            droneState.setFirmeware(type.getFirmware().getLabel());
+        }
 
         return droneState;
     }

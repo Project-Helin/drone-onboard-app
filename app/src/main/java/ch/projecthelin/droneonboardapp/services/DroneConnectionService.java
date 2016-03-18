@@ -46,6 +46,8 @@ public class DroneConnectionService implements DroneListener, TowerListener {
     private List<DroneConnectionListener> connectionListeners = new ArrayList<>();
     private DroneState droneState = new DroneState();
     private boolean takeoffWhenArmed;
+    private GPSState gpsState;
+    private BatteryState batteryState;
 
     @Inject
     public DroneConnectionService(ControlTower controlTower, Drone drone) {
@@ -70,6 +72,10 @@ public class DroneConnectionService implements DroneListener, TowerListener {
 
     public DroneState getDroneState() {
         return droneState;
+    }
+
+    public GPSState getGpsState() {
+        return gpsState;
     }
 
     public void addConnectionListener(DroneConnectionListener connectionListener) {
@@ -106,11 +112,13 @@ public class DroneConnectionService implements DroneListener, TowerListener {
 
             case AttributeEvent.STATE_CONNECTED:
                 Log.d(getClass().getCanonicalName(), "STATE_CONNECTED");
+                droneState.setIsConnected(true);
                 this.triggerDroneStateChange(DroneStateMapper.getDroneState(drone));
                 break;
 
             case AttributeEvent.STATE_DISCONNECTED:
                 Log.d(getClass().getCanonicalName(), "STATE_DISCONNECTED");
+                droneState.setIsConnected(false);
                 this.triggerDroneStateChange(DroneStateMapper.getDroneState(drone));
                 break;
 
@@ -151,7 +159,7 @@ public class DroneConnectionService implements DroneListener, TowerListener {
                 Log.d(getClass().getCanonicalName(), "BATTERY_UPDATED");
 
                 Battery droneBattery = drone.getAttribute(AttributeType.BATTERY);
-                BatteryState batteryState = new BatteryState(droneBattery.getBatteryVoltage(),
+                batteryState = new BatteryState(droneBattery.getBatteryVoltage(),
                         droneBattery.getBatteryCurrent(),
                         droneBattery.getBatteryDischarge(),
                         droneBattery.getBatteryRemain());
@@ -165,7 +173,7 @@ public class DroneConnectionService implements DroneListener, TowerListener {
             case AttributeEvent.WARNING_NO_GPS:
                 Log.d(getClass().getCanonicalName(), "GPS_POSITION / GPS_FIX / GPS_COUNT / WARNING_NO_GPS");
 
-                GPSState gpsState = DroneStateMapper.getGPSState((Gps) drone.getAttribute(AttributeType.GPS));
+                gpsState = DroneStateMapper.getGPSState((Gps) drone.getAttribute(AttributeType.GPS));
                 triggerGPSStateChange(gpsState);
                 break;
 
@@ -199,5 +207,8 @@ public class DroneConnectionService implements DroneListener, TowerListener {
     }
 
 
+    public BatteryState getBatteryState() {
+        return batteryState;
+    }
 }
 

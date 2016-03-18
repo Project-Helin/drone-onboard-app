@@ -2,7 +2,6 @@ package ch.projecthelin.droneonboardapp.fragments;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,20 +9,15 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 import ch.projecthelin.droneonboardapp.DroneOnboardApp;
-import ch.projecthelin.droneonboardapp.MessageListener;
+import ch.projecthelin.droneonboardapp.MessagingListener;
 import ch.projecthelin.droneonboardapp.R;
-import ch.projecthelin.droneonboardapp.dto.dronestate.BatteryState;
-import ch.projecthelin.droneonboardapp.dto.dronestate.DroneState;
-import ch.projecthelin.droneonboardapp.dto.dronestate.GPSState;
-import ch.projecthelin.droneonboardapp.services.DroneConnectionListener;
 import ch.projecthelin.droneonboardapp.services.DroneConnectionService;
 import ch.projecthelin.droneonboardapp.services.MessagingConnectionService;
-import com.o3dr.android.client.apis.drone.DroneStateApi;
-import com.o3dr.services.android.lib.drone.property.VehicleMode;
 
 import javax.inject.Inject;
+import java.util.Calendar;
 
-public class ServerFragment extends Fragment implements MessageListener {
+public class ServerFragment extends Fragment implements MessagingListener {
 
     @Inject
     MessagingConnectionService messagingConnectionService;
@@ -31,13 +25,9 @@ public class ServerFragment extends Fragment implements MessageListener {
     @Inject
     DroneConnectionService droneConnectionService;
 
-    private TextView txtGps;
-    private TextView txtPosition;
-    private TextView txtBattery;
-    private TextView txtAltitude;
-    private TextView txtSpeed;
-    private TextView txtFirmware;
-
+    private TextView txtConnectionState;
+    private TextView txtErrorLog;
+    private TextView txtIP;
     private Button btnConnect;
 
     @Override
@@ -51,39 +41,40 @@ public class ServerFragment extends Fragment implements MessageListener {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        View view = inflater.inflate(R.layout.fragment_drone, container, false);
+        View view = inflater.inflate(R.layout.fragment_server, container, false);
 
         initializeViewFields(view);
         initializeBtnListeners();
+
+        txtErrorLog.append(messagingConnectionService.connectionState.name() + "\n");
+        txtConnectionState.setText(messagingConnectionService.connectionState.name());
+        txtIP.setText(MessagingConnectionService.RMQ_REMOTE_SERVER_ADDR);
 
         return view;
     }
 
     @Override
-    public void onDestroy () {
+    public void onDestroy() {
         messagingConnectionService.removeListener(this);
     }
 
     private void initializeBtnListeners() {
         btnConnect.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                messagingConnectionService.connect();
+                if (messagingConnectionService.connectionState.equals(MessagingConnectionService.ConnectionState.CONNECTED)) {
+                    messagingConnectionService.disconnect();
+                } else {
+                    messagingConnectionService.connect();
+                }
             }
         });
     }
 
     private void initializeViewFields(View view) {
-        txtGps = (TextView) view.findViewById(R.id.txtGPS);
-        txtPosition = (TextView) view.findViewById(R.id.txtPosition);
-        txtBattery = (TextView) view.findViewById(R.id.txtBattery);
-        txtAltitude = (TextView) view.findViewById(R.id.txtAltitude);
-        txtSpeed = (TextView) view.findViewById(R.id.txtSpeed);
-        txtFirmware = (TextView) view.findViewById(R.id.txtFirmware);
+        txtConnectionState = (TextView) view.findViewById(R.id.txtConnectionState);
+        txtIP = (TextView) view.findViewById(R.id.txtIP);
+        txtErrorLog = (TextView) view.findViewById(R.id.txtErrorLog);
         btnConnect = (Button) view.findViewById(R.id.btnConnectToDrone);
-    }
-
-    protected void alertUser(String message) {
-        Toast.makeText(getActivity().getApplicationContext(), message, Toast.LENGTH_LONG).show();
     }
 
     @Override
@@ -92,10 +83,48 @@ public class ServerFragment extends Fragment implements MessageListener {
 
             @Override
             public void run() {
-                alertUser(message);
+                txtErrorLog.setText(getTime() + message + "\n" + txtErrorLog.getText());
                 droneConnectionService.takeOff();
-
             }
         });
+    }
+
+    @Override
+    public void onConnectionStateChanged(final MessagingConnectionService.ConnectionState state) {
+        getActivity().runOnUiThread(new Runnable() {
+
+            @Override
+            public void run() {
+                txtErrorLog.setText(getTime() + state.name() + "\n" + txtErrorLog.getText());
+                txtConnectionState.setText(messagingConnectionService.connectionState.name());
+                updateConnectButton();
+            }
+        });
+    }
+
+    private void updateConnectButton() {
+        String buttonText;
+
+        switch (messagingConnectionService.connectionState) {
+            case CONNECTED:
+                buttonText = "Disconnect";
+                break;
+            case RECONNECTING:
+                buttonText = "Abort Reconnecting";
+                break;
+            default:
+                buttonText = "Connect";
+        }
+
+        btnConnect.setText(buttonText);
+    }
+
+    private String getTime() {
+        Calendar c = Calendar.getInstance();
+        int hour = c.get(Calendar.HOUR_OF_DAY);
+        int minute = c.get(Calendar.MINUTE);
+        int seconds = c.get(Calendar.SECOND);
+
+        return hour + ":" + minute + ":" + seconds + " ";
     }
 }

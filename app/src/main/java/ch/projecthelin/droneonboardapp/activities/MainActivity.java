@@ -12,24 +12,11 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-
-import java.util.Observable;
-import java.util.Observer;
-
 import ch.projecthelin.droneonboardapp.DroneOnboardApp;
 import ch.projecthelin.droneonboardapp.R;
-import ch.projecthelin.droneonboardapp.dto.dronestate.BatteryState;
-import ch.projecthelin.droneonboardapp.dto.dronestate.DroneState;
-import ch.projecthelin.droneonboardapp.dto.dronestate.GPSState;
 import ch.projecthelin.droneonboardapp.fragments.DroneFragment;
 import ch.projecthelin.droneonboardapp.fragments.OverviewFragment;
-import ch.projecthelin.droneonboardapp.fragments.PlaceholderFragment;
-import ch.projecthelin.droneonboardapp.services.DroneConnectionListener;
-import ch.projecthelin.droneonboardapp.services.DroneConnectionService;
-import com.o3dr.android.client.ControlTower;
-import com.o3dr.android.client.Drone;
-
-import javax.inject.Inject;
+import ch.projecthelin.droneonboardapp.fragments.ServerFragment;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -37,8 +24,6 @@ public class MainActivity extends AppCompatActivity {
 
     private ViewPager mViewPager;
 
-    @Inject
-    DroneConnectionService droneConnectionService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -101,11 +86,14 @@ public class MainActivity extends AppCompatActivity {
                 case 0: {
                     return new OverviewFragment();
                 }
+                case 1: {
+                    return new ServerFragment();
+                }
                 case 2: {
                     return new DroneFragment();
                 }
                 default: {
-                    return PlaceholderFragment.newInstance(position + 1);
+                    return new OverviewFragment();
                 }
             }
         }

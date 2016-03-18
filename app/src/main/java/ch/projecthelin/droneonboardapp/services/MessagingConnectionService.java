@@ -1,7 +1,7 @@
 package ch.projecthelin.droneonboardapp.services;
 
 import android.util.Log;
-import ch.projecthelin.droneonboardapp.MessageListener;
+import ch.projecthelin.droneonboardapp.MessagingListener;
 import com.rabbitmq.client.*;
 import net.jodah.lyra.ConnectionOptions;
 import net.jodah.lyra.Connections;
@@ -34,7 +34,7 @@ public class MessagingConnectionService implements ConnectionListener{
     private Channel channel;
     private Connection connection;
 
-    private List<MessageListener> listeners = new ArrayList<>();
+    private List<MessagingListener> listeners = new ArrayList<>();
 
 
 
@@ -59,7 +59,6 @@ public class MessagingConnectionService implements ConnectionListener{
 
                         connection = Connections.create(options, config);
                         channel = connection.createChannel(1);
-                        Log.d("Messaging", "connected");
                         Consumer consumer = createConsumer();
 
                         channel.basicConsume(QueueName.SERVER_TO_DRONE.name(), true, consumer);
@@ -74,22 +73,30 @@ public class MessagingConnectionService implements ConnectionListener{
             new Thread(r).start();
 
         } catch (Exception e) {
-            closeConnection();
+            disconnect();
             throw new RuntimeException(e);
         }
     }
 
-    public void addListener(MessageListener listener) {
+    public void addListener(MessagingListener listener) {
         listeners.add(listener);
     }
 
-    public void removeListener(MessageListener listener) {
+    public void removeListener(MessagingListener listener) {
         listeners.remove(listener);
     }
 
-    public void closeConnection() {
-        closeConnection(connection);
+    public void notifyListenersConnectionState(ConnectionState state) {
+        for (MessagingListener listener : listeners) {
+            listener.onConnectionStateChanged(state);
+        }
+    }
+
+    public void disconnect() {
+        disconnect(connection);
         closeChannel(channel);
+        connectionState = ConnectionState.DISCONNECTED;
+        notifyListenersConnectionState(ConnectionState.DISCONNECTED);
     }
 
     public void sendMessage(String message) {
@@ -101,7 +108,7 @@ public class MessagingConnectionService implements ConnectionListener{
         }
     }
 
-    private void closeConnection(Connection connection) {
+    private void disconnect(Connection connection) {
         if (connection != null && channel.isOpen()) {
             try {
                 connection.close();
@@ -127,7 +134,7 @@ public class MessagingConnectionService implements ConnectionListener{
             public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body)
                     throws IOException {
                 String message = new String(body, "UTF-8");
-                for (MessageListener listener : listeners) {
+                for (MessagingListener listener : listeners) {
                     listener.onMessageReceived(message);
                 }
                 Log.d("message", message);
@@ -139,26 +146,31 @@ public class MessagingConnectionService implements ConnectionListener{
     @Override
     public void onChannelRecovery(Connection connection) {
         connectionState = ConnectionState.CONNECTED;
+        notifyListenersConnectionState(connectionState);
     }
 
     @Override
     public void onCreate(Connection connection) {
         connectionState = ConnectionState.CONNECTED;
+        notifyListenersConnectionState(connectionState);
     }
 
     @Override
     public void onCreateFailure(Throwable failure) {
         connectionState = ConnectionState.DISCONNECTED;
+        notifyListenersConnectionState(connectionState);
     }
 
     @Override
     public void onRecovery(Connection connection) {
         connectionState = ConnectionState.RECONNECTING;
+        notifyListenersConnectionState(connectionState);
     }
 
     @Override
     public void onRecoveryFailure(Connection connection, Throwable failure) {
         connectionState = ConnectionState.DISCONNECTED;
+        notifyListenersConnectionState(connectionState);
     }
 
 

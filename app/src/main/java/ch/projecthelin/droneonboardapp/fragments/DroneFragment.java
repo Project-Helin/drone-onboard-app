@@ -55,13 +55,10 @@ public class DroneFragment extends Fragment implements DroneConnectionListener {
         btnConnect.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                switch (v.getId()) {
-                    case R.id.btnConnectToDrone:
-                        if (droneConnectionService.getDroneState().isConnected()) {
-                            droneConnectionService.disconnect();
-                        } else {
-                            droneConnectionService.connect();
-                        }
+                if (droneConnectionService.getDroneState().isConnected()) {
+                    droneConnectionService.disconnect();
+                } else {
+                    droneConnectionService.connect();
                 }
             }
         });
@@ -94,7 +91,7 @@ public class DroneFragment extends Fragment implements DroneConnectionListener {
 
     @Override
     public void onGPSStateChange(GPSState state) {
-        txtGps.setText(state.getFixType() + " - Satellites: "
+        txtGps.setText(state.getFixTypeLabel() + " - Satellites: "
                 + state.getSatellitesCount());
         txtPosition.setText(state.getLatLong());
     }

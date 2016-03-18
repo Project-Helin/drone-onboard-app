@@ -17,7 +17,7 @@ public class GPSState {
 
     public boolean isGPSGood() {
         //if smaller than 2, GPS is not fixed not 2D, nor 3D
-        return getFixType() < 2;
+        return !(getFixType() < 2);
     }
 
     public int getFixType() {
@@ -81,7 +81,7 @@ public class GPSState {
     @Override
     public String toString() {
         return "GPSState{" +
-                "fixType='" + fixType + '\'' +
+                "fixType='" + getFixTypeLabel() + '\'' +
                 ", satellitesCount=" + satellitesCount +
                 ", posLat=" + posLat +
                 ", posLon=" + posLon +
