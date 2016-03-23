@@ -38,9 +38,9 @@ dependencies {
     compile 'com.google.dagger:dagger:2.0.1'
     apt "com.google.dagger:dagger-compiler:2.0.1"
     provided 'org.glassfish:javax.annotation:10.0-b28'
-    compile 'com.android.support:appcompat-v7:23.2.0'
-    compile 'com.android.support:design:23.2.0'
-    compile 'com.android.support:support-v4:23.2.0'
+    compile 'com.android.support:appcompat-v7:23.1.0'
+    compile 'com.android.support:design:23.1.0'
+    compile 'com.android.support:support-v4:23.1.0'
     compile 'com.o3dr.android:dronekit-android:2.3.34'
     compile 'com.rabbitmq:amqp-client:3.6.0'
     compile 'net.jodah:lyra:0.4.3'
