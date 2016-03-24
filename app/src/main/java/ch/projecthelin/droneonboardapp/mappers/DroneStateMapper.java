@@ -15,15 +15,18 @@ public class DroneStateMapper {
         DroneState droneState = new DroneState();
 
         Speed speed = drone.getAttribute(AttributeType.SPEED);
-        droneState.setVerticalSpeed(speed.getVerticalSpeed());
-        droneState.setGroundSpeed(speed.getGroundSpeed());
+        if (speed != null) {
+            droneState.setVerticalSpeed(speed.getVerticalSpeed());
+            droneState.setGroundSpeed(speed.getGroundSpeed());
+        }
 
         Altitude altitude = drone.getAttribute(AttributeType.ALTITUDE);
-        droneState.setTargetAltitude(altitude.getTargetAltitude());
-        droneState.setTargetAltitude(altitude.getAltitude());
+        if (altitude != null) {
+            droneState.setTargetAltitude(altitude.getTargetAltitude());
+            droneState.setTargetAltitude(altitude.getAltitude());
+        }
 
         Type type = drone.getAttribute(AttributeType.TYPE);
-
         if (type != null && type.getFirmware() != null) {
             droneState.setFirmeware(type.getFirmware().getLabel());
         }
@@ -35,9 +38,11 @@ public class DroneStateMapper {
     public static GPSState getGPSState(Gps gps) {
         GPSState gpsState = new GPSState();
 
-        gpsState.setFixType(gps.getFixType());
-        gpsState.setSatellitesCount(gps.getSatellitesCount());
-        gpsState.setPosition(gps.getPosition());
+        if (gps != null) {
+            gpsState.setFixType(gps.getFixType());
+            gpsState.setSatellitesCount(gps.getSatellitesCount());
+            gpsState.setPosition(gps.getPosition());
+        }
 
         return gpsState;
     }
