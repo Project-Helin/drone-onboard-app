@@ -149,22 +149,15 @@ public class DroneConnectionService implements DroneListener, TowerListener {
             case AttributeEvent.ALTITUDE_UPDATED:
             case AttributeEvent.SPEED_UPDATED:
                 Log.d(getClass().getCanonicalName(), "SPEED_UPDATED / ALTITUDE_UPDATED");
-
                 DroneState state = DroneStateMapper.getDroneState(drone);
-
                 triggerDroneStateChange(state);
 
                 break;
 
             case AttributeEvent.BATTERY_UPDATED:
                 Log.d(getClass().getCanonicalName(), "BATTERY_UPDATED");
-
                 Battery droneBattery = drone.getAttribute(AttributeType.BATTERY);
-                batteryState = new BatteryState(droneBattery.getBatteryVoltage(),
-                        droneBattery.getBatteryCurrent(),
-                        droneBattery.getBatteryDischarge(),
-                        droneBattery.getBatteryRemain());
-
+                batteryState = DroneStateMapper.getBatteryState(droneBattery);
                 triggerBatteryStateChange(batteryState);
                 break;
 

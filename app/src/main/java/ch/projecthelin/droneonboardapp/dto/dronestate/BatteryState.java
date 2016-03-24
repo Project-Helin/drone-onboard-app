@@ -7,13 +7,6 @@ public class BatteryState{
     private double current;
     private double discharge;
 
-    public BatteryState(double voltage, double current, double discharge, double remain) {
-        this.voltage = voltage;
-        this.remain = remain;
-        this.current = current;
-        this.discharge = discharge;
-    }
-
     public double getVoltage() {
         return voltage;
     }

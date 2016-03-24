@@ -27,7 +27,7 @@ public class MessagingConnectionService implements ConnectionListener{
         DISCONNECTED, CONNECTED, RECONNECTING
     }
 
-    public static final String RMQ_REMOTE_SERVER_ADDR = "151.80.44.117:5672";
+    public static final String RMQ_REMOTE_SERVER_ADDR = "151.80.44.117:8080";
     public static final String RMQ_LOCAL_SERVER_ADDR = "192.168.57.1:5672";
 
     public ConnectionState connectionState = ConnectionState.DISCONNECTED;
@@ -53,7 +53,7 @@ public class MessagingConnectionService implements ConnectionListener{
                                 .withConnectionListeners(MessagingConnectionService.this);
 
                         ConnectionOptions options = new ConnectionOptions()
-                                .withAddresses(RMQ_LOCAL_SERVER_ADDR)
+                                .withAddresses(RMQ_REMOTE_SERVER_ADDR)
                                 .withUsername("admin").
                                         withPassword("helin");
 
