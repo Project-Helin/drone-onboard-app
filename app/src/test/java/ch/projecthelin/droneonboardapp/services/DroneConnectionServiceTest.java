@@ -3,6 +3,7 @@ package ch.projecthelin.droneonboardapp.services;
 import android.os.Bundle;
 import ch.projecthelin.droneonboardapp.DroneOnboardApp;
 import ch.projecthelin.droneonboardapp.di.*;
+import ch.projecthelin.droneonboardapp.dto.dronestate.DroneState;
 import ch.projecthelin.droneonboardapp.mappers.DroneStateMapper;
 import com.o3dr.android.client.ControlTower;
 import com.o3dr.android.client.Drone;
@@ -80,6 +81,9 @@ public class DroneConnectionServiceTest {
 
         service.onDroneEvent(AttributeEvent.STATE_CONNECTED, new Bundle());
 
-        verify(droneConnectionListener).onDroneStateChange(DroneStateMapper.getDroneState(drone));
+        DroneState droneState = DroneStateMapper.getDroneState(drone);
+        droneState.setIsConnected(true);
+
+        verify(droneConnectionListener).onDroneStateChange(droneState);
     }
 }
