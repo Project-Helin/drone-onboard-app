@@ -58,6 +58,7 @@ public class ServerFragment extends Fragment implements MessagingListener {
         messagingConnectionService.removeListener(this);
     }
 
+
     private void initializeBtnListeners() {
         btnConnect.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
