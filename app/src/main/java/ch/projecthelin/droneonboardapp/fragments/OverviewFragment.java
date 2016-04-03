@@ -45,7 +45,7 @@ public class OverviewFragment extends Fragment implements DroneConnectionListene
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_main, container, false);
+        View view = inflater.inflate(R.layout.fragment_overview, container, false);
 
         txtConnection = (TextView) view.findViewById(R.id.txtConnection);
         txtGPS = (TextView) view.findViewById(R.id.txtGPS);
@@ -95,10 +95,10 @@ public class OverviewFragment extends Fragment implements DroneConnectionListene
                 }
 
                 if (serverConnectionState.equals(MessagingConnectionService.ConnectionState.CONNECTED)) {
-                    txtServerConnectionState.setText(MessagingConnectionService.ConnectionState.CONNECTED.name());
+                    txtServerConnectionState.setText("Connected");
                     txtServerConnectionState.setBackgroundResource(R.color.green);
                 } else {
-                    txtServerConnectionState.setText(MessagingConnectionService.ConnectionState.DISCONNECTED.name());
+                    txtServerConnectionState.setText("Disconnected");
                     txtServerConnectionState.setBackgroundResource(R.color.red);
                 }
             }

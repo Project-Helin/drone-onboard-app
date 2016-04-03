@@ -33,6 +33,7 @@ public class DroneFragment extends Fragment implements DroneConnectionListener {
 
     private Button btnConnect;
     private Spinner connectionSelector;
+    private TextView txtErrorLog;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -74,6 +75,7 @@ public class DroneFragment extends Fragment implements DroneConnectionListener {
         txtAltitude = (TextView) view.findViewById(R.id.txtAltitude);
         txtSpeed = (TextView) view.findViewById(R.id.txtSpeed);
         txtFirmware = (TextView) view.findViewById(R.id.txtFirmware);
+        txtErrorLog = (TextView) view.findViewById(R.id.txtErrorLog);
         btnConnect = (Button) view.findViewById(R.id.btnConnectToDrone);
     }
 
@@ -103,16 +105,20 @@ public class DroneFragment extends Fragment implements DroneConnectionListener {
 
     @Override
     public void onDroneStateChange(DroneState state) {
-        Log.d(getClass().getCanonicalName(), String.valueOf(state));
-        txtSpeed.setText("Ground: " + (int) (state.getGroundSpeed()) + "m/s Vertical: " + (int) (state.getVerticalSpeed()) + "m/s");
-        txtAltitude.setText((int) state.getAltitude() + " / " + (int) state.getTargetAltitude());
-        txtFirmware.setText(state.getFirmware());
+        try {
+            txtSpeed.setText("Ground: " + (int) (state.getGroundSpeed()) + "m/s Vertical: " + (int) (state.getVerticalSpeed()) + "m/s");
+            txtAltitude.setText((int) state.getAltitude() + " / " + (int) state.getTargetAltitude());
+            txtFirmware.setText(state.getFirmware());
 
-        if (state.isConnected()) {
-            btnConnect.setText("Disconnect");
-        } else {
-            btnConnect.setText("Connect");
+            if (state.isConnected()) {
+                btnConnect.setText("Disconnect");
+            } else {
+                btnConnect.setText("Connect");
+            }
+        } catch (Exception e) {
+            txtErrorLog.setText(txtErrorLog.getText() + "Problem in onDroneStateChange \n");
         }
+
 
     }
 
@@ -120,14 +126,23 @@ public class DroneFragment extends Fragment implements DroneConnectionListener {
 
     @Override
     public void onGPSStateChange(GPSState state) {
-        txtGps.setText(state.getFixTypeLabel() + " - Satellites: "
-                + state.getSatellitesCount());
-        txtPosition.setText(state.getLatLong());
+        try {
+            txtGps.setText(state.getFixTypeLabel() + " - Satellites: "
+                    + state.getSatellitesCount());
+            txtPosition.setText(state.getLatLong());
+        } catch (Exception e) {
+            txtErrorLog.setText(txtErrorLog.getText() + "Problem in onGpsStateChange \n");
+        }
     }
 
     @Override
     public void onBatteryStateChange(BatteryState state) {
-        txtBattery.setText(state.getRemain() + "% - " + state.getVoltage() + "V, " + state.getCurrent() + "A");
+        try {
+            txtBattery.setText(state.getRemain() + "% - " + state.getVoltage() + "V, " + state.getCurrent() + "A");
+        } catch (Exception e) {
+            txtErrorLog.setText(txtErrorLog.getText() + "Problem in onBatteryStateChange \n");
+        }
+
 
     }
 }
