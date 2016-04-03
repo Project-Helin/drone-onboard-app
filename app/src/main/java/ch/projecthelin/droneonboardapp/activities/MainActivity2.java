@@ -52,6 +52,7 @@ public class MainActivity2 extends AppCompatActivity implements DroneListener, T
 
         connectionSelector = (Spinner) findViewById(R.id.connectionSelect);
         setupConnectionModeSpinner();
+
     }
 
 
@@ -354,4 +355,5 @@ public class MainActivity2 extends AppCompatActivity implements DroneListener, T
     public void onConnectionStateChanged(MessagingConnectionService.ConnectionState state) {
 
     }
+
 }

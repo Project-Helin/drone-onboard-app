@@ -27,8 +27,8 @@ public class MessagingConnectionService implements ConnectionListener{
         DISCONNECTED, CONNECTED, RECONNECTING
     }
 
-    public static final String RMQ_REMOTE_SERVER_ADDR = "151.80.44.117:5672";
-    public static final String RMQ_LOCAL_SERVER_ADDR = "192.168.57.1:5672";
+    public static final String RMQ_REMOTE_SERVER_ADDR = "192.168.1.115:5672";
+    public static final String RMQ_LOCAL_SERVER_ADDR = "192.168.56.1:5672";
 
     public ConnectionState connectionState = ConnectionState.DISCONNECTED;
     private Channel channel;
@@ -41,7 +41,8 @@ public class MessagingConnectionService implements ConnectionListener{
     @Inject
     public MessagingConnectionService() {}
 
-    public void connect() {
+
+    public void connect(String hostAddress, String serverAddress){
         try {
             final Runnable r = new Runnable() {
                 public void run() {
@@ -76,6 +77,10 @@ public class MessagingConnectionService implements ConnectionListener{
             disconnect();
             throw new RuntimeException(e);
         }
+    }
+
+    public void connect() {
+        connect(RMQ_LOCAL_SERVER_ADDR, RMQ_REMOTE_SERVER_ADDR);
     }
 
     public void addListener(MessagingListener listener) {
