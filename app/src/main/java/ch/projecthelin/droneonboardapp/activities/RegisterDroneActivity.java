@@ -21,7 +21,7 @@ import java.util.concurrent.ExecutionException;
 
 import javax.inject.Inject;
 
-import ch.helin.messages.MySimpleMessage;
+//import ch.helin.messages.MySimpleMessage;
 import ch.projecthelin.droneonboardapp.DroneOnboardApp;
 import ch.projecthelin.droneonboardapp.R;
 import ch.projecthelin.droneonboardapp.services.MessagingConnectionService;
