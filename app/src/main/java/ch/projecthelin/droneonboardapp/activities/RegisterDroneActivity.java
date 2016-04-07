@@ -71,16 +71,18 @@ public class RegisterDroneActivity extends AppCompatActivity {
         String port = this.portTextField.getText().toString();
         String hostAddress = null;
         String serverAddress = ip + ":5672";
+        String s = "";
 
         try {
-            String s = new RegisterDroneService().execute("http://" + ip + ":" + port + "/registerDrone").get();
-            Log.d(getClass().getCanonicalName(), s);
+            s = new RegisterDroneService().execute("http://" + ip + ":" + port + "/registerDrone").get();
 
         } catch (InterruptedException e) {
             e.printStackTrace();
         } catch (ExecutionException e) {
             e.printStackTrace();
         }
+
+        // Log.d(getClass().getCanonicalName(), s);
 
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);

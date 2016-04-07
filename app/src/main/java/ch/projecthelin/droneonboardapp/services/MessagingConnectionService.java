@@ -27,8 +27,8 @@ public class MessagingConnectionService implements ConnectionListener{
         DISCONNECTED, CONNECTED, RECONNECTING
     }
 
-    public static final String RMQ_REMOTE_SERVER_ADDR = "192.168.1.115:5672";
-    public static final String RMQ_LOCAL_SERVER_ADDR = "192.168.56.1:5672";
+    public static final String RMQ_REMOTE_SERVER_ADDR = "192.168.56.101:5672";
+    public static final String RMQ_LOCAL_SERVER_ADDR = "152.96.238.77:5672";
 
     public ConnectionState connectionState = ConnectionState.DISCONNECTED;
     private Channel channel;

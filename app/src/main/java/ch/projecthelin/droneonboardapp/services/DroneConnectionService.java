@@ -30,7 +30,7 @@ import java.util.List;
 @Singleton
 public class DroneConnectionService implements DroneListener, TowerListener {
 
-    public static final String TCP_SERVER_IP = "192.168.57.1";
+    public static final String TCP_SERVER_IP = "152.96.238.77";
     public static final int BAUD_RATE_FOR_USB = 115200;
     public static final int TCP_SERVER_PORT = 5760;
 
@@ -84,18 +84,21 @@ public class DroneConnectionService implements DroneListener, TowerListener {
     }
 
     public void triggerDroneStateChange() {
+        Log.d(getClass().getCanonicalName(), "Triggering DroneState Change with: " + connectionListeners.size());
         for (DroneConnectionListener connectionListener : connectionListeners) {
             connectionListener.onDroneStateChange(droneState);
         }
     }
 
     public void triggerGPSStateChange() {
+        Log.d(getClass().getCanonicalName(), "Triggering GPSState Change with: " + connectionListeners.size());
         for (DroneConnectionListener connectionListener : connectionListeners) {
             connectionListener.onGPSStateChange(gpsState);
         }
     }
 
     public void triggerBatteryStateChange() {
+        Log.d(getClass().getCanonicalName(), "Triggering BatteryStateChange Change with: " + connectionListeners.size());
         for (DroneConnectionListener connectionListener : connectionListeners) {
             connectionListener.onBatteryStateChange(batteryState);
         }

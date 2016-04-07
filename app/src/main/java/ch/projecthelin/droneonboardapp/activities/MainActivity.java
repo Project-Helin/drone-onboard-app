@@ -9,20 +9,42 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+
+import javax.inject.Inject;
+
+import ch.helin.messages.converter.JsonBasedMessageConverter;
+import ch.helin.messages.dto.state.BatteryStateMessage;
+import ch.helin.messages.dto.state.GpsStateMessage;
 import ch.projecthelin.droneonboardapp.DroneOnboardApp;
 import ch.projecthelin.droneonboardapp.R;
+import ch.projecthelin.droneonboardapp.dto.dronestate.BatteryState;
+import ch.projecthelin.droneonboardapp.dto.dronestate.DroneState;
+import ch.projecthelin.droneonboardapp.dto.dronestate.GPSState;
 import ch.projecthelin.droneonboardapp.fragments.DroneFragment;
 import ch.projecthelin.droneonboardapp.fragments.OverviewFragment;
 import ch.projecthelin.droneonboardapp.fragments.ServerFragment;
+import ch.projecthelin.droneonboardapp.services.DroneConnectionListener;
+import ch.projecthelin.droneonboardapp.services.DroneConnectionService;
+import ch.projecthelin.droneonboardapp.services.MessagingConnectionService;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements DroneConnectionListener {
 
     private SectionsPagerAdapter mSectionsPagerAdapter;
 
     private ViewPager mViewPager;
+
+    @Inject
+    MessagingConnectionService messagingConnectionService;
+
+    @Inject
+    DroneConnectionService droneConnectionService;
+
+    private JsonBasedMessageConverter jsonBasedMessageConverter = new JsonBasedMessageConverter();
+
 
 
     @Override
@@ -44,6 +66,9 @@ public class MainActivity extends AppCompatActivity {
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
+
+        droneConnectionService.addConnectionListener(this);
+
     }
 
     @Override
@@ -72,6 +97,37 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onDroneStateChange(DroneState state) {
+
+    }
+
+    @Override
+    public void onGPSStateChange(GPSState state) {
+        GpsStateMessage gpsStateMessage = new GpsStateMessage();
+        gpsStateMessage.setFixType(state.getFixType());
+        gpsStateMessage.setPosLat(state.getLat());
+        gpsStateMessage.setPosLon(state.getLon());
+        gpsStateMessage.setSatellitesCount(state.getSatellitesCount());
+
+        Log.d(getClass().getCanonicalName(), "Send Message: " + gpsStateMessage.toString());
+
+        messagingConnectionService.sendMessage(jsonBasedMessageConverter.parseMessageToString(gpsStateMessage));
+    }
+
+    @Override
+    public void onBatteryStateChange(BatteryState state) {
+        BatteryStateMessage batteryStateMessage = new BatteryStateMessage();
+        batteryStateMessage.setCurrent(state.getCurrent());
+        batteryStateMessage.setDischarge(state.getDischarge());
+        batteryStateMessage.setVoltage(state.getVoltage());
+        batteryStateMessage.setRemain(state.getRemain());
+
+        Log.d(getClass().getCanonicalName(), "Send Message: " + batteryStateMessage.toString());
+
+        messagingConnectionService.sendMessage(jsonBasedMessageConverter.parseMessageToString(batteryStateMessage));
     }
 
     public class SectionsPagerAdapter extends FragmentPagerAdapter {

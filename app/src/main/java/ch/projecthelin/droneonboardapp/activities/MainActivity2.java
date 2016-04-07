@@ -3,10 +3,19 @@ package ch.projecthelin.droneonboardapp.activities;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.*;
+
+import ch.helin.messages.converter.JsonBasedMessageConverter;
+import ch.helin.messages.dto.state.GpsStateMessage;
 import ch.projecthelin.droneonboardapp.MessagingListener;
 import ch.projecthelin.droneonboardapp.R;
+import ch.projecthelin.droneonboardapp.dto.dronestate.BatteryState;
+import ch.projecthelin.droneonboardapp.dto.dronestate.DroneState;
+import ch.projecthelin.droneonboardapp.dto.dronestate.GPSState;
+import ch.projecthelin.droneonboardapp.services.DroneConnectionListener;
+import ch.projecthelin.droneonboardapp.services.DroneConnectionService;
 import ch.projecthelin.droneonboardapp.services.MessagingConnectionService;
 import com.o3dr.android.client.ControlTower;
 import com.o3dr.android.client.Drone;
@@ -25,9 +34,14 @@ import com.o3dr.services.android.lib.drone.property.*;
 
 import java.util.List;
 
-public class MainActivity2 extends AppCompatActivity implements DroneListener, TowerListener, MessagingListener {
+import javax.inject.Inject;
 
-    public static final String TCP_SERVER_IP = "192.168.56.1";
+public class MainActivity2 extends AppCompatActivity implements DroneListener, TowerListener, MessagingListener, DroneConnectionListener {
+
+    @Inject
+    DroneConnectionService droneConnectionService;
+
+    public static final String TCP_SERVER_IP = "152.96.238.77";
     public static final int BAUD_RATE_FOR_USB = 115200;
     public static final int TCP_SERVER_PORT = 5760;
     private ControlTower controlTower;
@@ -37,7 +51,11 @@ public class MainActivity2 extends AppCompatActivity implements DroneListener, T
     Spinner modeSelector;
     Spinner connectionSelector;
     ConnectionParameter connectionParams;
-    private MessagingConnectionService messagingConnectionService;
+
+    @Inject
+    MessagingConnectionService messagingConnectionService;
+
+    private JsonBasedMessageConverter jsonBasedMessageConverter = new JsonBasedMessageConverter();
     private boolean takeoffWhenArmed;
 
     @Override
@@ -52,6 +70,9 @@ public class MainActivity2 extends AppCompatActivity implements DroneListener, T
 
         connectionSelector = (Spinner) findViewById(R.id.connectionSelect);
         setupConnectionModeSpinner();
+
+        Log.d("MainActivity2", "About to register that stupid listener");
+        droneConnectionService.addConnectionListener(this);
 
     }
 
@@ -356,4 +377,26 @@ public class MainActivity2 extends AppCompatActivity implements DroneListener, T
 
     }
 
+    @Override
+    public void onDroneStateChange(DroneState state) {
+
+    }
+
+    @Override
+    public void onGPSStateChange(GPSState state) {
+        GpsStateMessage gpsStateMessage = new GpsStateMessage();
+        gpsStateMessage.setFixType(state.getFixType());
+        gpsStateMessage.setPosLat(0);
+        gpsStateMessage.setSatellitesCount(state.getSatellitesCount());
+
+        Log.d(getClass().getCanonicalName(), "Send Message: " + gpsStateMessage.toString());
+
+        messagingConnectionService.sendMessage(jsonBasedMessageConverter.parseMessageToString(gpsStateMessage));
+
+    }
+
+    @Override
+    public void onBatteryStateChange(BatteryState state) {
+
+    }
 }

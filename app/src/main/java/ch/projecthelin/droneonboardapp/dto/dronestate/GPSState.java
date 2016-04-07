@@ -70,6 +70,15 @@ public class GPSState {
         }
     }
 
+    public double getLat(){
+        return this.posLat;
+    }
+
+    public double getLon(){
+        return this.posLon;
+    }
+
+
     public void setFixType(int fixType) {
         this.fixType = fixType;
     }
