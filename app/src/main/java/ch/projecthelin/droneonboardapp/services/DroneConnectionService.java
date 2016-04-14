@@ -3,9 +3,11 @@ package ch.projecthelin.droneonboardapp.services;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
-import ch.projecthelin.droneonboardapp.dto.dronestate.BatteryState;
-import ch.projecthelin.droneonboardapp.dto.dronestate.DroneState;
-import ch.projecthelin.droneonboardapp.dto.dronestate.GPSState;
+
+import ch.helin.messages.dto.state.BatteryState;
+import ch.helin.messages.dto.state.DroneState;
+
+import ch.helin.messages.dto.state.GpsState;
 import ch.projecthelin.droneonboardapp.mappers.DroneStateMapper;
 import com.o3dr.android.client.ControlTower;
 import com.o3dr.android.client.Drone;
@@ -30,7 +32,7 @@ import java.util.List;
 @Singleton
 public class DroneConnectionService implements DroneListener, TowerListener {
 
-    public static final String TCP_SERVER_IP = "152.96.238.77";
+    public static final String TCP_SERVER_IP = "152.96.239.230";
     public static final int BAUD_RATE_FOR_USB = 115200;
     public static final int TCP_SERVER_PORT = 5760;
 
@@ -41,7 +43,7 @@ public class DroneConnectionService implements DroneListener, TowerListener {
     private List<DroneConnectionListener> connectionListeners = new ArrayList<>();
     private DroneState droneState = new DroneState();
     private boolean takeoffWhenArmed;
-    private GPSState gpsState;
+    private GpsState gpsState;
     private BatteryState batteryState;
     private int connectionType;
 
@@ -75,7 +77,7 @@ public class DroneConnectionService implements DroneListener, TowerListener {
         return droneState;
     }
 
-    public GPSState getGpsState() {
+    public GpsState getGpsState() {
         return gpsState;
     }
 
@@ -90,10 +92,10 @@ public class DroneConnectionService implements DroneListener, TowerListener {
         }
     }
 
-    public void triggerGPSStateChange() {
+    public void triggerGpsStateChange() {
         Log.d(getClass().getCanonicalName(), "Triggering GPSState Change with: " + connectionListeners.size());
         for (DroneConnectionListener connectionListener : connectionListeners) {
-            connectionListener.onGPSStateChange(gpsState);
+            connectionListener.onGpsStateChange(gpsState);
         }
     }
 
@@ -173,7 +175,7 @@ public class DroneConnectionService implements DroneListener, TowerListener {
                 Log.d(getClass().getCanonicalName(), "GPS_POSITION / GPS_FIX / GPS_COUNT / WARNING_NO_GPS");
 
                 gpsState = DroneStateMapper.getGPSState((Gps) drone.getAttribute(AttributeType.GPS));
-                triggerGPSStateChange();
+                triggerGpsStateChange();
                 break;
 
             default:
@@ -183,11 +185,11 @@ public class DroneConnectionService implements DroneListener, TowerListener {
 
     private void clearDroneData() {
         droneState = new DroneState();
-        gpsState = new GPSState();
+        gpsState = new GpsState();
         batteryState = new BatteryState();
 
         triggerDroneStateChange();
-        triggerGPSStateChange();
+        triggerGpsStateChange();
         triggerBatteryStateChange();
     }
 

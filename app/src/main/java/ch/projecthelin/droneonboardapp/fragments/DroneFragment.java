@@ -7,11 +7,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.*;
+
+import ch.helin.messages.dto.state.BatteryState;
+import ch.helin.messages.dto.state.DroneState;
+
+import ch.helin.messages.dto.state.GpsState;
 import ch.projecthelin.droneonboardapp.DroneOnboardApp;
 import ch.projecthelin.droneonboardapp.R;
-import ch.projecthelin.droneonboardapp.dto.dronestate.BatteryState;
-import ch.projecthelin.droneonboardapp.dto.dronestate.DroneState;
-import ch.projecthelin.droneonboardapp.dto.dronestate.GPSState;
+
 import ch.projecthelin.droneonboardapp.services.DroneConnectionListener;
 import ch.projecthelin.droneonboardapp.services.DroneConnectionService;
 import com.o3dr.services.android.lib.drone.connection.ConnectionParameter;
@@ -125,11 +128,11 @@ public class DroneFragment extends Fragment implements DroneConnectionListener {
 
 
     @Override
-    public void onGPSStateChange(GPSState state) {
+    public void onGpsStateChange(GpsState state) {
         try {
-            txtGps.setText(state.getFixTypeLabel() + " - Satellites: "
+            txtGps.setText(state.getFixType().getDescription() + " - Satellites: "
                     + state.getSatellitesCount());
-            txtPosition.setText(state.getLatLong());
+            txtPosition.setText(state.getPosLat() + ", " + state.getPosLon());
         } catch (Exception e) {
             txtErrorLog.setText(txtErrorLog.getText() + "Problem in onGpsStateChange \n");
         }

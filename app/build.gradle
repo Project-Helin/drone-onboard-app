@@ -13,6 +13,7 @@ android {
         versionCode 1
         versionName "1.0"
         multiDexEnabled true
+        testApplicationId "ch.projecthelin.droneonboardapp.test"
     }
     buildTypes {
         release {
@@ -36,10 +37,11 @@ configurations.all {
 }
 
 dependencies {
-    compile fileTree(include: ['*.jar'], dir: 'libs')
     testCompile 'junit:junit:4.12'
     testCompile 'org.mockito:mockito-core:1.10.19'
     testCompile 'org.easytesting:fest-assert:1.4'
+
+    compile fileTree(include: ['*.jar'], dir: 'libs')
     compile 'com.google.dagger:dagger:2.0.1'
     apt "com.google.dagger:dagger-compiler:2.0.1"
     provided 'org.glassfish:javax.annotation:10.0-b28'

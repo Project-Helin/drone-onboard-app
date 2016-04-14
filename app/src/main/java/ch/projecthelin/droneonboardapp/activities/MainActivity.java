@@ -17,13 +17,16 @@ import android.view.View;
 import javax.inject.Inject;
 
 import ch.helin.messages.converter.JsonBasedMessageConverter;
+import ch.helin.messages.dto.state.BatteryState;
 import ch.helin.messages.dto.state.BatteryStateMessage;
+import ch.helin.messages.dto.state.DroneState;
+import ch.helin.messages.dto.state.DroneStateMessage;
+
+import ch.helin.messages.dto.state.GpsState;
 import ch.helin.messages.dto.state.GpsStateMessage;
 import ch.projecthelin.droneonboardapp.DroneOnboardApp;
 import ch.projecthelin.droneonboardapp.R;
-import ch.projecthelin.droneonboardapp.dto.dronestate.BatteryState;
-import ch.projecthelin.droneonboardapp.dto.dronestate.DroneState;
-import ch.projecthelin.droneonboardapp.dto.dronestate.GPSState;
+
 import ch.projecthelin.droneonboardapp.fragments.DroneFragment;
 import ch.projecthelin.droneonboardapp.fragments.OverviewFragment;
 import ch.projecthelin.droneonboardapp.fragments.ServerFragment;
@@ -101,17 +104,15 @@ public class MainActivity extends AppCompatActivity implements DroneConnectionLi
 
     @Override
     public void onDroneStateChange(DroneState state) {
+        DroneStateMessage droneStateMessage = new DroneStateMessage();
+        droneStateMessage.setDroneState(state);
 
     }
 
     @Override
-    public void onGPSStateChange(GPSState state) {
+    public void onGpsStateChange(GpsState state) {
         GpsStateMessage gpsStateMessage = new GpsStateMessage();
-        gpsStateMessage.setFixType(state.getFixType());
-        gpsStateMessage.setPosLat(state.getLat());
-        gpsStateMessage.setPosLon(state.getLon());
-        gpsStateMessage.setSatellitesCount(state.getSatellitesCount());
-
+        gpsStateMessage.setGpsState(state);
         Log.d(getClass().getCanonicalName(), "Send Message: " + gpsStateMessage.toString());
 
         messagingConnectionService.sendMessage(jsonBasedMessageConverter.parseMessageToString(gpsStateMessage));
@@ -120,10 +121,7 @@ public class MainActivity extends AppCompatActivity implements DroneConnectionLi
     @Override
     public void onBatteryStateChange(BatteryState state) {
         BatteryStateMessage batteryStateMessage = new BatteryStateMessage();
-        batteryStateMessage.setCurrent(state.getCurrent());
-        batteryStateMessage.setDischarge(state.getDischarge());
-        batteryStateMessage.setVoltage(state.getVoltage());
-        batteryStateMessage.setRemain(state.getRemain());
+        batteryStateMessage.setBatteryStage(state);
 
         Log.d(getClass().getCanonicalName(), "Send Message: " + batteryStateMessage.toString());
 

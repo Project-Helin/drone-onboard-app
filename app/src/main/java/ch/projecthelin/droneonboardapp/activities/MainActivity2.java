@@ -8,12 +8,16 @@ import android.view.View;
 import android.widget.*;
 
 import ch.helin.messages.converter.JsonBasedMessageConverter;
+import ch.helin.messages.dto.state.BatteryState;
+import ch.helin.messages.dto.state.BatteryStateMessage;
+import ch.helin.messages.dto.state.DroneState;
+import ch.helin.messages.dto.state.DroneStateMessage;
+
+import ch.helin.messages.dto.state.GpsState;
 import ch.helin.messages.dto.state.GpsStateMessage;
 import ch.projecthelin.droneonboardapp.MessagingListener;
 import ch.projecthelin.droneonboardapp.R;
-import ch.projecthelin.droneonboardapp.dto.dronestate.BatteryState;
-import ch.projecthelin.droneonboardapp.dto.dronestate.DroneState;
-import ch.projecthelin.droneonboardapp.dto.dronestate.GPSState;
+
 import ch.projecthelin.droneonboardapp.services.DroneConnectionListener;
 import ch.projecthelin.droneonboardapp.services.DroneConnectionService;
 import ch.projecthelin.droneonboardapp.services.MessagingConnectionService;
@@ -379,24 +383,31 @@ public class MainActivity2 extends AppCompatActivity implements DroneListener, T
 
     @Override
     public void onDroneStateChange(DroneState state) {
+        DroneStateMessage droneStateMessage = new DroneStateMessage();
+        droneStateMessage.setDroneState(state);
 
+        Log.d(getClass().getCanonicalName(), "Send GPSState-Message: " + droneStateMessage.toString());
+        messagingConnectionService.sendMessage(jsonBasedMessageConverter.parseMessageToString(droneStateMessage));
     }
 
     @Override
-    public void onGPSStateChange(GPSState state) {
+    public void onGpsStateChange(GpsState state) {
         GpsStateMessage gpsStateMessage = new GpsStateMessage();
-        gpsStateMessage.setFixType(state.getFixType());
-        gpsStateMessage.setPosLat(0);
-        gpsStateMessage.setSatellitesCount(state.getSatellitesCount());
+        gpsStateMessage.setGpsState(state);
 
-        Log.d(getClass().getCanonicalName(), "Send Message: " + gpsStateMessage.toString());
-
+        Log.d(getClass().getCanonicalName(), "Send GPSState-Message: " + gpsStateMessage.toString());
         messagingConnectionService.sendMessage(jsonBasedMessageConverter.parseMessageToString(gpsStateMessage));
 
     }
 
     @Override
     public void onBatteryStateChange(BatteryState state) {
+        BatteryStateMessage batteryStateMessage = new BatteryStateMessage();
+        batteryStateMessage.setBatteryStage(state);
+
+        Log.d(getClass().getCanonicalName(), "Send GPSState-Message: " + batteryStateMessage.toString());
+        messagingConnectionService.sendMessage(jsonBasedMessageConverter.parseMessageToString(batteryStateMessage));
+
 
     }
 }

@@ -7,12 +7,17 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import ch.helin.messages.dto.state.BatteryState;
+import ch.helin.messages.dto.state.DroneState;
+
+import ch.helin.messages.dto.state.GpsQuality;
+import ch.helin.messages.dto.state.GpsState;
 import ch.projecthelin.droneonboardapp.DroneOnboardApp;
 import ch.projecthelin.droneonboardapp.MessagingListener;
 import ch.projecthelin.droneonboardapp.R;
-import ch.projecthelin.droneonboardapp.dto.dronestate.BatteryState;
-import ch.projecthelin.droneonboardapp.dto.dronestate.DroneState;
-import ch.projecthelin.droneonboardapp.dto.dronestate.GPSState;
+
+
+
 import ch.projecthelin.droneonboardapp.services.DroneConnectionListener;
 import ch.projecthelin.droneonboardapp.services.DroneConnectionService;
 import ch.projecthelin.droneonboardapp.services.MessagingConnectionService;
@@ -63,7 +68,7 @@ public class OverviewFragment extends Fragment implements DroneConnectionListene
             @Override
             public void run() {
                 DroneState droneState = droneConnectionService.getDroneState();
-                GPSState gpsState = droneConnectionService.getGpsState();
+                GpsState gpsState = droneConnectionService.getGpsState();
                 BatteryState batteryState = droneConnectionService.getBatteryState();
                 MessagingConnectionService.ConnectionState serverConnectionState = messagingConnectionService.connectionState;
 
@@ -77,16 +82,16 @@ public class OverviewFragment extends Fragment implements DroneConnectionListene
                 }
 
                 if(gpsState != null) {
-                    txtGPS.setText("GPS: " + gpsState.getFixTypeLabel());
-                    if (gpsState.isGPSGood()) {
-                        txtGPS.setBackgroundResource(R.color.green);
+                    txtGPS.setText("GPS: " + gpsState.getFixType().getDescription());
+                    if (gpsState.getFixType() != GpsQuality.NO_FIX) {
+                      txtGPS.setBackgroundResource(R.color.green);
                     } else {
                         txtGPS.setBackgroundResource(R.color.red);
                     }
                 }
 
                 if (batteryState != null) {
-                    txtBattery.setText("Battery: " + batteryState.getRemain() + "%");
+                    txtBattery.setText("Battery: " + batteryState.getRemain() + "% - " + batteryState.getVoltage() + "V");
                     if (batteryState.getRemain() < BATTERY_LOW) {
                         txtBattery.setBackgroundResource(R.color.red);
                     } else {
@@ -114,7 +119,7 @@ public class OverviewFragment extends Fragment implements DroneConnectionListene
     }
 
     @Override
-    public void onGPSStateChange(GPSState state) {
+    public void onGpsStateChange(GpsState state) {
         updateStatusColorsAndTexts();
     }
 

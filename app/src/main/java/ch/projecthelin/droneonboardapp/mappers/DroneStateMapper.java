@@ -1,13 +1,14 @@
 package ch.projecthelin.droneonboardapp.mappers;
 
 import android.util.Log;
-import ch.projecthelin.droneonboardapp.dto.dronestate.BatteryState;
-import ch.projecthelin.droneonboardapp.dto.dronestate.DroneState;
-import ch.projecthelin.droneonboardapp.dto.dronestate.GPSState;
 import com.o3dr.android.client.Drone;
 import com.o3dr.services.android.lib.drone.attribute.AttributeType;
 import com.o3dr.services.android.lib.drone.property.*;
-import org.mockito.internal.matchers.Null;
+
+import ch.helin.messages.dto.state.BatteryState;
+import ch.helin.messages.dto.state.DroneState;
+import ch.helin.messages.dto.state.GpsQuality;
+import ch.helin.messages.dto.state.GpsState;
 
 public class DroneStateMapper {
 
@@ -35,13 +36,16 @@ public class DroneStateMapper {
     }
 
 
-    public static GPSState getGPSState(Gps gps) {
-        GPSState gpsState = new GPSState();
+    public static GpsState getGPSState(Gps gps) {
+        GpsState gpsState = new GpsState();
 
         if (gps != null) {
-            gpsState.setFixType(gps.getFixType());
+            GpsQuality gpsQuality = GpsQuality.fromIndexOrReturnNoFix(gps.getFixType());
+
+            gpsState.setFixType(gpsQuality);
             gpsState.setSatellitesCount(gps.getSatellitesCount());
-            gpsState.setPosition(gps.getPosition());
+            gpsState.setPosLon(gps.getPosition().getLongitude());
+            gpsState.setPosLat(gps.getPosition().getLatitude());
         }
 
         return gpsState;

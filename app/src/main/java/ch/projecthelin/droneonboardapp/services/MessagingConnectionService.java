@@ -28,7 +28,7 @@ public class MessagingConnectionService implements ConnectionListener{
     }
 
     public static final String RMQ_REMOTE_SERVER_ADDR = "192.168.56.101:5672";
-    public static final String RMQ_LOCAL_SERVER_ADDR = "152.96.238.77:5672";
+    public static final String RMQ_LOCAL_SERVER_ADDR = "151.80.44.117:8080";
 
     public ConnectionState connectionState = ConnectionState.DISCONNECTED;
     private Channel channel;
@@ -106,10 +106,11 @@ public class MessagingConnectionService implements ConnectionListener{
 
     public void sendMessage(String message) {
         try {
-            Log.d("Send message ", message);
+            //Log.d("Send message ", message);
             channel.basicPublish("", QueueName.SERVER_TO_DRONE.name(), null, message.getBytes());
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        } catch (Exception e) {
+            //Log.d(getClass().getCanonicalName(), "Could not send message: " + message);
+            //throw new RuntimeException(e);
         }
     }
 
@@ -140,9 +141,9 @@ public class MessagingConnectionService implements ConnectionListener{
                     throws IOException {
                 String message = new String(body, "UTF-8");
                 for (MessagingListener listener : listeners) {
-                    listener.onMessageReceived(message);
+                    //listener.onMessageReceived(message);
                 }
-                Log.d("message", message);
+                //Log.d("message", message);
             }
         };
 

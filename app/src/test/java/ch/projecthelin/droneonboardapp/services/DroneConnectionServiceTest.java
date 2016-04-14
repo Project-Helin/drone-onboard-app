@@ -1,12 +1,15 @@
 package ch.projecthelin.droneonboardapp.services;
 
 import android.os.Bundle;
+
+import ch.helin.messages.dto.state.DroneState;
 import ch.projecthelin.droneonboardapp.DroneOnboardApp;
 import ch.projecthelin.droneonboardapp.di.*;
-import ch.projecthelin.droneonboardapp.dto.dronestate.DroneState;
+
 import ch.projecthelin.droneonboardapp.mappers.DroneStateMapper;
 import com.o3dr.android.client.ControlTower;
 import com.o3dr.android.client.Drone;
+import com.o3dr.services.android.lib.coordinate.LatLong;
 import com.o3dr.services.android.lib.drone.attribute.AttributeEvent;
 import com.o3dr.services.android.lib.drone.attribute.AttributeType;
 import com.o3dr.services.android.lib.drone.property.Altitude;
@@ -51,13 +54,14 @@ public class DroneConnectionServiceTest {
         Gps gps = new Gps();
         gps.setFixType(3);
         gps.setSatCount(10);
+        gps.setPosition(new LatLong(3.2,4.3));
 
         when(drone.getAttribute(AttributeType.GPS)).thenReturn(gps);
 
         service.addConnectionListener(droneConnectionListener);
         service.onDroneEvent(AttributeEvent.WARNING_NO_GPS, new Bundle());
 
-        verify(droneConnectionListener).onGPSStateChange(DroneStateMapper.getGPSState(gps));
+        verify(droneConnectionListener).onGpsStateChange(DroneStateMapper.getGPSState(gps));
     }
 
     @Test

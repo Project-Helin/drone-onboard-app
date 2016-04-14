@@ -1,13 +1,14 @@
 package ch.projecthelin.droneonboardapp.services;
 
-import ch.projecthelin.droneonboardapp.dto.dronestate.BatteryState;
-import ch.projecthelin.droneonboardapp.dto.dronestate.DroneState;
-import ch.projecthelin.droneonboardapp.dto.dronestate.GPSState;
+
+import ch.helin.messages.dto.state.BatteryState;
+import ch.helin.messages.dto.state.DroneState;
+import ch.helin.messages.dto.state.GpsState;
 
 public interface DroneConnectionListener {
 
     void onDroneStateChange(DroneState state);
-    void onGPSStateChange(GPSState state);
+    void onGpsStateChange(GpsState state);
     void onBatteryStateChange(BatteryState state);
 
 
