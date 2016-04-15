@@ -8,13 +8,15 @@ import android.view.View;
 import android.widget.*;
 
 import ch.helin.messages.converter.JsonBasedMessageConverter;
+import ch.helin.messages.dto.message.stateMessage.BatteryStateMessage;
+import ch.helin.messages.dto.message.stateMessage.DroneStateMessage;
+import ch.helin.messages.dto.message.stateMessage.GpsStateMessage;
 import ch.helin.messages.dto.state.BatteryState;
-import ch.helin.messages.dto.state.BatteryStateMessage;
+
 import ch.helin.messages.dto.state.DroneState;
-import ch.helin.messages.dto.state.DroneStateMessage;
 
 import ch.helin.messages.dto.state.GpsState;
-import ch.helin.messages.dto.state.GpsStateMessage;
+
 import ch.projecthelin.droneonboardapp.MessagingListener;
 import ch.projecthelin.droneonboardapp.R;
 

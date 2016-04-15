@@ -17,13 +17,14 @@ import android.view.View;
 import javax.inject.Inject;
 
 import ch.helin.messages.converter.JsonBasedMessageConverter;
+import ch.helin.messages.dto.message.stateMessage.BatteryStateMessage;
+import ch.helin.messages.dto.message.stateMessage.DroneStateMessage;
+import ch.helin.messages.dto.message.stateMessage.GpsStateMessage;
 import ch.helin.messages.dto.state.BatteryState;
-import ch.helin.messages.dto.state.BatteryStateMessage;
+
 import ch.helin.messages.dto.state.DroneState;
-import ch.helin.messages.dto.state.DroneStateMessage;
 
 import ch.helin.messages.dto.state.GpsState;
-import ch.helin.messages.dto.state.GpsStateMessage;
 import ch.projecthelin.droneonboardapp.DroneOnboardApp;
 import ch.projecthelin.droneonboardapp.R;
 
