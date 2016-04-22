@@ -85,7 +85,7 @@ public class ServerFragment extends Fragment implements MessagingListener {
             @Override
             public void run() {
                 txtErrorLog.setText(getTime() + message + "\n" + txtErrorLog.getText());
-                droneConnectionService.takeOff();
+                //droneConnectionService.takeOff();
             }
         });
     }
