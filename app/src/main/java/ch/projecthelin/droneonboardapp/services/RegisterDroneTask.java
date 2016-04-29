@@ -1,22 +1,26 @@
 package ch.projecthelin.droneonboardapp.services;
 
 import android.os.AsyncTask;
-import android.util.Log;
+import ch.helin.messages.converter.JsonBasedMessageConverter;
+import ch.helin.messages.dto.message.DroneDto;
+import ch.helin.messages.dto.message.DroneDtoMessage;
+import ch.helin.messages.dto.message.Message;
 
+import javax.inject.Inject;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-/**
- * Created by styp on 02.04.16.
- */
-public class RegisterDroneService extends AsyncTask<String, Void, String> {
+public class RegisterDroneTask extends AsyncTask<String, Void, DroneDto> {
 
     private Exception exception;
 
+    @Inject
+    JsonBasedMessageConverter messageConverter;
+
     @Override
-    protected String doInBackground(String... urls) {
+    protected DroneDto doInBackground(String... urls) {
         try{
             StringBuilder result = new StringBuilder();
             URL url = new URL(urls[0]);
@@ -29,7 +33,10 @@ public class RegisterDroneService extends AsyncTask<String, Void, String> {
                 result.append(line);
             }
             rd.close();
-            return result.toString();
+            Message message = messageConverter.parseStringToMessage(result.toString());
+            DroneDtoMessage droneDtoMessage = (DroneDtoMessage) message;
+
+            return droneDtoMessage.getDroneDto();
         } catch(Exception e){
             exception = e;
         }

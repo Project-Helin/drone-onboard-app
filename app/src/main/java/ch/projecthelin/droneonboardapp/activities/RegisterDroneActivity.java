@@ -1,23 +1,15 @@
 package ch.projecthelin.droneonboardapp.activities;
 
 import android.content.Intent;
-import android.net.wifi.WifiManager;
-import android.os.StrictMode;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.text.format.Formatter;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
 
-import com.o3dr.services.android.lib.util.Utils;
-
-import java.net.Inet4Address;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.concurrent.ExecutionException;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.inject.Inject;
 
@@ -25,12 +17,16 @@ import javax.inject.Inject;
 import ch.projecthelin.droneonboardapp.DroneOnboardApp;
 import ch.projecthelin.droneonboardapp.R;
 import ch.projecthelin.droneonboardapp.services.MessagingConnectionService;
-import ch.projecthelin.droneonboardapp.services.RegisterDroneService;
+import com.android.volley.*;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class RegisterDroneActivity extends AppCompatActivity {
 
     private EditText droneNameTextField;
-    private EditText codeTextField;
+    private EditText organisationToken;
     private EditText payloadTextField;
     private EditText ipTextField;
     private EditText portTextField;
@@ -53,7 +49,7 @@ public class RegisterDroneActivity extends AppCompatActivity {
 
     private void setUIComponents() {
         this.droneNameTextField = (EditText) findViewById(R.id.name);
-        this.codeTextField = (EditText) findViewById(R.id.code);
+        this.organisationToken = (EditText) findViewById(R.id.code);
         this.payloadTextField = (EditText) findViewById(R.id.payload);
         this.ipTextField = (EditText) findViewById(R.id.ip);
         this.portTextField = (EditText) findViewById(R.id.port);
@@ -65,38 +61,55 @@ public class RegisterDroneActivity extends AppCompatActivity {
     }
 
     public void onRegisterButtonClick(View view) {
-        Intent intent = new Intent(this, MainActivity.class);
 
         String ip = this.ipTextField.getText().toString();
         String port = this.portTextField.getText().toString();
-        String hostAddress = null;
-        String serverAddress = ip + ":5672";
-        String s = "";
+        final String serverAddress = ip + ":5672";
+        String url = "http://" + ip + ":" + port + "/api/drones";
 
+        RequestQueue queue = Volley.newRequestQueue(this);
+
+        JSONObject drone = null;
         try {
-            s = new RegisterDroneService().execute("http://" + ip + ":" + port + "/registerDrone").get();
+            JSONObject droneValues = new JSONObject()
+                    .put("name", droneNameTextField.getText())
+                    .put("payload", String.valueOf(payloadTextField.getText()))
+                    .put("organisationToken", organisationToken.getText());
+            drone = new JSONObject().put("drone", droneValues);
 
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
+        } catch (JSONException e) {
             e.printStackTrace();
         }
 
-        // Log.d(getClass().getCanonicalName(), s);
+        JsonObjectRequest postRequest = new JsonObjectRequest(Request.Method.POST, url, drone,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        Log.d("ddd", "received response");
+                        messagingConnectionService.connect("", serverAddress);
 
-        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-        StrictMode.setThreadPolicy(policy);
+//                        Intent intent = new Intent(this, MainActivity.class);
+//                        startActivity(intent);
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                    error.printStackTrace();
+                    }
+                }) {
 
-        try {
-            hostAddress = InetAddress.getLocalHost().getHostAddress();
-        } catch (UnknownHostException e) {
-            Toast.makeText(this, "UnknownHostException: Error finding IP!", Toast.LENGTH_LONG);
-            return;
-        }
-        hostAddress = hostAddress + ":5672";
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                HashMap<String, String> headers = new HashMap<String, String>();
+                headers.put("Content-Type", "application/json; charset=utf-8");
+                headers.put("User-agent", System.getProperty("http.agent"));
+                return headers;
+            }
+        };
 
-        messagingConnectionService.connect(hostAddress, serverAddress);
+        queue.add(postRequest);
 
-        startActivity(intent);
+
     }
 }
