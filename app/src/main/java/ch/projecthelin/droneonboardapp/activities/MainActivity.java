@@ -1,7 +1,9 @@
 package ch.projecthelin.droneonboardapp.activities;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -48,7 +50,7 @@ public class MainActivity extends AppCompatActivity implements DroneConnectionLi
     DroneConnectionService droneConnectionService;
 
     private JsonBasedMessageConverter jsonBasedMessageConverter = new JsonBasedMessageConverter();
-
+    private String droneToken;
 
 
     @Override
@@ -73,6 +75,13 @@ public class MainActivity extends AppCompatActivity implements DroneConnectionLi
 
         droneConnectionService.addConnectionListener(this);
 
+        messagingConnectionService.setDroneToken(loadDroneTokenFromSharedPreferences());
+
+    }
+
+    private String loadDroneTokenFromSharedPreferences(){
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        return sharedPreferences.getString(RegisterDroneActivity.DRONE_TOKEN_KEY, "") ;
     }
 
     @Override

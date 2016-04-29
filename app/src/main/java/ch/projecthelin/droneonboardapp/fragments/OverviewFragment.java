@@ -81,7 +81,7 @@ public class OverviewFragment extends Fragment implements DroneConnectionListene
                     txtConnection.setBackgroundResource(R.color.red);
                 }
 
-                if(gpsState != null) {
+                if(gpsState != null && gpsState.getFixType() != null) {
                     txtGPS.setText("GPS: " + gpsState.getFixType().getDescription());
                     if (gpsState.getFixType() != GpsQuality.NO_FIX) {
                       txtGPS.setBackgroundResource(R.color.green);

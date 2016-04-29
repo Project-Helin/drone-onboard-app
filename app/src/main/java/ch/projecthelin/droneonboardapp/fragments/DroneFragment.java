@@ -121,10 +121,7 @@ public class DroneFragment extends Fragment implements DroneConnectionListener {
         } catch (Exception e) {
             txtErrorLog.setText(txtErrorLog.getText() + "Problem in onDroneStateChange \n");
         }
-
-
     }
-
 
 
     @Override

@@ -1,6 +1,7 @@
 package ch.projecthelin.droneonboardapp.services;
 
 import android.util.Log;
+import ch.helin.messages.commons.ConnectionUtils;
 import ch.projecthelin.droneonboardapp.MessagingListener;
 import com.rabbitmq.client.*;
 import net.jodah.lyra.ConnectionOptions;
@@ -17,32 +18,27 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Singleton
-public class MessagingConnectionService implements ConnectionListener{
+public class MessagingConnectionService implements ConnectionListener {
 
-    public enum QueueName {
-        SERVER_TO_DRONE
-    }
-
-    public enum ConnectionState {
-        DISCONNECTED, CONNECTED, RECONNECTING
-    }
-
-    public static final String RMQ_REMOTE_SERVER_ADDR = "192.168.56.101:5672";
-    public static final String RMQ_LOCAL_SERVER_ADDR = "151.80.44.117:8080";
+    public static final String RMQ_REMOTE_SERVER_ADDR = "151.80.44.117:8080";
+    public static final String RMQ_LOCAL_SERVER_ADDR = "152.96.238.18:5672";
 
     public ConnectionState connectionState = ConnectionState.DISCONNECTED;
+
+    private String droneToken;
     private Channel channel;
     private Connection connection;
-
     private List<MessagingListener> listeners = new ArrayList<>();
 
-
-
     @Inject
-    public MessagingConnectionService() {}
+    public MessagingConnectionService() {
+    }
 
+    public void setDroneToken(String droneToken) {
+        this.droneToken = droneToken;
+    }
 
-    public void connect(String hostAddress, String serverAddress){
+    public void connect(final String hostAddress, final String serverAddress) {
         try {
             final Runnable r = new Runnable() {
                 public void run() {
@@ -54,16 +50,17 @@ public class MessagingConnectionService implements ConnectionListener{
                                 .withConnectionListeners(MessagingConnectionService.this);
 
                         ConnectionOptions options = new ConnectionOptions()
-                                .withAddresses(RMQ_LOCAL_SERVER_ADDR)
-                                .withUsername("admin").
-                                        withPassword("helin");
+                                .withAddresses(hostAddress)
+                                .withUsername("admin")
+                                .withPassword("helin");
 
                         connection = Connections.create(options, config);
                         channel = connection.createChannel(1);
+
+
                         Consumer consumer = createConsumer();
 
-                        channel.basicConsume(QueueName.SERVER_TO_DRONE.name(), true, consumer);
-
+                        channel.basicConsume(ConnectionUtils.getDroneSideConsumerQueueName(droneToken), true, consumer);
 
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -107,7 +104,7 @@ public class MessagingConnectionService implements ConnectionListener{
     public void sendMessage(String message) {
         try {
             //Log.d("Send message ", message);
-            channel.basicPublish("", QueueName.SERVER_TO_DRONE.name(), null, message.getBytes());
+            channel.basicPublish("", ConnectionUtils.getDroneSideProducerQueueName(droneToken), null, message.getBytes());
         } catch (Exception e) {
             //Log.d(getClass().getCanonicalName(), "Could not send message: " + message);
             //throw new RuntimeException(e);
@@ -177,6 +174,10 @@ public class MessagingConnectionService implements ConnectionListener{
     public void onRecoveryFailure(Connection connection, Throwable failure) {
         connectionState = ConnectionState.DISCONNECTED;
         notifyListenersConnectionState(connectionState);
+    }
+
+    public enum ConnectionState {
+        DISCONNECTED, CONNECTED, RECONNECTING
     }
 
 

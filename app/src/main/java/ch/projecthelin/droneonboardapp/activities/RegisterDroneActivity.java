@@ -1,9 +1,11 @@
 package ch.projecthelin.droneonboardapp.activities;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -14,16 +16,28 @@ import java.util.Map;
 import javax.inject.Inject;
 
 //import ch.helin.messages.MySimpleMessage;
+import ch.helin.messages.converter.JsonBasedMessageConverter;
+import ch.helin.messages.dto.message.DroneDto;
 import ch.projecthelin.droneonboardapp.DroneOnboardApp;
 import ch.projecthelin.droneonboardapp.R;
 import ch.projecthelin.droneonboardapp.services.MessagingConnectionService;
 import com.android.volley.*;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 public class RegisterDroneActivity extends AppCompatActivity {
+
+    public static final String DRONE_NAME_KEY = "drone_name_key";
+    public static final String DRONE_TOKEN_KEY = "drone_token_key";
+    private static final String IP_ADDRESS = "152.96.238.18";
+    private static final String PORT = "9000";
+
+    @Inject
+    MessagingConnectionService messagingConnectionService;
 
     private EditText droneNameTextField;
     private EditText organisationToken;
@@ -31,13 +45,8 @@ public class RegisterDroneActivity extends AppCompatActivity {
     private EditText ipTextField;
     private EditText portTextField;
     private Button registerButton;
-
-    @Inject
-    MessagingConnectionService messagingConnectionService;
-
-
-    private static final String IP_ADDRESS = "192.168.1.115";
-    private static final String PORT = "9000";
+    private String droneName;
+    private String droneToken;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +54,20 @@ public class RegisterDroneActivity extends AppCompatActivity {
         ((DroneOnboardApp) getApplication()).component().inject(this);
         setContentView(R.layout.activity_register);
         setUIComponents();
+
+        boolean alreadyRegistered = loadDroneNameAndTokenFromSharedPreferences();
+
+        if (alreadyRegistered) {
+            goToMainActivity();
+        }
+    }
+
+    private boolean loadDroneNameAndTokenFromSharedPreferences() {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        droneName = sharedPreferences.getString(RegisterDroneActivity.DRONE_NAME_KEY, "");
+        droneToken = sharedPreferences.getString(RegisterDroneActivity.DRONE_TOKEN_KEY, "");
+
+        return droneName != null;
     }
 
     private void setUIComponents() {
@@ -64,38 +87,30 @@ public class RegisterDroneActivity extends AppCompatActivity {
 
         String ip = this.ipTextField.getText().toString();
         String port = this.portTextField.getText().toString();
-        final String serverAddress = ip + ":5672";
         String url = "http://" + ip + ":" + port + "/api/drones";
 
+        JSONObject drone = createRegisterRequestDataFromInputValues();
+
+        sendRegisterRequest(url, drone);
+
+    }
+
+    private void sendRegisterRequest(final String url, final JSONObject drone) {
         RequestQueue queue = Volley.newRequestQueue(this);
-
-        JSONObject drone = null;
-        try {
-            JSONObject droneValues = new JSONObject()
-                    .put("name", droneNameTextField.getText())
-                    .put("payload", String.valueOf(payloadTextField.getText()))
-                    .put("organisationToken", organisationToken.getText());
-            drone = new JSONObject().put("drone", droneValues);
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
         JsonObjectRequest postRequest = new JsonObjectRequest(Request.Method.POST, url, drone,
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
-                        Log.d("ddd", "received response");
-                        messagingConnectionService.connect("", serverAddress);
 
-//                        Intent intent = new Intent(this, MainActivity.class);
-//                        startActivity(intent);
+                        saveDroneNameAndTokenToSharedPreferences(response);
+
+                        goToMainActivity();
                     }
                 },
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                    error.printStackTrace();
+                        error.printStackTrace();
                     }
                 }) {
 
@@ -109,7 +124,44 @@ public class RegisterDroneActivity extends AppCompatActivity {
         };
 
         queue.add(postRequest);
-
-
     }
+
+    private JSONObject createRegisterRequestDataFromInputValues() {
+        JSONObject drone = null;
+
+        try {
+            JSONObject droneValues = new JSONObject()
+                    .put("name", droneNameTextField.getText())
+                    .put("payload", String.valueOf(payloadTextField.getText()))
+                    .put("organisationToken", organisationToken.getText());
+            drone = new JSONObject().put("drone", droneValues);
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return drone;
+    }
+
+    private void saveDroneNameAndTokenToSharedPreferences(JSONObject response) {
+        Gson gson = new GsonBuilder().create();
+
+        DroneDto droneDto = gson.fromJson(response.toString(), DroneDto.class);
+
+        saveToPreferences(RegisterDroneActivity.DRONE_NAME_KEY, droneDto.getName());
+        saveToPreferences(RegisterDroneActivity.DRONE_TOKEN_KEY, droneDto.getToken().toString());
+    }
+
+    private void goToMainActivity() {
+        Intent intent = new Intent(RegisterDroneActivity.this, MainActivity.class);
+        startActivity(intent);
+    }
+
+    private void saveToPreferences(String key, String value) {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(key, value);
+        editor.apply();
+    }
+
 }
