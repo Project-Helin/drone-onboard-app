@@ -44,8 +44,10 @@ public class DroneStateMapper {
 
             gpsState.setFixType(gpsQuality);
             gpsState.setSatellitesCount(gps.getSatellitesCount());
-            gpsState.setPosLon(gps.getPosition().getLongitude());
-            gpsState.setPosLat(gps.getPosition().getLatitude());
+            if (gps.getPosition() != null) {
+                gpsState.setPosLon(gps.getPosition().getLongitude());
+                gpsState.setPosLat(gps.getPosition().getLatitude());
+            }
         }
 
         return gpsState;

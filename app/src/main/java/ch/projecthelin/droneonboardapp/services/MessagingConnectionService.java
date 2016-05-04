@@ -21,7 +21,7 @@ import java.util.List;
 public class MessagingConnectionService implements ConnectionListener {
 
     public static final String RMQ_REMOTE_SERVER_ADDR = "151.80.44.117:8080";
-    public static final String RMQ_LOCAL_SERVER_ADDR = "152.96.238.18:5672";
+    public static final String RMQ_LOCAL_SERVER_ADDR = "152.96.239.248:5672";
 
     public ConnectionState connectionState = ConnectionState.DISCONNECTED;
 

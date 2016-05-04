@@ -12,6 +12,9 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -19,7 +22,6 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:name="ch.projecthelin.droneonboardapp.DroneOnboardApp">
-        <activity android:name=".activities.MainActivity2" />
         <activity
             android:name=".activities.RegisterDroneActivity"
             android:label="Register your drone">

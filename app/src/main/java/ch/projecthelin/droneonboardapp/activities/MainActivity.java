@@ -2,6 +2,7 @@ package ch.projecthelin.droneonboardapp.activities;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.location.Location;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.TabLayout;
@@ -19,6 +20,7 @@ import android.view.View;
 import javax.inject.Inject;
 
 import ch.helin.messages.converter.JsonBasedMessageConverter;
+import ch.helin.messages.dto.message.DroneInfoMessage;
 import ch.helin.messages.dto.message.stateMessage.BatteryStateMessage;
 import ch.helin.messages.dto.message.stateMessage.DroneStateMessage;
 import ch.helin.messages.dto.message.stateMessage.GpsStateMessage;
@@ -27,6 +29,7 @@ import ch.helin.messages.dto.state.BatteryState;
 import ch.helin.messages.dto.state.DroneState;
 
 import ch.helin.messages.dto.state.GpsState;
+import ch.helin.messages.dto.way.Position;
 import ch.projecthelin.droneonboardapp.DroneOnboardApp;
 import ch.projecthelin.droneonboardapp.R;
 
@@ -35,9 +38,11 @@ import ch.projecthelin.droneonboardapp.fragments.OverviewFragment;
 import ch.projecthelin.droneonboardapp.fragments.ServerFragment;
 import ch.projecthelin.droneonboardapp.services.DroneConnectionListener;
 import ch.projecthelin.droneonboardapp.services.DroneConnectionService;
+import ch.projecthelin.droneonboardapp.services.LocationService;
 import ch.projecthelin.droneonboardapp.services.MessagingConnectionService;
+import com.google.android.gms.location.LocationListener;
 
-public class MainActivity extends AppCompatActivity implements DroneConnectionListener {
+public class MainActivity extends AppCompatActivity implements LocationListener {
 
     private SectionsPagerAdapter mSectionsPagerAdapter;
 
@@ -49,8 +54,10 @@ public class MainActivity extends AppCompatActivity implements DroneConnectionLi
     @Inject
     DroneConnectionService droneConnectionService;
 
-    private JsonBasedMessageConverter jsonBasedMessageConverter = new JsonBasedMessageConverter();
-    private String droneToken;
+    @Inject
+    LocationService locationService;
+
+    JsonBasedMessageConverter jsonBasedMessageConverter = new JsonBasedMessageConverter();
 
 
     @Override
@@ -73,11 +80,24 @@ public class MainActivity extends AppCompatActivity implements DroneConnectionLi
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
 
-        droneConnectionService.addConnectionListener(this);
-
         messagingConnectionService.setDroneToken(loadDroneTokenFromSharedPreferences());
 
+        locationService.startLocationListening(this, this);
+
     }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        locationService.stopLocationListening();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        locationService.startLocationListening(this, this);
+    }
+
 
     private String loadDroneTokenFromSharedPreferences(){
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
@@ -98,44 +118,18 @@ public class MainActivity extends AppCompatActivity implements DroneConnectionLi
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
+    public void onLocationChanged(Location location) {
+        sendDroneInfoToServer(location);
     }
 
-    @Override
-    public void onDroneStateChange(DroneState state) {
-        DroneStateMessage droneStateMessage = new DroneStateMessage();
-        droneStateMessage.setDroneState(state);
+    private void sendDroneInfoToServer(Location location) {
+        DroneInfoMessage droneInfoMessage = new DroneInfoMessage();
+        droneInfoMessage.setBatteryState(droneConnectionService.getBatteryState());
+        droneInfoMessage.setGpsState(droneConnectionService.getGpsState());
+        droneInfoMessage.setDroneState(droneConnectionService.getDroneState());
+        droneInfoMessage.setPhonePosition(new Position(location.getLongitude(), location.getLatitude()));
 
-    }
-
-    @Override
-    public void onGpsStateChange(GpsState state) {
-        GpsStateMessage gpsStateMessage = new GpsStateMessage();
-        gpsStateMessage.setGpsState(state);
-        Log.d(getClass().getCanonicalName(), "Send Message: " + gpsStateMessage.toString());
-
-        messagingConnectionService.sendMessage(jsonBasedMessageConverter.parseMessageToString(gpsStateMessage));
-    }
-
-    @Override
-    public void onBatteryStateChange(BatteryState state) {
-        BatteryStateMessage batteryStateMessage = new BatteryStateMessage();
-        batteryStateMessage.setBatteryStage(state);
-
-        Log.d(getClass().getCanonicalName(), "Send Message: " + batteryStateMessage.toString());
-
-        messagingConnectionService.sendMessage(jsonBasedMessageConverter.parseMessageToString(batteryStateMessage));
+        messagingConnectionService.sendMessage(jsonBasedMessageConverter.parseMessageToString(droneInfoMessage));
     }
 
     public class SectionsPagerAdapter extends FragmentPagerAdapter {

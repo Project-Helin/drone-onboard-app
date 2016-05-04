@@ -2,21 +2,12 @@ package ch.projecthelin.droneonboardapp.activities;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
-import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.inject.Inject;
-
-//import ch.helin.messages.MySimpleMessage;
-import ch.helin.messages.converter.JsonBasedMessageConverter;
 import ch.helin.messages.dto.message.DroneDto;
 import ch.projecthelin.droneonboardapp.DroneOnboardApp;
 import ch.projecthelin.droneonboardapp.R;
@@ -28,6 +19,10 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import javax.inject.Inject;
+import java.util.HashMap;
+import java.util.Map;
 
 public class RegisterDroneActivity extends AppCompatActivity {
 
@@ -89,10 +84,26 @@ public class RegisterDroneActivity extends AppCompatActivity {
         String port = this.portTextField.getText().toString();
         String url = "http://" + ip + ":" + port + "/api/drones";
 
-        JSONObject drone = createRegisterRequestDataFromInputValues();
+        JSONObject requestData = createRegisterRequestDataFromInputValues();
 
-        sendRegisterRequest(url, drone);
+        sendRegisterRequest(url, requestData);
 
+    }
+
+    private JSONObject createRegisterRequestDataFromInputValues() {
+        JSONObject drone = null;
+
+        try {
+            JSONObject droneValues = new JSONObject()
+                    .put("name", droneNameTextField.getText())
+                    .put("payload", String.valueOf(payloadTextField.getText()))
+                    .put("organisationToken", organisationToken.getText());
+            drone = new JSONObject().put("drone", droneValues);
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return drone;
     }
 
     private void sendRegisterRequest(final String url, final JSONObject drone) {
@@ -116,7 +127,7 @@ public class RegisterDroneActivity extends AppCompatActivity {
 
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
-                HashMap<String, String> headers = new HashMap<String, String>();
+                HashMap<String, String> headers = new HashMap<>();
                 headers.put("Content-Type", "application/json; charset=utf-8");
                 headers.put("User-agent", System.getProperty("http.agent"));
                 return headers;
@@ -124,22 +135,6 @@ public class RegisterDroneActivity extends AppCompatActivity {
         };
 
         queue.add(postRequest);
-    }
-
-    private JSONObject createRegisterRequestDataFromInputValues() {
-        JSONObject drone = null;
-
-        try {
-            JSONObject droneValues = new JSONObject()
-                    .put("name", droneNameTextField.getText())
-                    .put("payload", String.valueOf(payloadTextField.getText()))
-                    .put("organisationToken", organisationToken.getText());
-            drone = new JSONObject().put("drone", droneValues);
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return drone;
     }
 
     private void saveDroneNameAndTokenToSharedPreferences(JSONObject response) {
