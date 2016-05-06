@@ -2,6 +2,7 @@ package ch.projecthelin.droneonboardapp.services;
 
 import android.util.Log;
 import ch.helin.messages.commons.ConnectionUtils;
+import ch.helin.messages.dto.message.Message;
 import ch.projecthelin.droneonboardapp.MessagingListener;
 import com.rabbitmq.client.*;
 import net.jodah.lyra.ConnectionOptions;
@@ -16,12 +17,14 @@ import javax.inject.Singleton;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 @Singleton
 public class MessagingConnectionService implements ConnectionListener {
 
     public static final String RMQ_REMOTE_SERVER_ADDR = "151.80.44.117:8080";
-    public static final String RMQ_LOCAL_SERVER_ADDR = "152.96.239.248:5672";
+    public static final String RMQ_LOCAL_SERVER_ADDR = "152.96.234.154:5672";
 
     public ConnectionState connectionState = ConnectionState.DISCONNECTED;
 
@@ -29,6 +32,7 @@ public class MessagingConnectionService implements ConnectionListener {
     private Channel channel;
     private Connection connection;
     private List<MessagingListener> listeners = new ArrayList<>();
+    private Queue<String> messagesToSend = new ConcurrentLinkedQueue<>();
 
     @Inject
     public MessagingConnectionService() {
@@ -102,11 +106,17 @@ public class MessagingConnectionService implements ConnectionListener {
     }
 
     public void sendMessage(String message) {
+        messagesToSend.add(message);
         try {
-            //Log.d("Send message ", message);
-            channel.basicPublish("", ConnectionUtils.getDroneSideProducerQueueName(droneToken), null, message.getBytes());
+            if (connection.isOpen()) {
+
+                while(messagesToSend.peek() != null) {
+                    String messageToSend = messagesToSend.remove();
+                    channel.basicPublish("", ConnectionUtils.getDroneSideProducerQueueName(droneToken), null, messageToSend.getBytes());
+                }
+            }
+
         } catch (Exception e) {
-            //Log.d(getClass().getCanonicalName(), "Could not send message: " + message);
             //throw new RuntimeException(e);
         }
     }

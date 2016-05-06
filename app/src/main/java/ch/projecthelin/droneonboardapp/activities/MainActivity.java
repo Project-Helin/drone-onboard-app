@@ -12,35 +12,23 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
-
-import javax.inject.Inject;
-
 import ch.helin.messages.converter.JsonBasedMessageConverter;
 import ch.helin.messages.dto.message.DroneInfoMessage;
-import ch.helin.messages.dto.message.stateMessage.BatteryStateMessage;
-import ch.helin.messages.dto.message.stateMessage.DroneStateMessage;
-import ch.helin.messages.dto.message.stateMessage.GpsStateMessage;
-import ch.helin.messages.dto.state.BatteryState;
-
-import ch.helin.messages.dto.state.DroneState;
-
-import ch.helin.messages.dto.state.GpsState;
 import ch.helin.messages.dto.way.Position;
 import ch.projecthelin.droneonboardapp.DroneOnboardApp;
 import ch.projecthelin.droneonboardapp.R;
-
 import ch.projecthelin.droneonboardapp.fragments.DroneFragment;
 import ch.projecthelin.droneonboardapp.fragments.OverviewFragment;
 import ch.projecthelin.droneonboardapp.fragments.ServerFragment;
-import ch.projecthelin.droneonboardapp.services.DroneConnectionListener;
 import ch.projecthelin.droneonboardapp.services.DroneConnectionService;
 import ch.projecthelin.droneonboardapp.services.LocationService;
 import ch.projecthelin.droneonboardapp.services.MessagingConnectionService;
 import com.google.android.gms.location.LocationListener;
+
+import javax.inject.Inject;
+import java.util.Date;
 
 public class MainActivity extends AppCompatActivity implements LocationListener {
 
@@ -128,6 +116,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         droneInfoMessage.setGpsState(droneConnectionService.getGpsState());
         droneInfoMessage.setDroneState(droneConnectionService.getDroneState());
         droneInfoMessage.setPhonePosition(new Position(location.getLongitude(), location.getLatitude()));
+        droneInfoMessage.setClientTime(new Date());
 
         messagingConnectionService.sendMessage(jsonBasedMessageConverter.parseMessageToString(droneInfoMessage));
     }

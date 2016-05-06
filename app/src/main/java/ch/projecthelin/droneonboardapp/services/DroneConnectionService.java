@@ -32,7 +32,7 @@ import java.util.List;
 @Singleton
 public class DroneConnectionService implements DroneListener, TowerListener {
 
-    public static final String TCP_SERVER_IP = "152.96.239.248";
+    public static final String TCP_SERVER_IP = "152.96.234.154";
     public static final int BAUD_RATE_FOR_USB = 115200;
     public static final int TCP_SERVER_PORT = 5760;
 
