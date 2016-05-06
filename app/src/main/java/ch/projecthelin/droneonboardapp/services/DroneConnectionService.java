@@ -4,23 +4,35 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 
+import ch.helin.messages.dto.Action;
 import ch.helin.messages.dto.state.BatteryState;
 import ch.helin.messages.dto.state.DroneState;
 
 import ch.helin.messages.dto.state.GpsState;
+import ch.helin.messages.dto.way.Position;
+import ch.helin.messages.dto.way.RouteDto;
 import ch.projecthelin.droneonboardapp.fragments.OverviewFragment;
 import ch.projecthelin.droneonboardapp.mappers.DroneStateMapper;
 import com.o3dr.android.client.ControlTower;
 import com.o3dr.android.client.Drone;
 import com.o3dr.android.client.apis.drone.DroneStateApi;
 import com.o3dr.android.client.apis.drone.GuidedApi;
+import com.o3dr.android.client.apis.mission.MissionApi;
 import com.o3dr.android.client.interfaces.DroneListener;
 import com.o3dr.android.client.interfaces.TowerListener;
+import com.o3dr.services.android.lib.coordinate.LatLongAlt;
 import com.o3dr.services.android.lib.drone.attribute.AttributeEvent;
 import com.o3dr.services.android.lib.drone.attribute.AttributeType;
 import com.o3dr.services.android.lib.drone.connection.ConnectionParameter;
 import com.o3dr.services.android.lib.drone.connection.ConnectionResult;
 import com.o3dr.services.android.lib.drone.connection.ConnectionType;
+import com.o3dr.services.android.lib.drone.mission.Mission;
+import com.o3dr.services.android.lib.drone.mission.MissionItemType;
+import com.o3dr.services.android.lib.drone.mission.item.MissionItem;
+import com.o3dr.services.android.lib.drone.mission.item.command.SetServo;
+import com.o3dr.services.android.lib.drone.mission.item.command.Takeoff;
+import com.o3dr.services.android.lib.drone.mission.item.spatial.Land;
+import com.o3dr.services.android.lib.drone.mission.item.spatial.Waypoint;
 import com.o3dr.services.android.lib.drone.property.Battery;
 import com.o3dr.services.android.lib.drone.property.Gps;
 import com.o3dr.services.android.lib.drone.property.VehicleMode;
@@ -29,9 +41,10 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 @Singleton
-public class DroneConnectionService implements DroneListener, TowerListener {
+public class DroneConnectionService implements DroneListener, TowerListener, Drone.OnMissionItemsBuiltCallback {
 
     public static final String TCP_SERVER_IP = "152.96.234.154";
     public static final int BAUD_RATE_FOR_USB = 115200;
@@ -104,6 +117,36 @@ public class DroneConnectionService implements DroneListener, TowerListener {
         }
     }
 
+    public void addRouteForAutopilot(RouteDto route) {
+
+        Mission mission = new Mission();
+
+        for (ch.helin.messages.dto.way.Waypoint waypointDto : route.getWayPoints()) {
+            MissionItem missionItem = null;
+
+            if (waypointDto.getAction() == Action.TAKEOFF) {
+                missionItem = new Takeoff();
+            } else if (waypointDto.getAction() == Action.DROP) {
+                missionItem = new SetServo();
+            } else if (waypointDto.getAction() == Action.LAND) {
+                missionItem = new Land();
+            } else if (waypointDto.getAction() == Action.FLY){
+
+                Waypoint waypoint = new Waypoint();
+
+                Position position = waypointDto.getPosition();
+                LatLongAlt coordinate = new LatLongAlt(position.getLat(), position.getLon(), position.getHeight());
+                waypoint.setCoordinate(coordinate);
+
+                missionItem = waypoint;
+            }
+
+
+            mission.addMissionItem(missionItem);
+        }
+
+        MissionApi.setMission(drone, mission, true);
+    }
 
     @Override
     public void onDroneConnectionFailed(ConnectionResult result) {
@@ -221,6 +264,11 @@ public class DroneConnectionService implements DroneListener, TowerListener {
 
     public void setConnectionType(int connectionType) {
         this.connectionType = connectionType;
+    }
+
+    @Override
+    public void onMissionItemsBuilt(MissionItem.ComplexItem[] complexItems) {
+
     }
 }
 

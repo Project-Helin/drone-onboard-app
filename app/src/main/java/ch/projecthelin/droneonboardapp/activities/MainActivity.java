@@ -1,5 +1,6 @@
 package ch.projecthelin.droneonboardapp.activities;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.location.Location;
@@ -10,6 +11,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -18,6 +20,7 @@ import ch.helin.messages.converter.JsonBasedMessageConverter;
 import ch.helin.messages.dto.message.DroneInfoMessage;
 import ch.helin.messages.dto.message.missionMessage.AssignMissionMessage;
 import ch.helin.messages.dto.way.Position;
+import ch.helin.messages.dto.way.RouteDto;
 import ch.projecthelin.droneonboardapp.DroneOnboardApp;
 import ch.projecthelin.droneonboardapp.MessageReceiver;
 import ch.projecthelin.droneonboardapp.R;
@@ -108,7 +111,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         return true;
     }
 
-    public void goToMissionScreen(View view) {
+    public void goToMissionScreen() {
         Intent intent = new Intent(this, MissionActivity.class);
         startActivity(intent);
     }
@@ -131,7 +134,29 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 
     @Override
     public void onAssignMissionMessageReceived(AssignMissionMessage message) {
+        RouteDto route = message.getRouteDto();
+        showMissionAcceptDialog(route);
+    }
 
+    private void showMissionAcceptDialog(final RouteDto route) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        builder.setMessage("Product here")
+                .setTitle("Neue Mission");
+
+        builder.setPositiveButton("Annehmen", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                // User clicked OK button
+            }
+        });
+
+        builder.setNegativeButton("Abblehnen", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                // User cancelled the dialog
+            }
+        });
+
+        AlertDialog dialog = builder.create();
     }
 
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
