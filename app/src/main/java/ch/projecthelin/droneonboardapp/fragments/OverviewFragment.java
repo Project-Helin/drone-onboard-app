@@ -13,7 +13,8 @@ import ch.helin.messages.dto.state.DroneState;
 import ch.helin.messages.dto.state.GpsQuality;
 import ch.helin.messages.dto.state.GpsState;
 import ch.projecthelin.droneonboardapp.DroneOnboardApp;
-import ch.projecthelin.droneonboardapp.MessagingListener;
+import ch.projecthelin.droneonboardapp.MessageReceiver;
+import ch.projecthelin.droneonboardapp.MessagingConnectionListener;
 import ch.projecthelin.droneonboardapp.R;
 
 
@@ -25,7 +26,7 @@ import ch.projecthelin.droneonboardapp.services.MessagingConnectionService;
 import javax.inject.Inject;
 
 
-public class OverviewFragment extends Fragment implements DroneConnectionListener, MessagingListener {
+public class OverviewFragment extends Fragment implements DroneConnectionListener, MessagingConnectionListener {
 
     private TextView txtConnection;
     private TextView txtGPS;
@@ -44,7 +45,7 @@ public class OverviewFragment extends Fragment implements DroneConnectionListene
         super.onCreate(savedInstanceState);
         ((DroneOnboardApp) getActivity().getApplication()).component().inject(this);
         droneConnectionService.addConnectionListener(this);
-        messagingConnectionService.addListener(this);
+        messagingConnectionService.addConnectionListener(this);
     }
 
     @Override
@@ -61,6 +62,15 @@ public class OverviewFragment extends Fragment implements DroneConnectionListene
 
         return view;
     }
+
+    @Override
+    public void onDestroy() {
+        droneConnectionService.removeConnectionListener(this);
+        messagingConnectionService.removeConnectionListener(this);
+
+    }
+
+
 
     private void updateStatusColorsAndTexts() {
         getActivity().runOnUiThread(new Runnable() {
@@ -126,10 +136,6 @@ public class OverviewFragment extends Fragment implements DroneConnectionListene
     @Override
     public void onBatteryStateChange(BatteryState state) {
         updateStatusColorsAndTexts();
-    }
-
-    @Override
-    public void onMessageReceived(String message) {
     }
 
     @Override

@@ -2,7 +2,6 @@ package ch.projecthelin.droneonboardapp;
 
 import ch.projecthelin.droneonboardapp.services.MessagingConnectionService;
 
-public interface MessagingListener {
-    void onMessageReceived(String message);
+public interface MessagingConnectionListener {
     void onConnectionStateChanged(MessagingConnectionService.ConnectionState state);
 }

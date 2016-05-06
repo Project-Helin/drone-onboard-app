@@ -8,6 +8,7 @@ import ch.helin.messages.dto.state.BatteryState;
 import ch.helin.messages.dto.state.DroneState;
 
 import ch.helin.messages.dto.state.GpsState;
+import ch.projecthelin.droneonboardapp.fragments.OverviewFragment;
 import ch.projecthelin.droneonboardapp.mappers.DroneStateMapper;
 import com.o3dr.android.client.ControlTower;
 import com.o3dr.android.client.Drone;
@@ -76,6 +77,10 @@ public class DroneConnectionService implements DroneListener, TowerListener {
 
     public void addConnectionListener(DroneConnectionListener connectionListener) {
         connectionListeners.add(connectionListener);
+    }
+
+    public void removeConnectionListener(DroneConnectionListener droneConnectionListener) {
+        connectionListeners.remove(droneConnectionListener);
     }
 
     public void triggerDroneStateChange() {

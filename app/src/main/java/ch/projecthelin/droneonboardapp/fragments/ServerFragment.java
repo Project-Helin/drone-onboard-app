@@ -7,9 +7,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 import ch.projecthelin.droneonboardapp.DroneOnboardApp;
-import ch.projecthelin.droneonboardapp.MessagingListener;
+import ch.projecthelin.droneonboardapp.MessageReceiver;
+import ch.projecthelin.droneonboardapp.MessagingConnectionListener;
 import ch.projecthelin.droneonboardapp.R;
 import ch.projecthelin.droneonboardapp.services.DroneConnectionService;
 import ch.projecthelin.droneonboardapp.services.MessagingConnectionService;
@@ -17,7 +17,7 @@ import ch.projecthelin.droneonboardapp.services.MessagingConnectionService;
 import javax.inject.Inject;
 import java.util.Calendar;
 
-public class ServerFragment extends Fragment implements MessagingListener {
+public class ServerFragment extends Fragment implements MessagingConnectionListener {
 
     @Inject
     MessagingConnectionService messagingConnectionService;
@@ -34,7 +34,7 @@ public class ServerFragment extends Fragment implements MessagingListener {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         ((DroneOnboardApp) getActivity().getApplication()).component().inject(this);
-        messagingConnectionService.addListener(this);
+        messagingConnectionService.addConnectionListener(this);
     }
 
     @Override
@@ -55,7 +55,7 @@ public class ServerFragment extends Fragment implements MessagingListener {
 
     @Override
     public void onDestroy() {
-        messagingConnectionService.removeListener(this);
+        messagingConnectionService.removeConnectionListener(this);
     }
 
 
@@ -76,18 +76,6 @@ public class ServerFragment extends Fragment implements MessagingListener {
         txtIP = (TextView) view.findViewById(R.id.txtIP);
         txtErrorLog = (TextView) view.findViewById(R.id.txtErrorLog);
         btnConnect = (Button) view.findViewById(R.id.btnConnectToDrone);
-    }
-
-    @Override
-    public void onMessageReceived(final String message) {
-        getActivity().runOnUiThread(new Runnable() {
-
-            @Override
-            public void run() {
-                txtErrorLog.setText(getTime() + message + "\n" + txtErrorLog.getText());
-                //droneConnectionService.takeOff();
-            }
-        });
     }
 
     @Override

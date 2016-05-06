@@ -1,9 +1,11 @@
 package ch.projecthelin.droneonboardapp.services;
 
-import android.util.Log;
 import ch.helin.messages.commons.ConnectionUtils;
+import ch.helin.messages.converter.JsonBasedMessageConverter;
 import ch.helin.messages.dto.message.Message;
-import ch.projecthelin.droneonboardapp.MessagingListener;
+import ch.helin.messages.dto.message.missionMessage.AssignMissionMessage;
+import ch.projecthelin.droneonboardapp.MessagingConnectionListener;
+import ch.projecthelin.droneonboardapp.MessageReceiver;
 import com.rabbitmq.client.*;
 import net.jodah.lyra.ConnectionOptions;
 import net.jodah.lyra.Connections;
@@ -31,7 +33,8 @@ public class MessagingConnectionService implements ConnectionListener {
     private String droneToken;
     private Channel channel;
     private Connection connection;
-    private List<MessagingListener> listeners = new ArrayList<>();
+    private List<MessagingConnectionListener> connectionListeners = new ArrayList<>();
+    private List<MessageReceiver> messageReceivers = new ArrayList<>();
     private Queue<String> messagesToSend = new ConcurrentLinkedQueue<>();
 
     @Inject
@@ -84,17 +87,39 @@ public class MessagingConnectionService implements ConnectionListener {
         connect(RMQ_LOCAL_SERVER_ADDR, RMQ_REMOTE_SERVER_ADDR);
     }
 
-    public void addListener(MessagingListener listener) {
-        listeners.add(listener);
+    public void addConnectionListener(MessagingConnectionListener listener) {
+        connectionListeners.add(listener);
     }
 
-    public void removeListener(MessagingListener listener) {
-        listeners.remove(listener);
+    public void removeConnectionListener(MessagingConnectionListener listener) {
+        connectionListeners.remove(listener);
     }
 
     public void notifyListenersConnectionState(ConnectionState state) {
-        for (MessagingListener listener : listeners) {
+        for (MessagingConnectionListener listener : connectionListeners) {
             listener.onConnectionStateChanged(state);
+        }
+    }
+
+    public void addMessageReceiver(MessageReceiver listener) {
+        messageReceivers.add(listener);
+    }
+
+    public void removeMessageReceiver(MessageReceiver listener) {
+        messageReceivers.remove(listener);
+    }
+
+    public void notifyMessageReceivers(String messageAsString) {
+        JsonBasedMessageConverter messageConverter = new JsonBasedMessageConverter();
+        Message message = messageConverter.parseStringToMessage(messageAsString);
+
+        for (MessageReceiver receiver : messageReceivers) {
+            switch(message.getPayloadType()) {
+                case AssignMission:
+                    receiver.onAssignMissionMessageReceived((AssignMissionMessage) message);
+                    break;
+            }
+
         }
     }
 
@@ -110,7 +135,7 @@ public class MessagingConnectionService implements ConnectionListener {
         try {
             if (connection.isOpen()) {
 
-                while(messagesToSend.peek() != null) {
+                while (messagesToSend.peek() != null) {
                     String messageToSend = messagesToSend.remove();
                     channel.basicPublish("", ConnectionUtils.getDroneSideProducerQueueName(droneToken), null, messageToSend.getBytes());
                 }
@@ -146,11 +171,9 @@ public class MessagingConnectionService implements ConnectionListener {
             @Override
             public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body)
                     throws IOException {
-                String message = new String(body, "UTF-8");
-                for (MessagingListener listener : listeners) {
-                    //listener.onMessageReceived(message);
-                }
-                //Log.d("message", message);
+                String messageAsString = new String(body, "UTF-8");
+
+                notifyMessageReceivers(messageAsString);
             }
         };
 

@@ -16,8 +16,10 @@ import android.view.Menu;
 import android.view.View;
 import ch.helin.messages.converter.JsonBasedMessageConverter;
 import ch.helin.messages.dto.message.DroneInfoMessage;
+import ch.helin.messages.dto.message.missionMessage.AssignMissionMessage;
 import ch.helin.messages.dto.way.Position;
 import ch.projecthelin.droneonboardapp.DroneOnboardApp;
+import ch.projecthelin.droneonboardapp.MessageReceiver;
 import ch.projecthelin.droneonboardapp.R;
 import ch.projecthelin.droneonboardapp.fragments.DroneFragment;
 import ch.projecthelin.droneonboardapp.fragments.OverviewFragment;
@@ -30,7 +32,7 @@ import com.google.android.gms.location.LocationListener;
 import javax.inject.Inject;
 import java.util.Date;
 
-public class MainActivity extends AppCompatActivity implements LocationListener {
+public class MainActivity extends AppCompatActivity implements LocationListener, MessageReceiver {
 
     private SectionsPagerAdapter mSectionsPagerAdapter;
 
@@ -69,9 +71,9 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         tabLayout.setupWithViewPager(mViewPager);
 
         messagingConnectionService.setDroneToken(loadDroneTokenFromSharedPreferences());
+        messagingConnectionService.addMessageReceiver(this);
 
         locationService.startLocationListening(this, this);
-
     }
 
     @Override
@@ -84,6 +86,13 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     protected void onResume() {
         super.onResume();
         locationService.startLocationListening(this, this);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        locationService.stopLocationListening();
+        messagingConnectionService.removeMessageReceiver(this);
     }
 
 
@@ -102,7 +111,6 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
     public void goToMissionScreen(View view) {
         Intent intent = new Intent(this, MissionActivity.class);
         startActivity(intent);
-
     }
 
     @Override
@@ -119,6 +127,11 @@ public class MainActivity extends AppCompatActivity implements LocationListener 
         droneInfoMessage.setClientTime(new Date());
 
         messagingConnectionService.sendMessage(jsonBasedMessageConverter.parseMessageToString(droneInfoMessage));
+    }
+
+    @Override
+    public void onAssignMissionMessageReceived(AssignMissionMessage message) {
+
     }
 
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
