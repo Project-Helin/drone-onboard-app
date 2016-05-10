@@ -15,8 +15,9 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
-import android.view.View;
 import ch.helin.messages.converter.JsonBasedMessageConverter;
+import ch.helin.messages.dto.MissionDto;
+import ch.helin.messages.dto.OrderProductDto;
 import ch.helin.messages.dto.message.DroneInfoMessage;
 import ch.helin.messages.dto.message.missionMessage.AssignMissionMessage;
 import ch.helin.messages.dto.way.Position;
@@ -134,14 +135,23 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 
     @Override
     public void onAssignMissionMessageReceived(AssignMissionMessage message) {
-        RouteDto route = message.getRouteDto();
-        showMissionAcceptDialog(route);
+        MissionDto mission = message.getMission();
+        showMissionAcceptDialog(mission);
     }
 
-    private void showMissionAcceptDialog(final RouteDto route) {
+    private void showMissionAcceptDialog(MissionDto mission) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
-        builder.setMessage("Product here")
+        String missionProductsText = "Folgende Produkte müssten geladen werden: \n";
+
+        for (OrderProductDto orderProduct : mission.getOrderProducts()) {
+            missionProductsText += orderProduct.getAmount();
+            missionProductsText += "   ";
+            missionProductsText += orderProduct.getProduct().getName();
+            missionProductsText += "\n";
+        }
+
+        builder.setMessage(missionProductsText)
                 .setTitle("Neue Mission");
 
         builder.setPositiveButton("Annehmen", new DialogInterface.OnClickListener() {
@@ -156,7 +166,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
             }
         });
 
-        AlertDialog dialog = builder.create();
+        builder.create().show();
     }
 
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
