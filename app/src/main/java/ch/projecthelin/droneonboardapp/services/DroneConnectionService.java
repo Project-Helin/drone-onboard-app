@@ -11,7 +11,6 @@ import ch.helin.messages.dto.state.DroneState;
 import ch.helin.messages.dto.state.GpsState;
 import ch.helin.messages.dto.way.Position;
 import ch.helin.messages.dto.way.RouteDto;
-import ch.projecthelin.droneonboardapp.fragments.OverviewFragment;
 import ch.projecthelin.droneonboardapp.mappers.DroneStateMapper;
 import com.o3dr.android.client.ControlTower;
 import com.o3dr.android.client.Drone;
@@ -27,7 +26,6 @@ import com.o3dr.services.android.lib.drone.connection.ConnectionParameter;
 import com.o3dr.services.android.lib.drone.connection.ConnectionResult;
 import com.o3dr.services.android.lib.drone.connection.ConnectionType;
 import com.o3dr.services.android.lib.drone.mission.Mission;
-import com.o3dr.services.android.lib.drone.mission.MissionItemType;
 import com.o3dr.services.android.lib.drone.mission.item.MissionItem;
 import com.o3dr.services.android.lib.drone.mission.item.command.SetServo;
 import com.o3dr.services.android.lib.drone.mission.item.command.Takeoff;
@@ -41,14 +39,13 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
 
 @Singleton
 public class DroneConnectionService implements DroneListener, TowerListener, Drone.OnMissionItemsBuiltCallback {
 
-    public static final String TCP_SERVER_IP = "152.96.234.154";
+    public static final String LOCAL_IP = "192.168.58.1";
     public static final int BAUD_RATE_FOR_USB = 115200;
-    public static final int TCP_SERVER_PORT = 5760;
+    public static final int PORT = 14551;
 
     private final Handler handler = new Handler();
     private final Drone drone;
@@ -75,8 +72,11 @@ public class DroneConnectionService implements DroneListener, TowerListener, Dro
         if (connectionType == ConnectionType.TYPE_USB) {
             extraParams.putInt(ConnectionType.EXTRA_USB_BAUD_RATE, BAUD_RATE_FOR_USB);
         } else if (connectionType == ConnectionType.TYPE_TCP) {
-            extraParams.putString(ConnectionType.EXTRA_TCP_SERVER_IP, TCP_SERVER_IP);
-            extraParams.putInt(ConnectionType.EXTRA_TCP_SERVER_PORT, TCP_SERVER_PORT);
+            extraParams.putString(ConnectionType.EXTRA_TCP_SERVER_IP, LOCAL_IP);
+            extraParams.putInt(ConnectionType.EXTRA_TCP_SERVER_PORT, PORT);
+        } else if (connectionType == ConnectionType.TYPE_UDP) {
+            extraParams.putString(ConnectionType.EXTRA_UDP_SERVER_PORT, LOCAL_IP);
+            extraParams.putInt(ConnectionType.EXTRA_UDP_SERVER_PORT, PORT);
         }
 
         ConnectionParameter connectionParams = new ConnectionParameter(connectionType, extraParams, null);
