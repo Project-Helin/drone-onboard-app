@@ -48,7 +48,7 @@ dependencies {
     compile 'com.android.support:appcompat-v7:23.1.0'
     compile 'com.android.support:design:23.1.0'
     compile 'com.android.support:support-v4:23.1.0'
-    compile 'com.google.android.gms:play-services-location:8.4.0'
+    compile 'com.google.android.gms:play-services:6.5.87'
     compile 'com.o3dr.android:dronekit-android:2.3.34'
     compile 'com.rabbitmq:amqp-client:3.6.0'
     compile 'net.jodah:lyra:0.4.3'
