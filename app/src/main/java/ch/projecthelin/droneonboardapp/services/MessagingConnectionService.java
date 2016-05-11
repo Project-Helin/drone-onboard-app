@@ -54,7 +54,7 @@ public class MessagingConnectionService implements ConnectionListener {
                                 .withConnectionListeners(MessagingConnectionService.this);
 
                         ConnectionOptions options = new ConnectionOptions()
-                                .withAddresses(hostAddress)
+                                .withAddresses(serverAddress)
                                 .withUsername("admin")
                                 .withPassword("helin");
 
