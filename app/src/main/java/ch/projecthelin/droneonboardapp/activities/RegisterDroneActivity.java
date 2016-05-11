@@ -48,7 +48,7 @@ public class RegisterDroneActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         ((DroneOnboardApp) getApplication()).component().inject(this);
         setContentView(R.layout.activity_register);
-        setUIComponents();
+        initializeViewComponents();
 
         boolean alreadyRegistered = loadDroneNameAndTokenFromSharedPreferences();
 
@@ -65,7 +65,7 @@ public class RegisterDroneActivity extends AppCompatActivity {
         return droneName != null;
     }
 
-    private void setUIComponents() {
+    private void initializeViewComponents() {
         this.droneNameTextField = (EditText) findViewById(R.id.name);
         this.organisationToken = (EditText) findViewById(R.id.code);
         this.payloadTextField = (EditText) findViewById(R.id.payload);

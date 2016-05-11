@@ -8,7 +8,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 import ch.projecthelin.droneonboardapp.DroneOnboardApp;
-import ch.projecthelin.droneonboardapp.MessageReceiver;
 import ch.projecthelin.droneonboardapp.MessagingConnectionListener;
 import ch.projecthelin.droneonboardapp.R;
 import ch.projecthelin.droneonboardapp.services.DroneConnectionService;
@@ -43,7 +42,7 @@ public class ServerFragment extends Fragment implements MessagingConnectionListe
 
         View view = inflater.inflate(R.layout.fragment_server, container, false);
 
-        initializeViewFields(view);
+        initializeViewComponents(view);
         initializeBtnListeners();
 
         txtErrorLog.append(messagingConnectionService.connectionState.name() + "\n");
@@ -71,7 +70,7 @@ public class ServerFragment extends Fragment implements MessagingConnectionListe
         });
     }
 
-    private void initializeViewFields(View view) {
+    private void initializeViewComponents(View view) {
         txtConnectionState = (TextView) view.findViewById(R.id.txtConnectionState);
         txtIP = (TextView) view.findViewById(R.id.txtIP);
         txtErrorLog = (TextView) view.findViewById(R.id.txtErrorLog);

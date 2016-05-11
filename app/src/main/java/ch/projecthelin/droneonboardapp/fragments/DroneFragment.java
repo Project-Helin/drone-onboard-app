@@ -2,7 +2,6 @@ package ch.projecthelin.droneonboardapp.fragments;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,8 +16,6 @@ import ch.projecthelin.droneonboardapp.R;
 
 import ch.projecthelin.droneonboardapp.services.DroneConnectionListener;
 import ch.projecthelin.droneonboardapp.services.DroneConnectionService;
-import com.o3dr.services.android.lib.drone.connection.ConnectionParameter;
-import com.o3dr.services.android.lib.drone.connection.ConnectionType;
 
 import javax.inject.Inject;
 
@@ -51,7 +48,7 @@ public class DroneFragment extends Fragment implements DroneConnectionListener {
 
         View view = inflater.inflate(R.layout.fragment_drone, container, false);
 
-        initializeViewFields(view);
+        initializeViewComponents(view);
         initializeBtnListeners();
         initializeConnectionModeSpinner(view);
 
@@ -71,7 +68,7 @@ public class DroneFragment extends Fragment implements DroneConnectionListener {
         });
     }
 
-    private void initializeViewFields(View view) {
+    private void initializeViewComponents(View view) {
         txtGps = (TextView) view.findViewById(R.id.txtGPS);
         txtPosition = (TextView) view.findViewById(R.id.txtPosition);
         txtBattery = (TextView) view.findViewById(R.id.txtBattery);

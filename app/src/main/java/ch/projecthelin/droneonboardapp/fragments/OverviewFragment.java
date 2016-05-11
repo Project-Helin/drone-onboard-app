@@ -53,14 +53,18 @@ public class OverviewFragment extends Fragment implements DroneConnectionListene
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_overview, container, false);
 
-        txtConnection = (TextView) view.findViewById(R.id.txtConnection);
-        txtGPS = (TextView) view.findViewById(R.id.txtGPS);
-        txtBattery = (TextView) view.findViewById(R.id.txtBattery);
-        txtServerConnectionState = (TextView) view.findViewById(R.id.server_connection_state);
+        initializeViewComponents(view);
 
         updateStatusColorsAndTexts();
 
         return view;
+    }
+
+    private void initializeViewComponents(View view) {
+        txtConnection = (TextView) view.findViewById(R.id.txtConnection);
+        txtGPS = (TextView) view.findViewById(R.id.txtGPS);
+        txtBattery = (TextView) view.findViewById(R.id.txtBattery);
+        txtServerConnectionState = (TextView) view.findViewById(R.id.server_connection_state);
     }
 
     @Override

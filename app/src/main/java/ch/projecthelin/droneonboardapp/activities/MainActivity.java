@@ -20,8 +20,10 @@ import ch.helin.messages.dto.MissionDto;
 import ch.helin.messages.dto.OrderProductDto;
 import ch.helin.messages.dto.message.DroneInfoMessage;
 import ch.helin.messages.dto.message.missionMessage.AssignMissionMessage;
+import ch.helin.messages.dto.message.missionMessage.ConfirmMissionMessage;
+import ch.helin.messages.dto.message.missionMessage.FinalAssignMissionMessage;
+import ch.helin.messages.dto.message.missionMessage.MissionConfirmType;
 import ch.helin.messages.dto.way.Position;
-import ch.helin.messages.dto.way.RouteDto;
 import ch.projecthelin.droneonboardapp.DroneOnboardApp;
 import ch.projecthelin.droneonboardapp.MessageReceiver;
 import ch.projecthelin.droneonboardapp.R;
@@ -37,6 +39,8 @@ import javax.inject.Inject;
 import java.util.Date;
 
 public class MainActivity extends AppCompatActivity implements LocationListener, MessageReceiver {
+
+    private static final int CARGO_LOAD = 543;
 
     private SectionsPagerAdapter mSectionsPagerAdapter;
 
@@ -99,10 +103,24 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         messagingConnectionService.removeMessageReceiver(this);
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == CARGO_LOAD) {
+            // Make sure the request was successful
+            if (resultCode == RESULT_OK) {
+                beginMissionStartCountDown();
+            }
+        }
+    }
 
-    private String loadDroneTokenFromSharedPreferences(){
+    private void beginMissionStartCountDown() {
+        MissionDto currentMission = messagingConnectionService.getCurrentMission();
+        droneConnectionService.sendRouteToAutopilot(currentMission.getRouteDto());
+    }
+
+    private String loadDroneTokenFromSharedPreferences() {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        return sharedPreferences.getString(RegisterDroneActivity.DRONE_TOKEN_KEY, "") ;
+        return sharedPreferences.getString(RegisterDroneActivity.DRONE_TOKEN_KEY, "");
     }
 
     @Override
@@ -139,34 +157,47 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         showMissionAcceptDialog(mission);
     }
 
+    @Override
+    public void onFinalAssignMissionMessageReceived(FinalAssignMissionMessage message) {
+        Intent intent = new Intent(this, MissionActivity.class);
+        startActivityForResult(intent, CARGO_LOAD);
+        messagingConnectionService.setCurrentMission(message.getMission());
+    }
+
     private void showMissionAcceptDialog(MissionDto mission) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
-        String missionProductsText = "Folgende Produkte müssten geladen werden: \n";
+        String missionProductsText = "Do you want to accept this mission? \n";
 
-        for (OrderProductDto orderProduct : mission.getOrderProducts()) {
-            missionProductsText += orderProduct.getAmount();
-            missionProductsText += "   ";
-            missionProductsText += orderProduct.getProduct().getName();
-            missionProductsText += "\n";
-        }
+        OrderProductDto orderProduct = mission.getOrderProduct();
+
+        missionProductsText += orderProduct.getAmount();
+        missionProductsText += "   ";
+        missionProductsText += orderProduct.getProduct().getName();
+        missionProductsText += "\n";
 
         builder.setMessage(missionProductsText)
-                .setTitle("Neue Mission");
+                .setTitle("New Mission");
 
-        builder.setPositiveButton("Annehmen", new DialogInterface.OnClickListener() {
+        builder.setPositiveButton("Accept", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
-                // User clicked OK button
+                AcceptOrDenyAssignedMission(MissionConfirmType.ACCEPT);
             }
         });
 
-        builder.setNegativeButton("Abblehnen", new DialogInterface.OnClickListener() {
+        builder.setNegativeButton("Reject", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
-                // User cancelled the dialog
+                AcceptOrDenyAssignedMission(MissionConfirmType.REJECT);
             }
         });
 
         builder.create().show();
+    }
+
+    private void AcceptOrDenyAssignedMission(MissionConfirmType acceptOrReject) {
+        ConfirmMissionMessage confirmMissionMessage = new ConfirmMissionMessage();
+        confirmMissionMessage.setMissionConfirmType(acceptOrReject);
+        messagingConnectionService.sendMessage(jsonBasedMessageConverter.parseMessageToString(confirmMissionMessage));
     }
 
     public class SectionsPagerAdapter extends FragmentPagerAdapter {

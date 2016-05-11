@@ -117,7 +117,7 @@ public class DroneConnectionService implements DroneListener, TowerListener, Dro
         }
     }
 
-    public void addRouteForAutopilot(RouteDto route) {
+    public void sendRouteToAutopilot(RouteDto route) {
 
         Mission mission = new Mission();
 

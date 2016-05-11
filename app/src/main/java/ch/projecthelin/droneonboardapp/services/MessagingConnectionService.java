@@ -2,8 +2,10 @@ package ch.projecthelin.droneonboardapp.services;
 
 import ch.helin.messages.commons.ConnectionUtils;
 import ch.helin.messages.converter.JsonBasedMessageConverter;
+import ch.helin.messages.dto.MissionDto;
 import ch.helin.messages.dto.message.Message;
 import ch.helin.messages.dto.message.missionMessage.AssignMissionMessage;
+import ch.helin.messages.dto.message.missionMessage.FinalAssignMissionMessage;
 import ch.projecthelin.droneonboardapp.MessagingConnectionListener;
 import ch.projecthelin.droneonboardapp.MessageReceiver;
 import com.rabbitmq.client.*;
@@ -36,6 +38,7 @@ public class MessagingConnectionService implements ConnectionListener {
     private List<MessagingConnectionListener> connectionListeners = new ArrayList<>();
     private List<MessageReceiver> messageReceivers = new ArrayList<>();
     private Queue<String> messagesToSend = new ConcurrentLinkedQueue<>();
+    private MissionDto currentMission;
 
     @Inject
     public MessagingConnectionService() {
@@ -118,8 +121,9 @@ public class MessagingConnectionService implements ConnectionListener {
                 case AssignMission:
                     receiver.onAssignMissionMessageReceived((AssignMissionMessage) message);
                     break;
+                case FinalAssignMission:
+                    receiver.onFinalAssignMissionMessageReceived((FinalAssignMissionMessage) message);
             }
-
         }
     }
 
@@ -177,6 +181,14 @@ public class MessagingConnectionService implements ConnectionListener {
             }
         };
 
+    }
+
+    public void setCurrentMission(MissionDto currentMission) {
+        this.currentMission = currentMission;
+    }
+
+    public MissionDto getCurrentMission() {
+        return currentMission;
     }
 
     @Override
