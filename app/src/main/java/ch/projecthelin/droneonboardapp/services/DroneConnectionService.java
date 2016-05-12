@@ -45,7 +45,8 @@ public class DroneConnectionService implements DroneListener, TowerListener, Dro
 
     public static final String LOCAL_IP = "192.168.58.1";
     public static final int BAUD_RATE_FOR_USB = 115200;
-    public static final int PORT = 14551;
+    public static final int TCP_PORT = 5770;
+    public static final int UDP_PORT = 14551;
 
     private final Handler handler = new Handler();
     private final Drone drone;
@@ -73,10 +74,10 @@ public class DroneConnectionService implements DroneListener, TowerListener, Dro
             extraParams.putInt(ConnectionType.EXTRA_USB_BAUD_RATE, BAUD_RATE_FOR_USB);
         } else if (connectionType == ConnectionType.TYPE_TCP) {
             extraParams.putString(ConnectionType.EXTRA_TCP_SERVER_IP, LOCAL_IP);
-            extraParams.putInt(ConnectionType.EXTRA_TCP_SERVER_PORT, PORT);
+            extraParams.putInt(ConnectionType.EXTRA_TCP_SERVER_PORT, TCP_PORT);
         } else if (connectionType == ConnectionType.TYPE_UDP) {
             extraParams.putString(ConnectionType.EXTRA_UDP_SERVER_PORT, LOCAL_IP);
-            extraParams.putInt(ConnectionType.EXTRA_UDP_SERVER_PORT, PORT);
+            extraParams.putInt(ConnectionType.EXTRA_UDP_SERVER_PORT, UDP_PORT);
         }
 
         ConnectionParameter connectionParams = new ConnectionParameter(connectionType, extraParams, null);
