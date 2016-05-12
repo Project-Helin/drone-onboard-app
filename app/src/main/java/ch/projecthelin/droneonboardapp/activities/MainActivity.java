@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.location.Location;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.preference.PreferenceManager;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -108,14 +109,33 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         if (requestCode == CARGO_LOAD) {
             // Make sure the request was successful
             if (resultCode == RESULT_OK) {
-                beginMissionStartCountDown();
+                startMissionCountDown();
             }
         }
     }
 
-    private void beginMissionStartCountDown() {
+    private void startMissionCountDown() {
         MissionDto currentMission = messagingConnectionService.getCurrentMission();
         droneConnectionService.sendRouteToAutopilot(currentMission.getRouteDto());
+
+        final AlertDialog dialog = createMissionStartCountDownDialog();
+
+        dialog.show();
+
+        new CountDownTimer(10000, 1000) {
+            @Override
+            public void onTick(long millisUntilFinished) {
+                dialog.setMessage("00:"+ (millisUntilFinished/1000));
+            }
+
+            @Override
+            public void onFinish() {
+                droneConnectionService.startMission();
+                dialog.hide();
+            }
+        }.start();
+
+
     }
 
     private String loadDroneTokenFromSharedPreferences() {
@@ -128,11 +148,6 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
-    }
-
-    public void goToMissionScreen() {
-        Intent intent = new Intent(this, MissionActivity.class);
-        startActivity(intent);
     }
 
     @Override
@@ -192,6 +207,21 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         });
 
         builder.create().show();
+    }
+
+    private AlertDialog createMissionStartCountDownDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        builder.setMessage("Mission will start in ")
+                .setTitle("New Mission");
+
+        builder.setNegativeButton("Abort Start Countdown", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+
+            }
+        });
+
+        return builder.create();
     }
 
     private void AcceptOrDenyAssignedMission(MissionConfirmType acceptOrReject) {

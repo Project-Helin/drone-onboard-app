@@ -28,7 +28,6 @@ import com.o3dr.services.android.lib.drone.connection.ConnectionType;
 import com.o3dr.services.android.lib.drone.mission.Mission;
 import com.o3dr.services.android.lib.drone.mission.item.MissionItem;
 import com.o3dr.services.android.lib.drone.mission.item.command.SetServo;
-import com.o3dr.services.android.lib.drone.mission.item.command.Takeoff;
 import com.o3dr.services.android.lib.drone.mission.item.spatial.Land;
 import com.o3dr.services.android.lib.drone.mission.item.spatial.Waypoint;
 import com.o3dr.services.android.lib.drone.property.Battery;
@@ -58,7 +57,7 @@ public class DroneConnectionService implements DroneListener, TowerListener, Dro
     private BatteryState batteryState = new BatteryState();
 
     private int connectionType;
-    private boolean takeoffWhenArmed;
+    private boolean startMissionWhenArmed;
 
     @Inject
     public DroneConnectionService(ControlTower controlTower, Drone drone) {
@@ -123,31 +122,38 @@ public class DroneConnectionService implements DroneListener, TowerListener, Dro
         Mission mission = new Mission();
 
         for (ch.helin.messages.dto.way.Waypoint waypointDto : route.getWayPoints()) {
-            MissionItem missionItem = null;
-
-            if (waypointDto.getAction() == Action.TAKEOFF) {
-                missionItem = new Takeoff();
-            } else if (waypointDto.getAction() == Action.DROP) {
-                missionItem = new SetServo();
-            } else if (waypointDto.getAction() == Action.LAND) {
-                missionItem = new Land();
-            } else if (waypointDto.getAction() == Action.FLY){
-
-                Waypoint waypoint = new Waypoint();
-
-                Position position = waypointDto.getPosition();
-                LatLongAlt coordinate = new LatLongAlt(position.getLat(), position.getLon(), position.getHeight());
-                waypoint.setCoordinate(coordinate);
-
-                missionItem = waypoint;
-            }
-
-
-            mission.addMissionItem(missionItem);
+            addWayPointToMission(mission, waypointDto);
+            AddActionToMissionIfNecessary(mission, waypointDto);
         }
 
-        MissionApi.setMission(drone, mission, true);
+        MissionApi.setMission(drone,mission,true);
     }
+
+    private void AddActionToMissionIfNecessary(Mission mission, ch.helin.messages.dto.way.Waypoint waypointDto) {
+        MissionItem missionAction = null;
+
+        if (waypointDto.getAction() == Action.DROP) {
+            missionAction = new SetServo();
+        } else if (waypointDto.getAction() == Action.LAND) {
+            missionAction = new Land();
+        }
+
+        if (missionAction != null) {
+            mission.addMissionItem(missionAction);
+        }
+    }
+
+    private void addWayPointToMission(Mission mission, ch.helin.messages.dto.way.Waypoint waypointDto) {
+        Waypoint waypoint = new Waypoint();
+
+        Position position = waypointDto.getPosition();
+        LatLongAlt coordinate = new LatLongAlt(position.getLat(), position.getLon(), position.getHeight());
+        waypoint.setCoordinate(coordinate);
+
+
+        mission.addMissionItem(waypoint);
+    }
+
 
     @Override
     public void onDroneConnectionFailed(ConnectionResult result) {
@@ -175,9 +181,10 @@ public class DroneConnectionService implements DroneListener, TowerListener, Dro
                 break;
 
             case AttributeEvent.STATE_ARMING:
-                if (takeoffWhenArmed) {
+                if (startMissionWhenArmed) {
                     GuidedApi.takeoff(drone, 10);
-                    takeoffWhenArmed = false;
+                    DroneStateApi.setVehicleMode(drone, VehicleMode.COPTER_AUTO);
+                    startMissionWhenArmed = false;
                 }
 
                 break;
@@ -226,13 +233,6 @@ public class DroneConnectionService implements DroneListener, TowerListener, Dro
         triggerBatteryStateChange();
     }
 
-
-    public void takeOff() {
-        DroneStateApi.setVehicleMode(drone, VehicleMode.COPTER_GUIDED);
-        DroneStateApi.arm(drone, true);
-        takeoffWhenArmed = true;
-    }
-
     @Override
     public void onDroneServiceInterrupted(String errorMsg) {
 
@@ -270,6 +270,12 @@ public class DroneConnectionService implements DroneListener, TowerListener, Dro
     @Override
     public void onMissionItemsBuilt(MissionItem.ComplexItem[] complexItems) {
 
+    }
+
+    public void startMission() {
+        DroneStateApi.setVehicleMode(drone, VehicleMode.COPTER_GUIDED);
+        DroneStateApi.arm(drone, true);
+        startMissionWhenArmed = true;
     }
 }
 

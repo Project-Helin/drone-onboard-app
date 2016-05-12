@@ -12,7 +12,7 @@
 ## Local Setup with Drone-Simulator, Genimotion Android Emulator and Groundstation
 
 1. Setup SITL Simulator http://python.dronekit.io/develop/sitl_setup.html
-2. Start SITL with `dronekit-sitl copter`
+2. Start SITL with `dronekit-sitl copter --home=47.2233,8.8819,584,353` (--home sets the drone location to a coordinate, attention that you don't have spaces after commas)
 3. Setup MavProxy (https://erlerobotics.gitbooks.io/erle-robotics-mav-tools-free/content/en/installing_mavproxy.html)
 4. Run MavProxy with ` mavproxy.py --master tcp:127.0.0.1:5760 --out 127.0.0.1:14550  --out 127.0.0.1:14551` (master defines connection to the Drone-Simulator(SITL), out defines udp outputs for groundstation and mobile)
 5. Setup Genimotion. Make sure you have Google Play Services installed. (http://forum.xda-developers.com/showthread.php?t=2528952)

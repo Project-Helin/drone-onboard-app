@@ -5,8 +5,10 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.TextView;
 import ch.helin.messages.dto.MissionDto;
 import ch.projecthelin.droneonboardapp.DroneOnboardApp;
@@ -27,8 +29,8 @@ public class MissionActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         ((DroneOnboardApp) getApplication()).component().inject(this);
-
         setContentView(R.layout.activity_mission);
+
         initializeViewComponents();
 
         if (getActionBar() != null) {
@@ -38,13 +40,12 @@ public class MissionActivity extends AppCompatActivity {
         MissionDto currentMission = messagingConnectionService.getCurrentMission();
 
         orderProductNameText.setText(currentMission.getOrderProduct().getProduct().getName());
-        orderProductAmountText.setText(currentMission.getOrderProduct().getAmount());
+        orderProductAmountText.setText(currentMission.getOrderProduct().getAmount().toString());
 
     }
-
     private void initializeViewComponents() {
-        this.orderProductAmountText = (TextView) findViewById(R.id.orderProductAmount);
         this.orderProductNameText = (TextView) findViewById(R.id.orderProductName);
+        this.orderProductAmountText = (TextView) findViewById(R.id.orderProductAmount);
     }
 
     public void loadingFinished(View view) {
