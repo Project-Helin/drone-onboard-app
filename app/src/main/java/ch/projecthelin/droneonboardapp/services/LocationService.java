@@ -22,7 +22,6 @@ public class LocationService implements GoogleApiClient.ConnectionCallbacks, Loc
     private GoogleApiClient mGoogleApiClient;
     private LocationRequest mLocationRequest;
     private LocationListener locationListener;
-    private static final int UPDATE_DISTANCE_IN_METERS = 5;
 
     private static final int MIN_UPDATE_INTERVAL_IN_SECONDS = 10;
 
@@ -43,8 +42,7 @@ public class LocationService implements GoogleApiClient.ConnectionCallbacks, Loc
 
         mLocationRequest = LocationRequest.create()
                 .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
-                .setInterval(MIN_UPDATE_INTERVAL_IN_SECONDS)
-                .setSmallestDisplacement(UPDATE_DISTANCE_IN_METERS);
+                .setInterval(MIN_UPDATE_INTERVAL_IN_SECONDS * 1000);
 
     }
 

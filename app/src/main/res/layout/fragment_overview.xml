@@ -79,14 +79,4 @@
         android:background="@color/red"
         android:padding="10dp" />
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Jump To Mission Screen"
-        android:id="@+id/button"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentStart="false"
-        android:onClick="goToMissionScreen"
-        android:layout_marginBottom="50dp" />
-
 </RelativeLayout>

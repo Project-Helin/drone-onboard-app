@@ -18,7 +18,6 @@ import ch.projecthelin.droneonboardapp.MessagingConnectionListener;
 import ch.projecthelin.droneonboardapp.R;
 
 
-
 import ch.projecthelin.droneonboardapp.services.DroneConnectionListener;
 import ch.projecthelin.droneonboardapp.services.DroneConnectionService;
 import ch.projecthelin.droneonboardapp.services.MessagingConnectionService;
@@ -74,8 +73,6 @@ public class OverviewFragment extends Fragment implements DroneConnectionListene
 
     }
 
-
-
     private void updateStatusColorsAndTexts() {
         getActivity().runOnUiThread(new Runnable() {
 
@@ -95,10 +92,10 @@ public class OverviewFragment extends Fragment implements DroneConnectionListene
                     txtConnection.setBackgroundResource(R.color.red);
                 }
 
-                if(gpsState != null && gpsState.getFixType() != null) {
+                if (gpsState != null && gpsState.getFixType() != null) {
                     txtGPS.setText("GPS: " + gpsState.getFixType().getDescription());
                     if (gpsState.getFixType() != GpsQuality.NO_FIX) {
-                      txtGPS.setBackgroundResource(R.color.green);
+                        txtGPS.setBackgroundResource(R.color.green);
                     } else {
                         txtGPS.setBackgroundResource(R.color.red);
                     }
@@ -129,7 +126,7 @@ public class OverviewFragment extends Fragment implements DroneConnectionListene
 
     @Override
     public void onDroneStateChange(DroneState state) {
-       updateStatusColorsAndTexts();
+        updateStatusColorsAndTexts();
     }
 
     @Override
