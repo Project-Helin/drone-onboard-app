@@ -29,7 +29,7 @@ public class RegisterDroneActivity extends AppCompatActivity {
     public static final String DRONE_NAME_KEY = "drone_name_key";
     public static final String DRONE_TOKEN_KEY = "drone_token_key";
     private static final String SERVER_IP_KEY = "server_ip_key";
-    private static final String IP_ADDRESS = "152.96.238.18";
+    private static final String DEFAULT_IP_ADDRESS = "152.96.238.18";
     private static final String PORT = "9000";
 
     @Inject
@@ -78,7 +78,7 @@ public class RegisterDroneActivity extends AppCompatActivity {
         this.registerButton = (Button) findViewById(R.id.register_button);
 
         //Set port and IP to default
-        this.ipTextField.setText(IP_ADDRESS);
+        this.ipTextField.setText(DEFAULT_IP_ADDRESS);
         this.portTextField.setText(PORT);
     }
 
@@ -86,7 +86,7 @@ public class RegisterDroneActivity extends AppCompatActivity {
 
         String ip = this.ipTextField.getText().toString();
         String port = this.portTextField.getText().toString();
-        String url = "http://" + ip + ":" + port + "/api/drones";
+        String url = "http://" + ip + ":" + port + "/api/drones/";
 
         JSONObject requestData = createRegisterRequestDataFromInputValues();
 
@@ -154,6 +154,7 @@ public class RegisterDroneActivity extends AppCompatActivity {
     private void goToMainActivity() {
         Intent intent = new Intent(RegisterDroneActivity.this, MainActivity.class);
         startActivity(intent);
+        finish();
     }
 
     private void saveToPreferences(String key, String value) {
