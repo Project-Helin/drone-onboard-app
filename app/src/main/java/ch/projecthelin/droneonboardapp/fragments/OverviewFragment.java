@@ -108,6 +108,11 @@ public class OverviewFragment extends Fragment implements DroneConnectionListene
                 wp2.setPosition(new Position(47.222614, 8.817452, 5));
                 wayPoints.add(wp2);
 
+                Waypoint wp6 = new Waypoint();
+                wp6.setAction(Action.FLY);
+                wp6.setPosition(new Position(47.223511, 8.81550, 100));
+                wayPoints.add(wp6);
+
                 Waypoint wp3 = new Waypoint();
                 wp3.setAction(Action.DROP);
                 wp3.setPosition(new Position(47.223510, 8.815553, 50));

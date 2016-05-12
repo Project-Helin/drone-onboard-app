@@ -1,12 +1,12 @@
 package ch.projecthelin.droneonboardapp.services;
 
 import android.os.Bundle;
-
 import ch.helin.messages.dto.state.DroneState;
-import ch.projecthelin.droneonboardapp.DroneOnboardApp;
-import ch.projecthelin.droneonboardapp.di.*;
-
+import ch.projecthelin.droneonboardapp.di.DaggerTestAppComponent;
+import ch.projecthelin.droneonboardapp.di.TestAppComponent;
+import ch.projecthelin.droneonboardapp.di.TestAppModule;
 import ch.projecthelin.droneonboardapp.mappers.DroneStateMapper;
+import ch.projecthelin.droneonboardapp.mappers.RouteMissionMapper;
 import com.o3dr.android.client.ControlTower;
 import com.o3dr.android.client.Drone;
 import com.o3dr.services.android.lib.coordinate.LatLong;
@@ -30,7 +30,6 @@ public class DroneConnectionServiceTest {
     private DroneConnectionListener droneConnectionListener;
 
     ControlTower tower;
-
     Drone drone;
 
     @Before
@@ -46,7 +45,7 @@ public class DroneConnectionServiceTest {
                 .build();
 
         droneConnectionListener = mock(DroneConnectionListener.class);
-        service = new DroneConnectionService(tower, drone);
+        service = new DroneConnectionService(tower, drone, new RouteMissionMapper());
     }
 
     @Test
@@ -65,7 +64,7 @@ public class DroneConnectionServiceTest {
     }
 
     @Test
-    public void ChangedConnectionState() throws Exception {
+    public void ChangedConnectionStateTest() throws Exception {
         Altitude altitude = new Altitude();
         altitude.setAltitude(100);
         altitude.setTargetAltitude(150);

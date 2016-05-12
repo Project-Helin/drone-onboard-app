@@ -4,14 +4,13 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 
-import ch.helin.messages.dto.Action;
 import ch.helin.messages.dto.state.BatteryState;
 import ch.helin.messages.dto.state.DroneState;
 
 import ch.helin.messages.dto.state.GpsState;
-import ch.helin.messages.dto.way.Position;
 import ch.helin.messages.dto.way.RouteDto;
 import ch.projecthelin.droneonboardapp.mappers.DroneStateMapper;
+import ch.projecthelin.droneonboardapp.mappers.RouteMissionMapper;
 import com.o3dr.android.client.ControlTower;
 import com.o3dr.android.client.Drone;
 import com.o3dr.android.client.apis.drone.DroneStateApi;
@@ -19,17 +18,12 @@ import com.o3dr.android.client.apis.drone.GuidedApi;
 import com.o3dr.android.client.apis.mission.MissionApi;
 import com.o3dr.android.client.interfaces.DroneListener;
 import com.o3dr.android.client.interfaces.TowerListener;
-import com.o3dr.services.android.lib.coordinate.LatLongAlt;
 import com.o3dr.services.android.lib.drone.attribute.AttributeEvent;
 import com.o3dr.services.android.lib.drone.attribute.AttributeType;
 import com.o3dr.services.android.lib.drone.connection.ConnectionParameter;
 import com.o3dr.services.android.lib.drone.connection.ConnectionResult;
 import com.o3dr.services.android.lib.drone.connection.ConnectionType;
 import com.o3dr.services.android.lib.drone.mission.Mission;
-import com.o3dr.services.android.lib.drone.mission.item.MissionItem;
-import com.o3dr.services.android.lib.drone.mission.item.command.SetServo;
-import com.o3dr.services.android.lib.drone.mission.item.spatial.Land;
-import com.o3dr.services.android.lib.drone.mission.item.spatial.Waypoint;
 import com.o3dr.services.android.lib.drone.property.Battery;
 import com.o3dr.services.android.lib.drone.property.Gps;
 import com.o3dr.services.android.lib.drone.property.VehicleMode;
@@ -40,7 +34,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Singleton
-public class DroneConnectionService implements DroneListener, TowerListener, Drone.OnMissionItemsBuiltCallback {
+public class DroneConnectionService implements DroneListener, TowerListener{
 
     public static final String LOCAL_IP = "192.168.58.1";
     public static final int BAUD_RATE_FOR_USB = 115200;
@@ -49,6 +43,7 @@ public class DroneConnectionService implements DroneListener, TowerListener, Dro
 
     private final Handler handler = new Handler();
     private final Drone drone;
+    private RouteMissionMapper missionMapper;
     private final ControlTower controlTower;
     private List<DroneConnectionListener> connectionListeners = new ArrayList<>();
 
@@ -60,9 +55,10 @@ public class DroneConnectionService implements DroneListener, TowerListener, Dro
     private boolean startMissionWhenArmed;
 
     @Inject
-    public DroneConnectionService(ControlTower controlTower, Drone drone) {
+    public DroneConnectionService(ControlTower controlTower, Drone drone, RouteMissionMapper missionMapper) {
         this.controlTower = controlTower;
         this.drone = drone;
+        this.missionMapper = missionMapper;
         this.controlTower.connect(this);
     }
 
@@ -119,45 +115,14 @@ public class DroneConnectionService implements DroneListener, TowerListener, Dro
 
     public void sendRouteToAutopilot(RouteDto route) {
 
-        Mission mission = new Mission();
-
-        for (ch.helin.messages.dto.way.Waypoint waypointDto : route.getWayPoints()) {
-            addWayPointToMission(mission, waypointDto);
-            AddActionToMissionIfNecessary(mission, waypointDto);
-        }
-
+        Mission mission = missionMapper.convertToMission(route);
         MissionApi.setMission(drone,mission,true);
     }
 
-    private void AddActionToMissionIfNecessary(Mission mission, ch.helin.messages.dto.way.Waypoint waypointDto) {
-        MissionItem missionAction = null;
-
-        if (waypointDto.getAction() == Action.DROP) {
-            missionAction = new SetServo();
-        } else if (waypointDto.getAction() == Action.LAND) {
-            missionAction = new Land();
-        }
-
-        if (missionAction != null) {
-            mission.addMissionItem(missionAction);
-        }
-    }
-
-    private void addWayPointToMission(Mission mission, ch.helin.messages.dto.way.Waypoint waypointDto) {
-        Waypoint waypoint = new Waypoint();
-
-        Position position = waypointDto.getPosition();
-        LatLongAlt coordinate = new LatLongAlt(position.getLat(), position.getLon(), position.getHeight());
-        waypoint.setCoordinate(coordinate);
-
-
-        mission.addMissionItem(waypoint);
-    }
-
-
-    @Override
-    public void onDroneConnectionFailed(ConnectionResult result) {
-
+    public void startMission() {
+        DroneStateApi.setVehicleMode(drone, VehicleMode.COPTER_GUIDED);
+        DroneStateApi.arm(drone, true);
+        startMissionWhenArmed = true;
     }
 
     @Override
@@ -165,26 +130,19 @@ public class DroneConnectionService implements DroneListener, TowerListener, Dro
         switch (event) {
 
             case AttributeEvent.STATE_CONNECTED:
-                droneState = DroneStateMapper.getDroneState(drone);
-                droneState.setIsConnected(true);
-                this.triggerDroneStateChange();
+                handleDroneConnected();
                 break;
 
             case AttributeEvent.STATE_DISCONNECTED:
-                clearDroneData();
-                droneState = DroneStateMapper.getDroneState(drone);
-                this.triggerDroneStateChange();
+                handleDroneDisconnected();
                 break;
 
             case AttributeEvent.STATE_UPDATED:
-                Log.d(getClass().getCanonicalName(), "STATE_UPDATED");
                 break;
 
             case AttributeEvent.STATE_ARMING:
                 if (startMissionWhenArmed) {
-                    GuidedApi.takeoff(drone, 10);
-                    DroneStateApi.setVehicleMode(drone, VehicleMode.COPTER_AUTO);
-                    startMissionWhenArmed = false;
+                    takeOffAndStartMission();
                 }
 
                 break;
@@ -201,25 +159,51 @@ public class DroneConnectionService implements DroneListener, TowerListener, Dro
             case AttributeEvent.SPEED_UPDATED:
                 break;
             case AttributeEvent.BATTERY_UPDATED:
-                Log.d(getClass().getCanonicalName(), "BATTERY_UPDATED");
-                Battery droneBattery = drone.getAttribute(AttributeType.BATTERY);
-                batteryState = DroneStateMapper.getBatteryState(droneBattery);
-                triggerBatteryStateChange();
+                handleBatteryStateChange();
                 break;
 
             case AttributeEvent.GPS_POSITION:
             case AttributeEvent.GPS_FIX:
             case AttributeEvent.GPS_COUNT:
             case AttributeEvent.WARNING_NO_GPS:
-                Gps gps = drone.getAttribute(AttributeType.GPS);
-                if (gps != null) {
-                    gpsState = DroneStateMapper.getGPSState(gps);
-                    triggerGpsStateChange();
-                }
+                handleGpsStateChange();
                 break;
 
             default:
                 break;
+        }
+    }
+
+    private void handleDroneConnected() {
+        droneState = DroneStateMapper.getDroneState(drone);
+        droneState.setIsConnected(true);
+        this.triggerDroneStateChange();
+    }
+
+    private void handleDroneDisconnected() {
+        clearDroneData();
+        droneState = DroneStateMapper.getDroneState(drone);
+        this.triggerDroneStateChange();
+    }
+
+    private void takeOffAndStartMission() {
+        GuidedApi.takeoff(drone, 10);
+        DroneStateApi.setVehicleMode(drone, VehicleMode.COPTER_AUTO);
+        startMissionWhenArmed = false;
+    }
+
+    private void handleBatteryStateChange() {
+        Log.d(getClass().getCanonicalName(), "BATTERY_UPDATED");
+        Battery droneBattery = drone.getAttribute(AttributeType.BATTERY);
+        batteryState = DroneStateMapper.getBatteryState(droneBattery);
+        triggerBatteryStateChange();
+    }
+
+    private void handleGpsStateChange() {
+        Gps gps = drone.getAttribute(AttributeType.GPS);
+        if (gps != null) {
+            gpsState = DroneStateMapper.getGPSState(gps);
+            triggerGpsStateChange();
         }
     }
 
@@ -250,10 +234,10 @@ public class DroneConnectionService implements DroneListener, TowerListener, Dro
         this.controlTower.unregisterDrone(this.drone);
     }
 
-
     public BatteryState getBatteryState() {
         return batteryState;
     }
+
 
     public DroneState getDroneState() {
         return droneState;
@@ -268,14 +252,8 @@ public class DroneConnectionService implements DroneListener, TowerListener, Dro
     }
 
     @Override
-    public void onMissionItemsBuilt(MissionItem.ComplexItem[] complexItems) {
+    public void onDroneConnectionFailed(ConnectionResult result) {
 
-    }
-
-    public void startMission() {
-        DroneStateApi.setVehicleMode(drone, VehicleMode.COPTER_GUIDED);
-        DroneStateApi.arm(drone, true);
-        startMissionWhenArmed = true;
     }
 }
 
