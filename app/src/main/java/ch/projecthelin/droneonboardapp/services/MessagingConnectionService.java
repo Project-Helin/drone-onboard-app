@@ -1,5 +1,6 @@
 package ch.projecthelin.droneonboardapp.services;
 
+import android.text.Editable;
 import ch.helin.messages.commons.ConnectionUtils;
 import ch.helin.messages.converter.JsonBasedMessageConverter;
 import ch.helin.messages.dto.MissionDto;
@@ -27,8 +28,8 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 @Singleton
 public class MessagingConnectionService implements ConnectionListener {
 
-    public static final String RMQ_REMOTE_SERVER_ADDR = "151.80.44.117:8080";
-    public static final String RMQ_LOCAL_SERVER_ADDR = "152.96.238.20:5672";
+    public static final String RMQ_LOCAL_PORT = ":5672";
+    public static final String RMQ_REMOTE_PORT = ":8080";
 
     public ConnectionState connectionState = ConnectionState.DISCONNECTED;
 
@@ -39,6 +40,13 @@ public class MessagingConnectionService implements ConnectionListener {
     private List<MessageReceiver> messageReceivers = new ArrayList<>();
     private Queue<String> messagesToSend = new ConcurrentLinkedQueue<>();
     private MissionDto currentMission;
+    private String serverIP;
+    private String rabbitMqServerAddress;
+    private boolean localConnection;
+
+    public String getRabbitMqServerAddress() {
+        return rabbitMqServerAddress;
+    }
 
     @Inject
     public MessagingConnectionService() {
@@ -48,7 +56,7 @@ public class MessagingConnectionService implements ConnectionListener {
         this.droneToken = droneToken;
     }
 
-    public void connect(final String hostAddress, final String serverAddress) {
+    public void connect() {
         try {
             final Runnable r = new Runnable() {
                 public void run() {
@@ -59,8 +67,15 @@ public class MessagingConnectionService implements ConnectionListener {
                                         .withMaxAttempts(20))
                                 .withConnectionListeners(MessagingConnectionService.this);
 
+
+                        if (localConnection) {
+                            rabbitMqServerAddress = serverIP + RMQ_LOCAL_PORT;
+                        } else {
+                            rabbitMqServerAddress = serverIP + RMQ_REMOTE_PORT;
+                        }
+
                         ConnectionOptions options = new ConnectionOptions()
-                                .withAddresses(hostAddress)
+                                .withAddresses(rabbitMqServerAddress)
                                 .withUsername("admin")
                                 .withPassword("helin");
 
@@ -84,10 +99,6 @@ public class MessagingConnectionService implements ConnectionListener {
             disconnect();
             throw new RuntimeException(e);
         }
-    }
-
-    public void connect() {
-        connect(RMQ_LOCAL_SERVER_ADDR, RMQ_REMOTE_SERVER_ADDR);
     }
 
     public void addConnectionListener(MessagingConnectionListener listener) {
@@ -219,6 +230,14 @@ public class MessagingConnectionService implements ConnectionListener {
     public void onRecoveryFailure(Connection connection, Throwable failure) {
         connectionState = ConnectionState.DISCONNECTED;
         notifyListenersConnectionState(connectionState);
+    }
+
+    public void setServerIP(String serverIP) {
+        this.serverIP = serverIP;
+    }
+
+    public void setIsLocalConnection(boolean localConnection) {
+        this.localConnection = localConnection;
     }
 
     public enum ConnectionState {

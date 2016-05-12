@@ -28,6 +28,7 @@ public class RegisterDroneActivity extends AppCompatActivity {
 
     public static final String DRONE_NAME_KEY = "drone_name_key";
     public static final String DRONE_TOKEN_KEY = "drone_token_key";
+    private static final String SERVER_IP_KEY = "server_ip_key";
     private static final String IP_ADDRESS = "152.96.238.18";
     private static final String PORT = "9000";
 
@@ -42,6 +43,7 @@ public class RegisterDroneActivity extends AppCompatActivity {
     private Button registerButton;
     private String droneName;
     private String droneToken;
+    private String serverIP;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,16 +55,18 @@ public class RegisterDroneActivity extends AppCompatActivity {
         boolean alreadyRegistered = loadDroneNameAndTokenFromSharedPreferences();
 
         if (alreadyRegistered) {
+            messagingConnectionService.setServerIP(serverIP);
             goToMainActivity();
         }
     }
 
     private boolean loadDroneNameAndTokenFromSharedPreferences() {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        droneName = sharedPreferences.getString(RegisterDroneActivity.DRONE_NAME_KEY, "");
-        droneToken = sharedPreferences.getString(RegisterDroneActivity.DRONE_TOKEN_KEY, "");
+        droneName = sharedPreferences.getString(RegisterDroneActivity.DRONE_NAME_KEY, null);
+        droneToken = sharedPreferences.getString(RegisterDroneActivity.DRONE_TOKEN_KEY, null);
+        serverIP = sharedPreferences.getString(RegisterDroneActivity.SERVER_IP_KEY, null);
 
-        return droneName != null;
+        return droneName != null && droneToken != null && serverIP != null;
     }
 
     private void initializeViewComponents() {
@@ -114,7 +118,7 @@ public class RegisterDroneActivity extends AppCompatActivity {
                     public void onResponse(JSONObject response) {
 
                         saveDroneNameAndTokenToSharedPreferences(response);
-
+                        messagingConnectionService.setServerIP(ipTextField.getText().toString());
                         goToMainActivity();
                     }
                 },
@@ -144,6 +148,7 @@ public class RegisterDroneActivity extends AppCompatActivity {
 
         saveToPreferences(RegisterDroneActivity.DRONE_NAME_KEY, droneDto.getName());
         saveToPreferences(RegisterDroneActivity.DRONE_TOKEN_KEY, droneDto.getToken().toString());
+        saveToPreferences(RegisterDroneActivity.SERVER_IP_KEY, ipTextField.getText().toString());
     }
 
     private void goToMainActivity() {

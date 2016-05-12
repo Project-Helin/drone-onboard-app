@@ -6,6 +6,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CompoundButton;
+import android.widget.Switch;
 import android.widget.TextView;
 import ch.projecthelin.droneonboardapp.DroneOnboardApp;
 import ch.projecthelin.droneonboardapp.MessagingConnectionListener;
@@ -28,6 +30,7 @@ public class ServerFragment extends Fragment implements MessagingConnectionListe
     private TextView txtErrorLog;
     private TextView txtIP;
     private Button btnConnect;
+    private Switch localConnectionSwitch;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -47,7 +50,7 @@ public class ServerFragment extends Fragment implements MessagingConnectionListe
 
         txtErrorLog.append(messagingConnectionService.connectionState.name() + "\n");
         txtConnectionState.setText(messagingConnectionService.connectionState.name());
-        txtIP.setText(MessagingConnectionService.RMQ_REMOTE_SERVER_ADDR);
+        txtIP.setText(messagingConnectionService.getRabbitMqServerAddress());
 
         return view;
     }
@@ -68,6 +71,13 @@ public class ServerFragment extends Fragment implements MessagingConnectionListe
                 }
             }
         });
+
+        localConnectionSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                messagingConnectionService.setIsLocalConnection(isChecked);
+            }
+        });
+
     }
 
     private void initializeViewComponents(View view) {
@@ -75,6 +85,7 @@ public class ServerFragment extends Fragment implements MessagingConnectionListe
         txtIP = (TextView) view.findViewById(R.id.txtIP);
         txtErrorLog = (TextView) view.findViewById(R.id.txtErrorLog);
         btnConnect = (Button) view.findViewById(R.id.btnConnectToDrone);
+        localConnectionSwitch = (Switch) view.findViewById(R.id.localConnectionSwitch);
     }
 
     @Override
