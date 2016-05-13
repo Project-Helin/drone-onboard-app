@@ -84,7 +84,6 @@ public class MessagingConnectionService implements ConnectionListener {
                         connection = Connections.create(options, config);
                         channel = connection.createChannel(1);
 
-
                         Consumer consumer = createConsumer();
 
                         channel.basicConsume(ConnectionUtils.getDroneSideConsumerQueueName(droneToken), true, consumer);
@@ -136,6 +135,7 @@ public class MessagingConnectionService implements ConnectionListener {
                     break;
                 case FinalAssignMission:
                     receiver.onFinalAssignMissionMessageReceived((FinalAssignMissionMessage) message);
+                    break;
             }
         }
     }
