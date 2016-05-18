@@ -47,13 +47,13 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     private ViewPager mViewPager;
 
     @Inject
-    private MessagingConnectionService messagingConnectionService;
+    public MessagingConnectionService messagingConnectionService;
 
     @Inject
-    private DroneConnectionService droneConnectionService;
+    public DroneConnectionService droneConnectionService;
 
     @Inject
-    private LocationService locationService;
+    public LocationService locationService;
 
     JsonBasedMessageConverter jsonBasedMessageConverter = new JsonBasedMessageConverter();
 

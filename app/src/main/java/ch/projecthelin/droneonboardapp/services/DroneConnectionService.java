@@ -172,6 +172,7 @@ public class DroneConnectionService implements DroneListener, TowerListener {
                 } else if (endmissionWhenLanded) {
                     if (altitude != null && altitude.getAltitude() < 1) {
                         missionListener.onMissionFinished();
+                        endmissionWhenLanded = false;
                     }
                 }
                 break;
