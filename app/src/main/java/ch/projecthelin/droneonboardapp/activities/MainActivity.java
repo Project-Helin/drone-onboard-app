@@ -40,7 +40,8 @@ import java.util.Date;
 
 public class MainActivity extends AppCompatActivity implements LocationListener, MessageReceiver, MissionListener {
 
-    private static final int CARGO_LOAD = 543;
+
+    private static final int CARGO_LOAD_REQUEST_CODE = 543;
 
     private SectionsPagerAdapter mSectionsPagerAdapter;
 
@@ -107,7 +108,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == CARGO_LOAD) {
+        if (requestCode == CARGO_LOAD_REQUEST_CODE) {
             // Make sure the request was successful
             if (resultCode == RESULT_OK) {
                 startMissionCountDown();
@@ -183,7 +184,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     @Override
     public void onFinalAssignMissionMessageReceived(FinalAssignMissionMessage message) {
         Intent intent = new Intent(this, MissionActivity.class);
-        startActivityForResult(intent, CARGO_LOAD);
+        startActivityForResult(intent, CARGO_LOAD_REQUEST_CODE);
         messagingConnectionService.setCurrentMission(message.getMission());
     }
 

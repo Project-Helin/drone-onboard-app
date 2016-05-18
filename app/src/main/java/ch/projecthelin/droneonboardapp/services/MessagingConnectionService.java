@@ -1,5 +1,6 @@
 package ch.projecthelin.droneonboardapp.services;
 
+import android.text.Editable;
 import android.util.Log;
 import ch.helin.messages.commons.ConnectionUtils;
 import ch.helin.messages.converter.JsonBasedMessageConverter;
@@ -82,7 +83,6 @@ public class MessagingConnectionService implements ConnectionListener {
                         connection = Connections.create(options, config);
                         channel = connection.createChannel(1);
 
-
                         Consumer consumer = createConsumer();
 
                         channel.basicConsume(ConnectionUtils.getDroneSideConsumerQueueName(droneToken), true, consumer);
@@ -134,6 +134,7 @@ public class MessagingConnectionService implements ConnectionListener {
                     break;
                 case FinalAssignMission:
                     receiver.onFinalAssignMissionMessageReceived((FinalAssignMissionMessage) message);
+                    break;
             }
         }
     }
@@ -149,16 +150,15 @@ public class MessagingConnectionService implements ConnectionListener {
         messagesToSend.add(message);
         try {
             if (connection.isOpen()) {
-
                 while (messagesToSend.peek() != null) {
-                    String messageToSend = messagesToSend.remove();
+                    String messageToSend = messagesToSend.peek();
                     Log.d("Send Message", messageToSend);
                     channel.basicPublish("", ConnectionUtils.getDroneSideProducerQueueName(droneToken), null, messageToSend.getBytes());
+                    messagesToSend.remove();
                 }
             }
-
         } catch (Exception e) {
-            //throw new RuntimeException(e);
+            Log.d(getClass().getCanonicalName(), "Message sent failed!");
         }
     }
 
