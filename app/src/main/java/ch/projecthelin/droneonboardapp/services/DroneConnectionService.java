@@ -166,10 +166,13 @@ public class DroneConnectionService implements DroneListener, TowerListener {
             case AttributeEvent.TYPE_UPDATED:
             case AttributeEvent.ATTITUDE_UPDATED:
             case AttributeEvent.ALTITUDE_UPDATED:
+                Altitude altitude = drone.getAttribute(AttributeType.ALTITUDE);
                 if (startMission) {
-                    startAutoPilotWhenTakeOffFinished();
+                    startAutoPilotWhenTakeOffFinished(altitude);
                 } else if (endmissionWhenLanded) {
-                    sendMissionFinishedToServerWhenLanded();
+                    if (altitude != null && altitude.getAltitude() < 1) {
+                        missionListener.onMissionFinished();
+                    }
                 }
                 break;
             case AttributeEvent.SPEED_UPDATED:
@@ -193,12 +196,7 @@ public class DroneConnectionService implements DroneListener, TowerListener {
         }
     }
 
-    private void sendMissionFinishedToServerWhenLanded() {
-
-    }
-
-    private void startAutoPilotWhenTakeOffFinished() {
-        Altitude altitude = drone.getAttribute(AttributeType.ALTITUDE);
+    private void startAutoPilotWhenTakeOffFinished(Altitude altitude) {
 
         double minAltitudeToStartMission = TAKEOFF_ALTITUDE * ALTITUDE_INACCURACY_RATIO;
         if (altitude != null && altitude.getTargetAltitude() > minAltitudeToStartMission && minAltitudeToStartMission < altitude.getAltitude()) {
