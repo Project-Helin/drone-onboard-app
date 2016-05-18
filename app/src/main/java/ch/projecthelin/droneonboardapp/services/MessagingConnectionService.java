@@ -1,6 +1,6 @@
 package ch.projecthelin.droneonboardapp.services;
 
-import android.text.Editable;
+import android.util.Log;
 import ch.helin.messages.commons.ConnectionUtils;
 import ch.helin.messages.converter.JsonBasedMessageConverter;
 import ch.helin.messages.dto.MissionDto;
@@ -109,7 +109,7 @@ public class MessagingConnectionService implements ConnectionListener {
         connectionListeners.remove(listener);
     }
 
-    public void notifyListenersConnectionState(ConnectionState state) {
+    public void notifyConnectionListeners(ConnectionState state) {
         for (MessagingConnectionListener listener : connectionListeners) {
             listener.onConnectionStateChanged(state);
         }
@@ -142,7 +142,7 @@ public class MessagingConnectionService implements ConnectionListener {
         disconnect(connection);
         closeChannel(channel);
         connectionState = ConnectionState.DISCONNECTED;
-        notifyListenersConnectionState(ConnectionState.DISCONNECTED);
+        notifyConnectionListeners(ConnectionState.DISCONNECTED);
     }
 
     public void sendMessage(String message) {
@@ -152,6 +152,7 @@ public class MessagingConnectionService implements ConnectionListener {
 
                 while (messagesToSend.peek() != null) {
                     String messageToSend = messagesToSend.remove();
+                    Log.d("Send Message", messageToSend);
                     channel.basicPublish("", ConnectionUtils.getDroneSideProducerQueueName(droneToken), null, messageToSend.getBytes());
                 }
             }
@@ -205,31 +206,31 @@ public class MessagingConnectionService implements ConnectionListener {
     @Override
     public void onChannelRecovery(Connection connection) {
         connectionState = ConnectionState.CONNECTED;
-        notifyListenersConnectionState(connectionState);
+        notifyConnectionListeners(connectionState);
     }
 
     @Override
     public void onCreate(Connection connection) {
         connectionState = ConnectionState.CONNECTED;
-        notifyListenersConnectionState(connectionState);
+        notifyConnectionListeners(connectionState);
     }
 
     @Override
     public void onCreateFailure(Throwable failure) {
         connectionState = ConnectionState.DISCONNECTED;
-        notifyListenersConnectionState(connectionState);
+        notifyConnectionListeners(connectionState);
     }
 
     @Override
     public void onRecovery(Connection connection) {
         connectionState = ConnectionState.RECONNECTING;
-        notifyListenersConnectionState(connectionState);
+        notifyConnectionListeners(connectionState);
     }
 
     @Override
     public void onRecoveryFailure(Connection connection, Throwable failure) {
         connectionState = ConnectionState.DISCONNECTED;
-        notifyListenersConnectionState(connectionState);
+        notifyConnectionListeners(connectionState);
     }
 
     public void setServerIP(String serverIP) {

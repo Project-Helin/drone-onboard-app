@@ -59,7 +59,10 @@ public class RouteMissionMapperTest {
 
         Mission mission = new RouteMissionMapper().convertToMission(routeDto);
 
-        assertThat(mission.getMissionItems().size()).isEqualTo(5);
+        int dropWaypoint = 1;
+        int landWaypoint = 1;
+
+        assertThat(mission.getMissionItems().size()).isEqualTo(routeDto.getWayPoints().size() + dropWaypoint + landWaypoint);
 
         com.o3dr.services.android.lib.drone.mission.item.spatial.Waypoint firstWaypoint = (com.o3dr.services.android.lib.drone.mission.item.spatial.Waypoint) mission.getMissionItem(0);
         assertThat(firstWaypoint.getCoordinate()).isEqualTo(new LatLongAlt(47.223343, 8.818480, 20));

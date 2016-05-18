@@ -125,7 +125,7 @@ public class OverviewFragment extends Fragment implements DroneConnectionListene
 
                 routeDto.setWayPoints(wayPoints);
 
-                mission.setRouteDto(routeDto);
+                mission.setRoute(routeDto);
 
                 assignMissionMessage.setMission(mission);
 
@@ -185,6 +185,7 @@ public class OverviewFragment extends Fragment implements DroneConnectionListene
                     txtServerConnectionState.setText("Disconnected");
                     txtServerConnectionState.setBackgroundResource(R.color.red);
                 }
+
             }
         });
 

@@ -2,8 +2,8 @@ package ch.projecthelin.droneonboardapp.services;
 
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 
+import android.util.Log;
 import ch.helin.messages.dto.state.BatteryState;
 import ch.helin.messages.dto.state.DroneState;
 
@@ -19,11 +19,13 @@ import com.o3dr.android.client.apis.mission.MissionApi;
 import com.o3dr.android.client.interfaces.DroneListener;
 import com.o3dr.android.client.interfaces.TowerListener;
 import com.o3dr.services.android.lib.drone.attribute.AttributeEvent;
+import com.o3dr.services.android.lib.drone.attribute.AttributeEventExtra;
 import com.o3dr.services.android.lib.drone.attribute.AttributeType;
 import com.o3dr.services.android.lib.drone.connection.ConnectionParameter;
 import com.o3dr.services.android.lib.drone.connection.ConnectionResult;
 import com.o3dr.services.android.lib.drone.connection.ConnectionType;
 import com.o3dr.services.android.lib.drone.mission.Mission;
+import com.o3dr.services.android.lib.drone.property.Altitude;
 import com.o3dr.services.android.lib.drone.property.Battery;
 import com.o3dr.services.android.lib.drone.property.Gps;
 import com.o3dr.services.android.lib.drone.property.VehicleMode;
@@ -34,12 +36,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Singleton
-public class DroneConnectionService implements DroneListener, TowerListener{
+public class DroneConnectionService implements DroneListener, TowerListener {
 
     public static final String LOCAL_IP = "192.168.58.1";
     public static final int BAUD_RATE_FOR_USB = 115200;
     public static final int TCP_PORT = 5770;
     public static final int UDP_PORT = 14551;
+    public static final int TAKEOFF_ALTITUDE = 10;
+    public static final double ALTITUDE_INACCURACY_RATIO = 0.95;
 
     private final Handler handler = new Handler();
     private final Drone drone;
@@ -52,7 +56,9 @@ public class DroneConnectionService implements DroneListener, TowerListener{
     private BatteryState batteryState = new BatteryState();
 
     private int connectionType;
-    private boolean startMissionWhenArmed;
+    private boolean startMission;
+    private boolean endmissionWhenLanded;
+    private MissionListener missionListener;
 
     @Inject
     public DroneConnectionService(ControlTower controlTower, Drone drone, RouteMissionMapper missionMapper) {
@@ -88,26 +94,31 @@ public class DroneConnectionService implements DroneListener, TowerListener{
         connectionListeners.add(connectionListener);
     }
 
-    public void removeConnectionListener(DroneConnectionListener droneConnectionListener) {
-        connectionListeners.remove(droneConnectionListener);
+    public void removeConnectionListener(DroneConnectionListener connectionListener) {
+        connectionListeners.remove(connectionListener);
     }
 
-    public void triggerDroneStateChange() {
-        Log.d(getClass().getCanonicalName(), "Triggering DroneState Change with: " + connectionListeners.size());
+    public void setMissionListener(MissionListener missionListener) {
+        this.missionListener = missionListener;
+    }
+
+    public void removeMissionListener() {
+        this.missionListener = null;
+    }
+
+    public void notifyDroneStateListeners() {
         for (DroneConnectionListener connectionListener : connectionListeners) {
             connectionListener.onDroneStateChange(droneState);
         }
     }
 
-    public void triggerGpsStateChange() {
-        Log.d(getClass().getCanonicalName(), "Triggering GPSState Change with: " + connectionListeners.size());
+    public void notifyGPSStateListeners() {
         for (DroneConnectionListener connectionListener : connectionListeners) {
             connectionListener.onGpsStateChange(gpsState);
         }
     }
 
-    public void triggerBatteryStateChange() {
-        Log.d(getClass().getCanonicalName(), "Triggering BatteryStateChange Change with: " + connectionListeners.size());
+    public void notifyBatteryStateListeners() {
         for (DroneConnectionListener connectionListener : connectionListeners) {
             connectionListener.onBatteryStateChange(batteryState);
         }
@@ -116,13 +127,13 @@ public class DroneConnectionService implements DroneListener, TowerListener{
     public void sendRouteToAutopilot(RouteDto route) {
 
         Mission mission = missionMapper.convertToMission(route);
-        MissionApi.setMission(drone,mission,true);
+        MissionApi.setMission(drone, mission, true);
     }
 
     public void startMission() {
+        startMission = true;
         DroneStateApi.setVehicleMode(drone, VehicleMode.COPTER_GUIDED);
         DroneStateApi.arm(drone, true);
-        startMissionWhenArmed = true;
     }
 
     @Override
@@ -141,10 +152,9 @@ public class DroneConnectionService implements DroneListener, TowerListener{
                 break;
 
             case AttributeEvent.STATE_ARMING:
-                if (startMissionWhenArmed) {
-                    takeOffAndStartMission();
+                if (startMission) {
+                    GuidedApi.takeoff(drone, TAKEOFF_ALTITUDE);
                 }
-
                 break;
 
             case AttributeEvent.STATE_VEHICLE_MODE:
@@ -156,6 +166,12 @@ public class DroneConnectionService implements DroneListener, TowerListener{
             case AttributeEvent.TYPE_UPDATED:
             case AttributeEvent.ATTITUDE_UPDATED:
             case AttributeEvent.ALTITUDE_UPDATED:
+                if (startMission) {
+                    startAutoPilotWhenTakeOffFinished();
+                } else if (endmissionWhenLanded) {
+                    sendMissionFinishedToServerWhenLanded();
+                }
+                break;
             case AttributeEvent.SPEED_UPDATED:
                 break;
             case AttributeEvent.BATTERY_UPDATED:
@@ -168,42 +184,53 @@ public class DroneConnectionService implements DroneListener, TowerListener{
             case AttributeEvent.WARNING_NO_GPS:
                 handleGpsStateChange();
                 break;
+            case AttributeEvent.AUTOPILOT_MESSAGE:
+                Log.i("DRONE_EVENT", extras.getString(AttributeEventExtra.EXTRA_AUTOPILOT_MESSAGE));
 
             default:
+
                 break;
+        }
+    }
+
+    private void sendMissionFinishedToServerWhenLanded() {
+
+    }
+
+    private void startAutoPilotWhenTakeOffFinished() {
+        Altitude altitude = drone.getAttribute(AttributeType.ALTITUDE);
+
+        double minAltitudeToStartMission = TAKEOFF_ALTITUDE * ALTITUDE_INACCURACY_RATIO;
+        if (altitude != null && altitude.getTargetAltitude() > minAltitudeToStartMission && minAltitudeToStartMission < altitude.getAltitude()) {
+            DroneStateApi.setVehicleMode(drone, VehicleMode.COPTER_AUTO);
+            startMission = false;
+            endmissionWhenLanded = true;
         }
     }
 
     private void handleDroneConnected() {
         droneState = DroneStateMapper.getDroneState(drone);
         droneState.setIsConnected(true);
-        this.triggerDroneStateChange();
+        this.notifyDroneStateListeners();
     }
 
     private void handleDroneDisconnected() {
         clearDroneData();
         droneState = DroneStateMapper.getDroneState(drone);
-        this.triggerDroneStateChange();
-    }
-
-    private void takeOffAndStartMission() {
-        GuidedApi.takeoff(drone, 10);
-        DroneStateApi.setVehicleMode(drone, VehicleMode.COPTER_AUTO);
-        startMissionWhenArmed = false;
+        this.notifyDroneStateListeners();
     }
 
     private void handleBatteryStateChange() {
-        Log.d(getClass().getCanonicalName(), "BATTERY_UPDATED");
         Battery droneBattery = drone.getAttribute(AttributeType.BATTERY);
         batteryState = DroneStateMapper.getBatteryState(droneBattery);
-        triggerBatteryStateChange();
+        notifyBatteryStateListeners();
     }
 
     private void handleGpsStateChange() {
         Gps gps = drone.getAttribute(AttributeType.GPS);
         if (gps != null) {
             gpsState = DroneStateMapper.getGPSState(gps);
-            triggerGpsStateChange();
+            notifyGPSStateListeners();
         }
     }
 
@@ -212,9 +239,9 @@ public class DroneConnectionService implements DroneListener, TowerListener{
         gpsState = new GpsState();
         batteryState = new BatteryState();
 
-        triggerDroneStateChange();
-        triggerGpsStateChange();
-        triggerBatteryStateChange();
+        notifyDroneStateListeners();
+        notifyGPSStateListeners();
+        notifyBatteryStateListeners();
     }
 
     @Override

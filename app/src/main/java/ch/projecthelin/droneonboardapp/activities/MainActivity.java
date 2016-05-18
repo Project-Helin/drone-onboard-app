@@ -15,15 +15,13 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import ch.helin.messages.converter.JsonBasedMessageConverter;
 import ch.helin.messages.dto.MissionDto;
 import ch.helin.messages.dto.OrderProductDto;
 import ch.helin.messages.dto.message.DroneInfoMessage;
-import ch.helin.messages.dto.message.missionMessage.AssignMissionMessage;
-import ch.helin.messages.dto.message.missionMessage.ConfirmMissionMessage;
-import ch.helin.messages.dto.message.missionMessage.FinalAssignMissionMessage;
-import ch.helin.messages.dto.message.missionMessage.MissionConfirmType;
+import ch.helin.messages.dto.message.missionMessage.*;
 import ch.helin.messages.dto.way.Position;
 import ch.projecthelin.droneonboardapp.DroneOnboardApp;
 import ch.projecthelin.droneonboardapp.MessageReceiver;
@@ -34,12 +32,13 @@ import ch.projecthelin.droneonboardapp.fragments.ServerFragment;
 import ch.projecthelin.droneonboardapp.services.DroneConnectionService;
 import ch.projecthelin.droneonboardapp.services.LocationService;
 import ch.projecthelin.droneonboardapp.services.MessagingConnectionService;
+import ch.projecthelin.droneonboardapp.services.MissionListener;
 import com.google.android.gms.location.LocationListener;
 
 import javax.inject.Inject;
 import java.util.Date;
 
-public class MainActivity extends AppCompatActivity implements LocationListener, MessageReceiver {
+public class MainActivity extends AppCompatActivity implements LocationListener, MessageReceiver, MissionListener {
 
     private static final int CARGO_LOAD = 543;
 
@@ -116,7 +115,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 
     private void startMissionCountDown() {
         MissionDto currentMission = messagingConnectionService.getCurrentMission();
-        droneConnectionService.sendRouteToAutopilot(currentMission.getRouteDto());
+        droneConnectionService.sendRouteToAutopilot(currentMission.getRoute());
 
         final AlertDialog dialog = createMissionStartCountDownDialog();
 
@@ -125,7 +124,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         new CountDownTimer(10000, 1000) {
             @Override
             public void onTick(long millisUntilFinished) {
-                dialog.setMessage("00:"+ (millisUntilFinished/1000));
+                dialog.setMessage("00:" + (millisUntilFinished / 1000));
             }
 
             @Override
@@ -168,8 +167,15 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 
     @Override
     public void onAssignMissionMessageReceived(AssignMissionMessage message) {
-        MissionDto mission = message.getMission();
-        showMissionAcceptDialog(mission);
+        final MissionDto mission = message.getMission();
+        runOnUiThread(new Runnable() {
+
+            @Override
+            public void run() {
+                showMissionAcceptDialog(mission);
+            }
+        });
+
     }
 
     @Override
@@ -228,6 +234,19 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         ConfirmMissionMessage confirmMissionMessage = new ConfirmMissionMessage();
         confirmMissionMessage.setMissionConfirmType(acceptOrReject);
         messagingConnectionService.sendMessage(jsonBasedMessageConverter.parseMessageToString(confirmMissionMessage));
+    }
+
+    @Override
+    public void onMissionStarted() {
+        Log.d("Mission", "Mission Started");
+    }
+
+    @Override
+    public void onMissionFinished() {
+        Log.d("Mission", "Mission finished");
+
+        messagingConnectionService.sendMessage(jsonBasedMessageConverter.parseMessageToString(new FinishedMissionMessage()));
+        messagingConnectionService.setCurrentMission(null);
     }
 
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
