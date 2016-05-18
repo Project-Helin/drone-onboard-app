@@ -247,7 +247,9 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     public void onMissionFinished() {
         Log.d("Mission", "Mission finished");
 
-        messagingConnectionService.sendMessage(jsonBasedMessageConverter.parseMessageToString(new FinishedMissionMessage()));
+        FinishedMissionMessage message = new FinishedMissionMessage();
+        message.setFinishedType(MissionFinishedType.SUCCESSFUL);
+        messagingConnectionService.sendMessage(jsonBasedMessageConverter.parseMessageToString(message));
         messagingConnectionService.setCurrentMission(null);
     }
 

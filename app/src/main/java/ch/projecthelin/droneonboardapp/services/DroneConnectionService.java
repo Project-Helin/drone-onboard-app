@@ -231,6 +231,10 @@ public class DroneConnectionService implements DroneListener, TowerListener {
             gpsState = DroneStateMapper.getGPSState(gps);
             notifyGPSStateListeners();
         }
+
+        DroneState newDroneState = DroneStateMapper.getDroneState(drone);
+        newDroneState.setIsConnected(droneState.isConnected());
+        droneState = newDroneState;
     }
 
     private void clearDroneData() {
