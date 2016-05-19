@@ -18,6 +18,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import ch.helin.messages.converter.JsonBasedMessageConverter;
+import ch.helin.messages.dto.DroneInfoDto;
 import ch.helin.messages.dto.MissionDto;
 import ch.helin.messages.dto.OrderProductDto;
 import ch.helin.messages.dto.message.DroneInfoMessage;
@@ -158,12 +159,16 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     }
 
     private void sendDroneInfoToServer(Location location) {
+
+        DroneInfoDto droneInfoDto = new DroneInfoDto();
+        droneInfoDto.setBatteryState(droneConnectionService.getBatteryState());
+        droneInfoDto.setGpsState(droneConnectionService.getGpsState());
+        droneInfoDto.setDroneState(droneConnectionService.getDroneState());
+        droneInfoDto.setPhonePosition(new Position(location.getLongitude(), location.getLatitude()));
+        droneInfoDto.setClientTime(new Date());
+
         DroneInfoMessage droneInfoMessage = new DroneInfoMessage();
-        droneInfoMessage.setBatteryState(droneConnectionService.getBatteryState());
-        droneInfoMessage.setGpsState(droneConnectionService.getGpsState());
-        droneInfoMessage.setDroneState(droneConnectionService.getDroneState());
-        droneInfoMessage.setPhonePosition(new Position(location.getLongitude(), location.getLatitude()));
-        droneInfoMessage.setClientTime(new Date());
+        droneInfoMessage.setDroneInfo(droneInfoDto);
 
         messagingConnectionService.sendMessage(jsonBasedMessageConverter.parseMessageToString(droneInfoMessage));
     }
