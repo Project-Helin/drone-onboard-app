@@ -167,6 +167,7 @@ public class DroneConnectionService implements DroneListener, TowerListener {
             case AttributeEvent.ATTITUDE_UPDATED:
             case AttributeEvent.ALTITUDE_UPDATED:
                 Altitude altitude = drone.getAttribute(AttributeType.ALTITUDE);
+
                 if (startMission) {
                     startAutoPilotWhenTakeOffFinished(altitude);
                 } else if (endmissionWhenLanded) {

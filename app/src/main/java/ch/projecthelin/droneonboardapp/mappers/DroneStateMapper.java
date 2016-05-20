@@ -24,7 +24,7 @@ public class DroneStateMapper {
         Altitude altitude = drone.getAttribute(AttributeType.ALTITUDE);
         if (altitude != null) {
             droneState.setTargetAltitude(altitude.getTargetAltitude());
-            droneState.setTargetAltitude(altitude.getAltitude());
+            droneState.setAltitude(altitude.getAltitude());
         }
 
         Type type = drone.getAttribute(AttributeType.TYPE);
