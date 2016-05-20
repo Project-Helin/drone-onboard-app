@@ -136,6 +136,7 @@ public class OverviewFragment extends Fragment implements DroneConnectionListene
 
     @Override
     public void onDestroy() {
+        super.onDestroy();
         droneConnectionService.removeConnectionListener(this);
         messagingConnectionService.removeConnectionListener(this);
 

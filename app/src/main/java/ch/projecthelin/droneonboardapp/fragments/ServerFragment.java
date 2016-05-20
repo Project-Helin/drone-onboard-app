@@ -57,6 +57,7 @@ public class ServerFragment extends Fragment implements MessagingConnectionListe
 
     @Override
     public void onDestroy() {
+        super.onDestroy();
         messagingConnectionService.removeConnectionListener(this);
     }
 
