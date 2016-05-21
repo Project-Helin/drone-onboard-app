@@ -132,7 +132,7 @@ public class DroneConnectionService implements DroneListener, TowerListener {
 
     public void startMission() {
         startMission = true;
-        DroneStateApi.setVehicleMode(drone, VehicleMode.COPTER_GUIDED);
+        DroneStateApi.setVehicleMode(drone, VehicleMode.COPTER_STABILIZE);
         DroneStateApi.arm(drone, true);
     }
 
@@ -153,6 +153,7 @@ public class DroneConnectionService implements DroneListener, TowerListener {
 
             case AttributeEvent.STATE_ARMING:
                 if (startMission) {
+                    DroneStateApi.setVehicleMode(drone, VehicleMode.COPTER_GUIDED);
                     GuidedApi.takeoff(drone, TAKEOFF_ALTITUDE);
                 }
                 break;
