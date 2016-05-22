@@ -58,7 +58,7 @@ dependencies {
 
     compile 'com.android.support:multidex:1.0.1'
 
-    compile 'ch.helin:drone-server-messages:1.0'
+    compile 'ch.helin:commons:1.0'
 
 
 }

@@ -2,7 +2,7 @@ package ch.projecthelin.droneonboardapp.services;
 
 import android.text.Editable;
 import android.util.Log;
-import ch.helin.messages.commons.ConnectionUtils;
+import ch.helin.commons.ConnectionUtils;
 import ch.helin.messages.converter.JsonBasedMessageConverter;
 import ch.helin.messages.dto.MissionDto;
 import ch.helin.messages.dto.message.Message;
