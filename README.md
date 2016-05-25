@@ -12,6 +12,7 @@ API for communicating with the drone over [MAVLink](https://en.wikipedia.org/wik
 * Android Studio (Tested with Version 2.1)
 * Android SDKs for the Android Version you want to develop for(Tested with Android 4.4.4)
 * VirtualBox (Tested with Version 5.0.20)
+* [Server Project](https://github.com/Project-Helin/server) installed 
 
 ## Local Setup with Drone-Simulator and Android Emulator
 This setup is useful for testing with a simulated drone
