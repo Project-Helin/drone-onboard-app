@@ -43,6 +43,9 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 
 
     private static final int CARGO_LOAD_REQUEST_CODE = 543;
+    public static final String CHANNEL_KEY = "channel";
+    public static final String OPEN_PWM_KEY = "open_pwm";
+    public static final String CLOSED_PWM_KEY = "closed_pwm";
 
     private SectionsPagerAdapter mSectionsPagerAdapter;
 
@@ -86,6 +89,10 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         locationService.startLocationListening(this, this);
 
         droneConnectionService.setMissionListener(this);
+
+        droneConnectionService.setServoChannel(loadServoValueFromSharedPreferences(CHANNEL_KEY));
+        droneConnectionService.setServoOpenPWM(loadServoValueFromSharedPreferences(OPEN_PWM_KEY));
+        droneConnectionService.setServoClosedPWM(loadServoValueFromSharedPreferences(CLOSED_PWM_KEY));
     }
 
     @Override
@@ -144,6 +151,11 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     private String loadDroneTokenFromSharedPreferences() {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         return sharedPreferences.getString(RegisterDroneActivity.DRONE_TOKEN_KEY, "");
+    }
+
+    private int loadServoValueFromSharedPreferences(String key) {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        return sharedPreferences.getInt(key, 0);
     }
 
     @Override

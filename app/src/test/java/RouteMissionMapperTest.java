@@ -47,7 +47,7 @@ public class RouteMissionMapperTest {
     public void shouldDropAfterCorrectWaypoint() {
         RouteDto routeDto = setupRoute();
 
-        Mission mission = new RouteMissionMapper().convertToMission(routeDto);
+        Mission mission = new RouteMissionMapper().convertToMission(routeDto, servoChannel, servoPWM);
 
         SetServo dropAction = (SetServo) mission.getMissionItem(3);
         assertThat(dropAction.getType()).isEqualTo(MissionItemType.SET_SERVO);
@@ -57,7 +57,7 @@ public class RouteMissionMapperTest {
     public void shouldAddWaypointsInCorrectOrder () {
         RouteDto routeDto = setupRoute();
 
-        Mission mission = new RouteMissionMapper().convertToMission(routeDto);
+        Mission mission = new RouteMissionMapper().convertToMission(routeDto, servoChannel, servoPWM);
 
         int dropWaypoint = 1;
         int landWaypoint = 1;

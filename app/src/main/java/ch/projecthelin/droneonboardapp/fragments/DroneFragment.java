@@ -1,7 +1,10 @@
 package ch.projecthelin.droneonboardapp.fragments;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +17,7 @@ import ch.helin.messages.dto.state.GpsState;
 import ch.projecthelin.droneonboardapp.DroneOnboardApp;
 import ch.projecthelin.droneonboardapp.R;
 
+import ch.projecthelin.droneonboardapp.activities.MainActivity;
 import ch.projecthelin.droneonboardapp.services.DroneConnectionListener;
 import ch.projecthelin.droneonboardapp.services.DroneConnectionService;
 
@@ -25,15 +29,15 @@ public class DroneFragment extends Fragment implements DroneConnectionListener {
     DroneConnectionService droneConnectionService;
 
     private TextView txtGps;
-    private TextView txtPosition;
     private TextView txtBattery;
     private TextView txtAltitude;
-    private TextView txtSpeed;
-    private TextView txtFirmware;
 
     private Button btnConnect;
     private Spinner connectionSelector;
-    private TextView txtErrorLog;
+    private EditText editChannel;
+    private Button btnSaveServoValues;
+    private EditText editOpenPWM;
+    private EditText editClosedPWM;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -52,7 +56,21 @@ public class DroneFragment extends Fragment implements DroneConnectionListener {
         initializeBtnListeners();
         initializeConnectionModeSpinner(view);
 
+        setServoValues();
+
         return view;
+    }
+
+    private void setServoValues() {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext());
+
+        String channel = String.valueOf(sharedPreferences.getInt(MainActivity.CHANNEL_KEY, 6));
+        editChannel.setText(channel);
+
+        String openPWD = String.valueOf(sharedPreferences.getInt(MainActivity.OPEN_PWM_KEY,1800));
+        String closedPWD = String.valueOf(sharedPreferences.getInt(MainActivity.CLOSED_PWM_KEY,1400));
+        editOpenPWM.setText(openPWD);
+        editClosedPWM.setText(closedPWD);
     }
 
     private void initializeBtnListeners() {
@@ -66,17 +84,35 @@ public class DroneFragment extends Fragment implements DroneConnectionListener {
                 }
             }
         });
+
+        btnSaveServoValues.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int channel = Integer.valueOf(editChannel.getText().toString());
+                int openPWM = Integer.valueOf(editOpenPWM.getText().toString());
+                int closedPWM = Integer.valueOf(editClosedPWM.getText().toString());
+
+                saveServoValuesToSharedPreferences(channel, openPWM, closedPWM);
+                setServoValuesToDroneConnectionService(channel, openPWM, closedPWM);
+            }
+        });
+    }
+
+    private void setServoValuesToDroneConnectionService(int channel, int openPWM, int closedPWM) {
+        droneConnectionService.setServoChannel(channel);
+        droneConnectionService.setServoOpenPWM(openPWM);
+        droneConnectionService.setServoClosedPWM(closedPWM);
     }
 
     private void initializeViewComponents(View view) {
         txtGps = (TextView) view.findViewById(R.id.txtGPS);
-        txtPosition = (TextView) view.findViewById(R.id.txtPosition);
         txtBattery = (TextView) view.findViewById(R.id.txtBattery);
         txtAltitude = (TextView) view.findViewById(R.id.txtAltitude);
-        txtSpeed = (TextView) view.findViewById(R.id.txtSpeed);
-        txtFirmware = (TextView) view.findViewById(R.id.txtFirmware);
-        txtErrorLog = (TextView) view.findViewById(R.id.txtErrorLog);
         btnConnect = (Button) view.findViewById(R.id.btnConnectToDrone);
+        btnSaveServoValues = (Button) view.findViewById(R.id.btnSaveServoValues);
+        editChannel = (EditText) view.findViewById(R.id.editChannel);
+        editOpenPWM = (EditText) view.findViewById(R.id.editOpenPWM);
+        editClosedPWM = (EditText) view.findViewById(R.id.editClosedPWM);
     }
 
     protected void initializeConnectionModeSpinner(View view) {
@@ -103,12 +139,21 @@ public class DroneFragment extends Fragment implements DroneConnectionListener {
         droneConnectionService.setConnectionType(connectionType);
     }
 
+    private void saveServoValuesToSharedPreferences(int channel, int openPWM, int closedPWM) {
+
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putInt(MainActivity.CHANNEL_KEY, channel);
+        editor.putInt(MainActivity.OPEN_PWM_KEY, openPWM);
+        editor.putInt(MainActivity.CLOSED_PWM_KEY, closedPWM);
+        editor.apply();
+    }
+
     @Override
     public void onDroneStateChange(DroneState state) {
         try {
-            txtSpeed.setText("Ground: " + (int) (state.getGroundSpeed()) + "m/s Vertical: " + (int) (state.getVerticalSpeed()) + "m/s");
             txtAltitude.setText((int) state.getAltitude() + " / " + (int) state.getTargetAltitude());
-            txtFirmware.setText(state.getFirmware());
 
             if (state.isConnected()) {
                 btnConnect.setText("Disconnect");
@@ -116,7 +161,7 @@ public class DroneFragment extends Fragment implements DroneConnectionListener {
                 btnConnect.setText("Connect");
             }
         } catch (Exception e) {
-            txtErrorLog.setText(txtErrorLog.getText() + "Problem in onDroneStateChange \n");
+            Log.d("Error", "Problem in onDroneStateChange");
         }
     }
 
@@ -126,9 +171,8 @@ public class DroneFragment extends Fragment implements DroneConnectionListener {
         try {
             txtGps.setText(state.getFixType().getDescription() + " - Satellites: "
                     + state.getSatellitesCount());
-            txtPosition.setText(state.getPosLat() + ", " + state.getPosLon());
         } catch (Exception e) {
-            txtErrorLog.setText(txtErrorLog.getText() + "Problem in onGpsStateChange \n");
+           Log.d("Error", "Problem in onGpsStateChange");
         }
     }
 
@@ -137,7 +181,7 @@ public class DroneFragment extends Fragment implements DroneConnectionListener {
         try {
             txtBattery.setText(state.getRemain() + "% - " + state.getVoltage() + "V, " + state.getCurrent() + "A");
         } catch (Exception e) {
-            txtErrorLog.setText(txtErrorLog.getText() + "Problem in onBatteryStateChange \n");
+            Log.d("Error", "Problem in onBatteryStateChange");
         }
 
 

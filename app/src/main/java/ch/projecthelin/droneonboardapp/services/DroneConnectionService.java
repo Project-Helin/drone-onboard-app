@@ -59,6 +59,9 @@ public class DroneConnectionService implements DroneListener, TowerListener {
     private boolean startMission;
     private boolean endmissionWhenLanded;
     private MissionListener missionListener;
+    private int servoChannel;
+    private int servoOpenPWM;
+    private int servoClosedPWM;
 
     @Inject
     public DroneConnectionService(ControlTower controlTower, Drone drone, RouteMissionMapper missionMapper) {
@@ -126,7 +129,7 @@ public class DroneConnectionService implements DroneListener, TowerListener {
 
     public void sendRouteToAutopilot(RouteDto route) {
 
-        Mission mission = missionMapper.convertToMission(route);
+        Mission mission = missionMapper.convertToMission(route, servoChannel, servoOpenPWM);
         MissionApi.setMission(drone, mission, true);
     }
 
@@ -275,6 +278,10 @@ public class DroneConnectionService implements DroneListener, TowerListener {
         return droneState;
     }
 
+    public Drone getDrone() {
+        return drone;
+    }
+
     public GpsState getGpsState() {
         return gpsState;
     }
@@ -286,6 +293,30 @@ public class DroneConnectionService implements DroneListener, TowerListener {
     @Override
     public void onDroneConnectionFailed(ConnectionResult result) {
 
+    }
+
+    public int getServoChannel() {
+        return servoChannel;
+    }
+
+    public void setServoChannel(int servoChannel) {
+        this.servoChannel = servoChannel;
+    }
+
+    public int getServoOpenPWM() {
+        return servoOpenPWM;
+    }
+
+    public void setServoOpenPWM(int servoPWM) {
+        this.servoOpenPWM = servoPWM;
+    }
+
+    public void setServoClosedPWM(int servoClosedPWM) {
+        this.servoClosedPWM = servoClosedPWM;
+    }
+
+    public int getServoClosedPWM() {
+        return servoClosedPWM;
     }
 }
 

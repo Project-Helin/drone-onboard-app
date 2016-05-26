@@ -32,6 +32,7 @@ import ch.projecthelin.droneonboardapp.activities.MainActivity;
 import ch.projecthelin.droneonboardapp.services.DroneConnectionListener;
 import ch.projecthelin.droneonboardapp.services.DroneConnectionService;
 import ch.projecthelin.droneonboardapp.services.MessagingConnectionService;
+import com.o3dr.android.client.apis.drone.ExperimentalApi;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -40,18 +41,21 @@ import java.util.List;
 
 public class OverviewFragment extends Fragment implements DroneConnectionListener, MessagingConnectionListener {
 
-    private TextView txtConnection;
-    private TextView txtGPS;
-    private TextView txtBattery;
-    private TextView txtServerConnectionState;
-
     private static final int BATTERY_LOW = 10;
 
     @Inject
     DroneConnectionService droneConnectionService;
+
     @Inject
     MessagingConnectionService messagingConnectionService;
+
+    private TextView txtConnection;
+    private TextView txtGPS;
+    private TextView txtBattery;
+    private TextView txtServerConnectionState;
+    private boolean isServoOpen;
     private Button button;
+    private Button setServoButton;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -67,6 +71,7 @@ public class OverviewFragment extends Fragment implements DroneConnectionListene
         View view = inflater.inflate(R.layout.fragment_overview, container, false);
 
         initializeViewComponents(view);
+        initializeButtonListeners();
 
         updateStatusColorsAndTexts();
 
@@ -79,6 +84,16 @@ public class OverviewFragment extends Fragment implements DroneConnectionListene
         txtBattery = (TextView) view.findViewById(R.id.txtBattery);
         txtServerConnectionState = (TextView) view.findViewById(R.id.server_connection_state);
         button = (Button) view.findViewById(R.id.button);
+        setServoButton = (Button) view.findViewById(R.id.setServoButton);
+    }
+
+    private void initializeButtonListeners() {
+        setServoButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                toggleServo();
+            }
+        });
 
         button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -132,6 +147,19 @@ public class OverviewFragment extends Fragment implements DroneConnectionListene
                 activity.onFinalAssignMissionMessageReceived(assignMissionMessage);
             }
         });
+    }
+
+    private void toggleServo() {
+        int pwm;
+
+        if (isServoOpen) {
+            pwm = droneConnectionService.getServoClosedPWM();
+            isServoOpen = false;
+        } else {
+            pwm = droneConnectionService.getServoOpenPWM();
+            isServoOpen = true;
+        }
+        ExperimentalApi.setServo(droneConnectionService.getDrone(), droneConnectionService.getServoChannel(), pwm);
     }
 
     @Override

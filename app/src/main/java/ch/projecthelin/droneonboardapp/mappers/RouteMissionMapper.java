@@ -21,14 +21,14 @@ public class RouteMissionMapper {
     public RouteMissionMapper() {
     }
 
-    public Mission convertToMission(RouteDto route) {
+    public Mission convertToMission(RouteDto route, int servoChannel, int openServoPWM) {
         Mission mission = new Mission();
 
         Position lastPosition = null;
 
         for (ch.helin.messages.dto.way.Waypoint waypointDto : route.getWayPoints()) {
             addWayPointToMission(mission, waypointDto);
-            AddActionToMissionIfNecessary(mission, waypointDto);
+            AddActionToMissionIfNecessary(mission, waypointDto, servoChannel, openServoPWM);
             lastPosition = waypointDto.getPosition();
         }
 
@@ -43,11 +43,15 @@ public class RouteMissionMapper {
         mission.addMissionItem(land);
     }
 
-    private void AddActionToMissionIfNecessary(Mission mission, ch.helin.messages.dto.way.Waypoint waypointDto) {
+    private void AddActionToMissionIfNecessary(Mission mission, ch.helin.messages.dto.way.Waypoint waypointDto, int servoChannel, int openServoPWM) {
         MissionItem missionAction = null;
 
         if (waypointDto.getAction() == Action.DROP) {
-            missionAction = new SetServo();
+            SetServo setServo = new SetServo();
+            setServo.setChannel(servoChannel);
+            setServo.setPwm(openServoPWM);
+            missionAction = setServo;
+
         } else if (waypointDto.getAction() == Action.LAND) {
             missionAction = new Land();
         }

@@ -3,218 +3,224 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:padding="10dp">
-<LinearLayout
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="horizontal"
-    android:id="@+id/txtStatus"
-    android:weightSum="1">
-    <TextView
-        android:layout_width="wrap_content"
+
+    <LinearLayout
+        android:id="@+id/txtStatus"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Status"
-        android:layout_marginTop="5dp"
-        android:layout_marginBottom="5dp"
-        android:layout_weight="0.82" />
+        android:orientation="horizontal"
+        android:weightSum="1">
 
-    <Spinner
-        android:layout_width="115dp"
-        android:layout_height="44dp"
-        android:id="@+id/connectionSelect"
-        android:spinnerMode="dropdown" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="5dp"
+            android:layout_marginTop="5dp"
+            android:layout_weight="0.82"
+            android:text="Status"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
 
-</LinearLayout>
+        <Spinner
+            android:id="@+id/connectionSelect"
+            android:layout_width="115dp"
+            android:layout_height="44dp"
+            android:spinnerMode="dropdown" />
+
+    </LinearLayout>
+
     <TableLayout
+        android:id="@+id/tblStatus"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
-        android:orientation="vertical"
-        android:id="@+id/tblStatus"
-        android:layout_below="@+id/txtStatus">
+        android:layout_below="@+id/txtStatus"
+        android:orientation="vertical">
 
         <TableRow
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            android:layout_marginBottom="5dp">
+            android:layout_marginBottom="5dp"
+            android:layout_marginTop="5dp">
 
             <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:text="Firmware:"
-                android:id="@+id/lblFirmware"
-                android:layout_column="0"
-                android:layout_marginRight="10dp" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:text=""
-                android:id="@+id/txtFirmware"
-                android:freezesText="true"
-                android:layout_column="1" />
-
-        </TableRow>
-
-        <TableRow
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            android:layout_marginBottom="5dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:text="GPS:"
                 android:id="@+id/lblGPS"
-                android:layout_column="0"
-                android:layout_marginRight="10dp" />
-
-            <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:text=""
+                android:layout_column="0"
+                android:layout_marginRight="10dp"
+                android:text="GPS:"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
+
+            <TextView
                 android:id="@+id/txtGPS"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_column="1"
                 android:freezesText="true"
-                android:layout_column="1" />
-
-        </TableRow>
-
-        <TableRow
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            android:layout_marginBottom="5dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:text="Position:"
-                android:id="@+id/lblPosition"
-                android:layout_column="0"
-                android:layout_marginRight="10dp" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceMedium"
                 android:text=""
-                android:id="@+id/txtPosition"
-                android:freezesText="true"
-                android:layout_column="1" />
+                android:textAppearance="?android:attr/textAppearanceMedium" />
 
         </TableRow>
 
         <TableRow
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginTop="5dp"
-            android:layout_marginBottom="5dp">
+            android:layout_marginBottom="5dp"
+            android:layout_marginTop="5dp">
 
             <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:text="Altitude:"
                 android:id="@+id/lblAltitude"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_column="0"
-                android:layout_marginRight="10dp" />
+                android:layout_marginRight="10dp"
+                android:text="Altitude:"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
 
             <TextView
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:text=""
-                android:freezesText="true"
                 android:id="@+id/txtAltitude"
-                android:layout_column="1" />
-        </TableRow>
-
-        <TableRow
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginTop="5dp"
-            android:layout_marginBottom="5dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:text="Speed:"
-                android:id="@+id/lblSpeed"
-                android:layout_column="0"
-                android:layout_marginRight="10dp" />
-
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:text=""
-                android:freezesText="true"
-                android:id="@+id/txtSpeed"
-                android:layout_column="1" />
-        </TableRow>
-
-        <TableRow
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginTop="5dp"
-            android:layout_marginBottom="5dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:text="Battery:"
-                android:id="@+id/lblBattery"
-                android:layout_column="0"
-                android:layout_marginRight="10dp" />
-
-            <TextView
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:text=""
-                android:id="@+id/txtBattery"
+                android:layout_column="1"
                 android:freezesText="true"
-                android:layout_column="1" />
+                android:text=""
+                android:textAppearance="?android:attr/textAppearanceMedium" />
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginBottom="5dp"
+            android:layout_marginTop="5dp">
+
+            <TextView
+                android:id="@+id/lblBattery"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_column="0"
+                android:layout_marginRight="10dp"
+                android:text="Battery:"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
+
+            <TextView
+                android:id="@+id/txtBattery"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_column="1"
+                android:freezesText="true"
+                android:text=""
+                android:textAppearance="?android:attr/textAppearanceMedium" />
         </TableRow>
     </TableLayout>
 
     <Button
+        android:id="@+id/btnConnectToDrone"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="Connect"
-        android:id="@+id/btnConnectToDrone"
         android:layout_alignParentStart="true"
-        android:layout_below="@+id/tblStatus" />
+        android:layout_below="@+id/tblStatus"
+        android:text="Connect" />
 
-    <TextView
+    <RelativeLayout
+        android:id="@+id/servoLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Errorlog:"
-        android:id="@+id/lblErrorLog"
         android:layout_below="@+id/btnConnectToDrone"
-        android:layout_alignStart="@+id/btnConnectToDrone"
-        android:layout_marginBottom="5dp"
-        android:layout_marginTop="5dp" />
+        android:weightSum="1">
 
-    <TextView
+        <TextView
+            android:id="@+id/lblServo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="5dp"
+            android:layout_marginTop="5dp"
+            android:text="Servo"
+            android:textAppearance="?android:attr/textAppearanceLarge" />
+
+        <LinearLayout
+            android:id="@+id/layoutChannel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/lblServo"
+            android:orientation="horizontal"
+            android:weightSum="3">
+
+            <TextView
+                android:id="@+id/lblChannel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:freezesText="true"
+                android:text="Channel"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
+
+            <EditText
+                android:id="@+id/editChannel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:ems="2"
+                android:inputType="number"
+                android:singleLine="true" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/layoutOpenPWM"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/layoutChannel"
+            android:orientation="horizontal"
+            android:weightSum="3">
+
+            <TextView
+                android:id="@+id/lblPWM"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:freezesText="true"
+                android:text="Open PWM Value"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
+
+            <EditText
+                android:id="@+id/editOpenPWM"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:inputType="number" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/layoutClosedPWM"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/layoutOpenPWM"
+            android:orientation="horizontal"
+            android:weightSum="3">
+
+            <TextView
+                android:id="@+id/lblClosedPWM"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:freezesText="true"
+                android:text="Close PWM Value"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
+
+            <EditText
+                android:id="@+id/editClosedPWM"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:inputType="number" />
+        </LinearLayout>
+    </RelativeLayout>
+
+    <Button
+        android:id="@+id/btnSaveServoValues"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:id="@+id/txtErrorLog"
-        android:layout_below="@+id/lblErrorLog"
         android:layout_alignParentStart="true"
-        android:layout_alignParentEnd="false"
-        android:layout_alignParentBottom="true" />
-
+        android:layout_below="@+id/servoLayout"
+        android:text="Save Servo" />
 </RelativeLayout>
