@@ -24,7 +24,7 @@
         android:name="ch.projecthelin.droneonboardapp.DroneOnboardApp">
         <activity
             android:name=".activities.RegisterDroneActivity"
-            android:label="Drone Onboard App">
+            android:label="Helin Onboard App">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
