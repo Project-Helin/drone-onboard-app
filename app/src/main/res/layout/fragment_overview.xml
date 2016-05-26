@@ -82,16 +82,15 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Test Mission Received"
+        android:text="Mission Received"
         android:id="@+id/button"
-        android:layout_below="@+id/server_connection_state"
-        android:layout_centerHorizontal="true" />
+        android:layout_below="@+id/server_connection_state"/>
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="change Servo State"
+        android:text="Toggle Servo"
         android:id="@+id/setServoButton"
-        android:layout_below="@+id/button"
-        android:layout_centerHorizontal="true" />
+        android:layout_below="@+id/server_connection_state"
+        android:layout_alignParentEnd="true" />
 
 </RelativeLayout>
