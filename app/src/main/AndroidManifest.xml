@@ -24,7 +24,7 @@
         android:name="ch.projecthelin.droneonboardapp.DroneOnboardApp">
         <activity
             android:name=".activities.RegisterDroneActivity"
-            android:label="Register your drone">
+            android:label="Drone Onboard App">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -33,9 +33,10 @@
         </activity>
         <activity
             android:name=".activities.MainActivity"
-            android:label="@string/title_activity_main"
+            android:label="Helin Onboard App"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".activities.MissionActivity">
+            android:label="Loading..."
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".activities.MissionActivity" />

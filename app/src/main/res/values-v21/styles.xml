@@ -6,4 +6,15 @@
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
     </style>
+
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:colorForeground">@color/common_signin_btn_dark_text_default</item>
+        <item name="android:windowBackground">@color/blue</item>
+        <item name="colorButtonNormal">@color/blue</item>
+        <item name="android:navigationBarColor">@color/abc_background_cache_hint_selector_material_light</item>
+    </style>
 </resources>

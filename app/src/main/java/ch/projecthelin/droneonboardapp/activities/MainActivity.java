@@ -17,6 +17,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
+import android.view.MenuItem;
 import ch.helin.messages.converter.JsonBasedMessageConverter;
 import ch.helin.messages.dto.DroneInfoDto;
 import ch.helin.messages.dto.MissionDto;
@@ -60,7 +61,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     @Inject
     public LocationService locationService;
 
-    JsonBasedMessageConverter jsonBasedMessageConverter = new JsonBasedMessageConverter();
+    private JsonBasedMessageConverter jsonBasedMessageConverter = new JsonBasedMessageConverter();
 
 
     @Override
@@ -135,7 +136,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         new CountDownTimer(10000, 1000) {
             @Override
             public void onTick(long millisUntilFinished) {
-                dialog.setMessage("00:" + (millisUntilFinished / 1000));
+                dialog.setMessage("Drone will start in " + (millisUntilFinished / 1000) + " seconds");
             }
 
             @Override
@@ -144,8 +145,6 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                 dialog.hide();
             }
         }.start();
-
-
     }
 
     private String loadDroneTokenFromSharedPreferences() {
@@ -156,13 +155,6 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     private int loadServoValueFromSharedPreferences(String key) {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         return sharedPreferences.getInt(key, 0);
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
     }
 
     @Override
@@ -195,7 +187,6 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
                 showMissionAcceptDialog(mission);
             }
         });
-
     }
 
     @Override
@@ -238,12 +229,11 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     private AlertDialog createMissionStartCountDownDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
-        builder.setMessage("Mission will start in ")
-                .setTitle("New Mission");
+        builder.setTitle("Mission Start");
 
         builder.setNegativeButton("Abort Start Countdown", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
-
+                //TODO handle abort of a mission
             }
         });
 
