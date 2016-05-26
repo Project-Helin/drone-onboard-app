@@ -56,12 +56,12 @@ public class DroneFragment extends Fragment implements DroneConnectionListener {
         initializeBtnListeners();
         initializeConnectionModeSpinner(view);
 
-        setServoValues();
+        initializeServoValues();
 
         return view;
     }
 
-    private void setServoValues() {
+    private void initializeServoValues() {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext());
 
         String channel = String.valueOf(sharedPreferences.getInt(MainActivity.CHANNEL_KEY, 6));
@@ -94,6 +94,8 @@ public class DroneFragment extends Fragment implements DroneConnectionListener {
 
                 saveServoValuesToSharedPreferences(channel, openPWM, closedPWM);
                 setServoValuesToDroneConnectionService(channel, openPWM, closedPWM);
+
+                Toast.makeText(getContext(), "Servovalues saved!", Toast.LENGTH_SHORT).show();
             }
         });
     }

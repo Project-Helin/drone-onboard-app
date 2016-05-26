@@ -5,15 +5,15 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
-import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.TextView;
 import ch.helin.messages.dto.MissionDto;
 import ch.projecthelin.droneonboardapp.DroneOnboardApp;
 import ch.projecthelin.droneonboardapp.R;
+import ch.projecthelin.droneonboardapp.services.DroneConnectionService;
 import ch.projecthelin.droneonboardapp.services.MessagingConnectionService;
+import com.o3dr.android.client.apis.drone.ExperimentalApi;
 
 import javax.inject.Inject;
 
@@ -22,8 +22,12 @@ public class MissionActivity extends AppCompatActivity {
     @Inject
     MessagingConnectionService messagingConnectionService;
 
+    @Inject
+    DroneConnectionService droneConnectionService;
+
     private TextView orderProductAmountText;
     private TextView orderProductNameText;
+    private boolean isServoOpen;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,6 +56,19 @@ public class MissionActivity extends AppCompatActivity {
         Intent result = new Intent(this, MainActivity.class);
         setResult(Activity.RESULT_OK, result);
         finish();
+    }
+
+    public void toggleServo(View view) {
+        int pwm;
+
+        if (isServoOpen) {
+            pwm = droneConnectionService.getServoClosedPWM();
+            isServoOpen = false;
+        } else {
+            pwm = droneConnectionService.getServoOpenPWM();
+            isServoOpen = true;
+        }
+        ExperimentalApi.setServo(droneConnectionService.getDrone(), droneConnectionService.getServoChannel(), pwm);
     }
 
     public void cancel(View view) {

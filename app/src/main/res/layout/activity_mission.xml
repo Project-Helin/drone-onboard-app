@@ -50,6 +50,15 @@
 
     </LinearLayout>
 
+        <Button
+            android:id="@+id/btnServo"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="Open/Close Servo"
+            android:layout_weight="0"
+            android:onClick="toggleServo"
+            android:layout_marginBottom="30dp" />
+
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
