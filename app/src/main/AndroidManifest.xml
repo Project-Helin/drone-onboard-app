@@ -20,21 +20,20 @@
         android:icon="@mipmap/ic_launcher"
         android:label="Drone Onboard App"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme"
+        android:theme="@style/HelinTheme"
         android:name="ch.projecthelin.droneonboardapp.DroneOnboardApp">
         <activity
             android:name=".activities.RegisterDroneActivity"
             android:label="Helin Onboard App">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
             android:name=".activities.MainActivity"
             android:label="Helin Onboard App"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/HelinTheme.NoActionBar" />
         <activity android:name=".activities.MissionActivity">
             android:label="Loading..."
             <meta-data
