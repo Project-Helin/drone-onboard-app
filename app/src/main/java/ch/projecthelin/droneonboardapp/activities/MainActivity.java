@@ -47,6 +47,9 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     public static final String CHANNEL_KEY = "channel";
     public static final String OPEN_PWM_KEY = "open_pwm";
     public static final String CLOSED_PWM_KEY = "closed_pwm";
+    public static final int DEFAULT_CHANNEL = 7;
+    public static final int DEFAULT_OPEN_PWM = 1800;
+    public static final int DEFAULT_CLOSED_PWM = 1000;
 
     private SectionsPagerAdapter mSectionsPagerAdapter;
 
@@ -91,9 +94,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 
         droneConnectionService.setMissionListener(this);
 
-        droneConnectionService.setServoChannel(loadServoValueFromSharedPreferences(CHANNEL_KEY));
-        droneConnectionService.setServoOpenPWM(loadServoValueFromSharedPreferences(OPEN_PWM_KEY));
-        droneConnectionService.setServoClosedPWM(loadServoValueFromSharedPreferences(CLOSED_PWM_KEY));
+        loadServoValuesFromSharedPreferences();
     }
 
     @Override
@@ -152,9 +153,11 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         return sharedPreferences.getString(RegisterDroneActivity.DRONE_TOKEN_KEY, "");
     }
 
-    private int loadServoValueFromSharedPreferences(String key) {
+    private void loadServoValuesFromSharedPreferences() {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        return sharedPreferences.getInt(key, 0);
+        droneConnectionService.setServoChannel(sharedPreferences.getInt(CHANNEL_KEY, DEFAULT_CHANNEL));
+        droneConnectionService.setServoOpenPWM(sharedPreferences.getInt(OPEN_PWM_KEY, DEFAULT_OPEN_PWM));
+        droneConnectionService.setServoClosedPWM(sharedPreferences.getInt(CLOSED_PWM_KEY, DEFAULT_CLOSED_PWM));
     }
 
     @Override

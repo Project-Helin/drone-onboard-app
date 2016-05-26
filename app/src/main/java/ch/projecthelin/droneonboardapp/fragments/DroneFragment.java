@@ -61,18 +61,6 @@ public class DroneFragment extends Fragment implements DroneConnectionListener {
         return view;
     }
 
-    private void initializeServoValues() {
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext());
-
-        String channel = String.valueOf(sharedPreferences.getInt(MainActivity.CHANNEL_KEY, 6));
-        editChannel.setText(channel);
-
-        String openPWD = String.valueOf(sharedPreferences.getInt(MainActivity.OPEN_PWM_KEY,1800));
-        String closedPWD = String.valueOf(sharedPreferences.getInt(MainActivity.CLOSED_PWM_KEY,1400));
-        editOpenPWM.setText(openPWD);
-        editClosedPWM.setText(closedPWD);
-    }
-
     private void initializeBtnListeners() {
         btnConnect.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -116,6 +104,13 @@ public class DroneFragment extends Fragment implements DroneConnectionListener {
         editOpenPWM = (EditText) view.findViewById(R.id.editOpenPWM);
         editClosedPWM = (EditText) view.findViewById(R.id.editClosedPWM);
     }
+
+    private void initializeServoValues() {
+        editChannel.setText(String.valueOf(droneConnectionService.getServoChannel()));
+        editOpenPWM.setText(String.valueOf(droneConnectionService.getServoOpenPWM()));
+        editClosedPWM.setText(String.valueOf(droneConnectionService.getServoClosedPWM()));
+    }
+
 
     protected void initializeConnectionModeSpinner(View view) {
         String[] connectionModes = {"USB", "UDP", "TCP"};

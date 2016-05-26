@@ -151,15 +151,19 @@ public class OverviewFragment extends Fragment implements DroneConnectionListene
 
     private void toggleServo() {
         int pwm;
+        String buttonText;
 
         if (isServoOpen) {
             pwm = droneConnectionService.getServoClosedPWM();
             isServoOpen = false;
+            buttonText = "Open Servo!";
         } else {
             pwm = droneConnectionService.getServoOpenPWM();
             isServoOpen = true;
+            buttonText = "Close Servo!";
         }
         ExperimentalApi.setServo(droneConnectionService.getDrone(), droneConnectionService.getServoChannel(), pwm);
+        setServoButton.setText(buttonText);
     }
 
     @Override

@@ -9,7 +9,7 @@ android {
     defaultConfig {
         applicationId "ch.projecthelin.droneonboardapp"
         minSdkVersion 19
-        targetSdkVersion 23
+        targetSdkVersion 21
         versionCode 1
         versionName "1.0"
         multiDexEnabled true

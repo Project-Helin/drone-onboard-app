@@ -7,6 +7,7 @@ import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 import ch.helin.messages.dto.MissionDto;
 import ch.projecthelin.droneonboardapp.DroneOnboardApp;
@@ -28,6 +29,7 @@ public class MissionActivity extends AppCompatActivity {
     private TextView orderProductAmountText;
     private TextView orderProductNameText;
     private boolean isServoOpen;
+    private Button btnServo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +52,7 @@ public class MissionActivity extends AppCompatActivity {
     private void initializeViewComponents() {
         this.orderProductNameText = (TextView) findViewById(R.id.orderProductName);
         this.orderProductAmountText = (TextView) findViewById(R.id.orderProductAmount);
+        this.btnServo = (Button) findViewById(R.id.btnServo);
     }
 
     public void loadingFinished(View view) {
@@ -60,15 +63,19 @@ public class MissionActivity extends AppCompatActivity {
 
     public void toggleServo(View view) {
         int pwm;
+        String buttonText;
 
         if (isServoOpen) {
             pwm = droneConnectionService.getServoClosedPWM();
             isServoOpen = false;
+            buttonText = "Open Servo!";
         } else {
             pwm = droneConnectionService.getServoOpenPWM();
             isServoOpen = true;
+            buttonText = "Close Servo!";
         }
         ExperimentalApi.setServo(droneConnectionService.getDrone(), droneConnectionService.getServoChannel(), pwm);
+        btnServo.setText(buttonText);
     }
 
     public void cancel(View view) {
