@@ -141,7 +141,7 @@ public class MessagingConnectionService implements ConnectionListener {
         messageReceivers.remove(listener);
     }
 
-    private void notifyMessageReceivers(String messageAsString) {
+    protected void notifyMessageReceivers(String messageAsString) {
         JsonBasedMessageConverter messageConverter = new JsonBasedMessageConverter();
         Message message = messageConverter.parseStringToMessage(messageAsString);
 
