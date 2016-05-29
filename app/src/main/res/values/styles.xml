@@ -1,11 +1,11 @@
 <resources>
     <!-- Base application theme. -->
     <style name="HelinTheme" parent="Theme.AppCompat.Light.NoActionBar">
-        <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
-        <item name="colorButtonNormal">@color/blue</item>
+        <item name="colorButtonNormal">@color/colorPrimary</item>
+        <item name="android:textColorPrimaryInverse">@color/abc_background_cache_hint_selector_material_dark</item>
     </style>
 
     <style name="HelinTheme.NoActionBar">
@@ -13,7 +13,7 @@
         <item name="windowNoTitle">true</item>
     </style>
 
-    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.ActionBar" />
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
 </resources>
