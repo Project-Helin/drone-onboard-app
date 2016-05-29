@@ -1,3 +1,5 @@
+package mappers;
+
 import ch.helin.messages.dto.Action;
 import ch.helin.messages.dto.way.Position;
 import ch.helin.messages.dto.way.RouteDto;
@@ -7,6 +9,7 @@ import com.o3dr.services.android.lib.coordinate.LatLongAlt;
 import com.o3dr.services.android.lib.drone.mission.Mission;
 import com.o3dr.services.android.lib.drone.mission.MissionItemType;
 import com.o3dr.services.android.lib.drone.mission.item.command.SetServo;
+import com.o3dr.services.android.lib.drone.mission.item.spatial.Land;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -57,7 +60,6 @@ public class RouteMissionMapperTest {
     public void shouldAddWaypointsInCorrectOrder () {
         RouteDto routeDto = setupRoute();
 
-
         Mission mission = new RouteMissionMapper().convertToMission(routeDto, 7, 1500);
 
         int dropWaypoint = 1;
@@ -68,9 +70,18 @@ public class RouteMissionMapperTest {
         com.o3dr.services.android.lib.drone.mission.item.spatial.Waypoint firstWaypoint = (com.o3dr.services.android.lib.drone.mission.item.spatial.Waypoint) mission.getMissionItem(0);
         assertThat(firstWaypoint.getCoordinate()).isEqualTo(new LatLongAlt(47.223343, 8.818480, 20));
 
-
         com.o3dr.services.android.lib.drone.mission.item.spatial.Waypoint lastWaypoint = (com.o3dr.services.android.lib.drone.mission.item.spatial.Waypoint) mission.getMissionItem(4);
         assertThat(lastWaypoint.getCoordinate()).isEqualTo(new LatLongAlt(47.224209, 8.818933, 15));
 
+    }
+
+    @Test
+    public void shouldAddLandActionAtTheEnd() {
+        RouteDto routeDto = setupRoute();
+
+        Mission mission = new RouteMissionMapper().convertToMission(routeDto, 7, 1500);
+
+        Land lastItem = (Land) mission.getMissionItem(5);
+        assertThat(lastItem.getType()).isEqualTo(MissionItemType.LAND);
     }
 }

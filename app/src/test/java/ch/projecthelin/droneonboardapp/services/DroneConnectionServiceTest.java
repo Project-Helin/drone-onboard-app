@@ -3,7 +3,6 @@ package ch.projecthelin.droneonboardapp.services;
 import android.os.Bundle;
 import ch.helin.messages.dto.state.DroneState;
 import ch.projecthelin.droneonboardapp.di.DaggerTestAppComponent;
-import ch.projecthelin.droneonboardapp.di.TestAppComponent;
 import ch.projecthelin.droneonboardapp.di.TestAppModule;
 import ch.projecthelin.droneonboardapp.listeners.DroneConnectionListener;
 import ch.projecthelin.droneonboardapp.mappers.DroneStateMapper;
@@ -41,7 +40,7 @@ public class DroneConnectionServiceTest {
         module.setControlTower(tower);
         module.setDrone(drone);
 
-        TestAppComponent component = DaggerTestAppComponent.builder()
+        DaggerTestAppComponent.builder()
                 .testAppModule(module)
                 .build();
 
