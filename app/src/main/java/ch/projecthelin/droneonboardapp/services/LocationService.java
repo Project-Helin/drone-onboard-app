@@ -43,7 +43,6 @@ public class LocationService implements GoogleApiClient.ConnectionCallbacks, Loc
         mLocationRequest = LocationRequest.create()
                 .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
                 .setInterval(MIN_UPDATE_INTERVAL_IN_SECONDS * 1000);
-
     }
 
     public void stopLocationListening() {
@@ -55,9 +54,11 @@ public class LocationService implements GoogleApiClient.ConnectionCallbacks, Loc
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
+
         if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            //Will show a toast if the TargetFramework is set to 23 because of the new Permission Concept of Android 6
             Context applicationContext = context.getApplicationContext();
-            Toast.makeText(applicationContext, "Not Enough Permissions", Toast.LENGTH_LONG).show();
+            Toast.makeText(applicationContext, "Not Enough Permissions for Locationupdates", Toast.LENGTH_LONG).show();
             return;
         }
 
@@ -66,7 +67,6 @@ public class LocationService implements GoogleApiClient.ConnectionCallbacks, Loc
 
     @Override
     public void onConnectionSuspended(int i) {
-
     }
 
     @Override
