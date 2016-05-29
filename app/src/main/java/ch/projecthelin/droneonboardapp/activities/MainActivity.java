@@ -253,11 +253,6 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     }
 
     @Override
-    public void onMissionStarted() {
-        Log.d("Mission", "Mission Started");
-    }
-
-    @Override
     public void onMissionFinished() {
         Log.d("Mission", "Mission finished");
 
