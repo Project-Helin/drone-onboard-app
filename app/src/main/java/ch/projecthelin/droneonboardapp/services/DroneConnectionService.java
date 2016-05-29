@@ -2,24 +2,32 @@ package ch.projecthelin.droneonboardapp.services;
 
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 
+import android.util.Log;
 import ch.helin.messages.dto.state.BatteryState;
 import ch.helin.messages.dto.state.DroneState;
 
 import ch.helin.messages.dto.state.GpsState;
+import ch.helin.messages.dto.way.RouteDto;
+import ch.projecthelin.droneonboardapp.listeners.DroneConnectionListener;
+import ch.projecthelin.droneonboardapp.listeners.MissionListener;
 import ch.projecthelin.droneonboardapp.mappers.DroneStateMapper;
+import ch.projecthelin.droneonboardapp.mappers.RouteMissionMapper;
 import com.o3dr.android.client.ControlTower;
 import com.o3dr.android.client.Drone;
 import com.o3dr.android.client.apis.drone.DroneStateApi;
 import com.o3dr.android.client.apis.drone.GuidedApi;
+import com.o3dr.android.client.apis.mission.MissionApi;
 import com.o3dr.android.client.interfaces.DroneListener;
 import com.o3dr.android.client.interfaces.TowerListener;
 import com.o3dr.services.android.lib.drone.attribute.AttributeEvent;
+import com.o3dr.services.android.lib.drone.attribute.AttributeEventExtra;
 import com.o3dr.services.android.lib.drone.attribute.AttributeType;
 import com.o3dr.services.android.lib.drone.connection.ConnectionParameter;
 import com.o3dr.services.android.lib.drone.connection.ConnectionResult;
 import com.o3dr.services.android.lib.drone.connection.ConnectionType;
+import com.o3dr.services.android.lib.drone.mission.Mission;
+import com.o3dr.services.android.lib.drone.property.Altitude;
 import com.o3dr.services.android.lib.drone.property.Battery;
 import com.o3dr.services.android.lib.drone.property.Gps;
 import com.o3dr.services.android.lib.drone.property.VehicleMode;
@@ -32,26 +40,39 @@ import java.util.List;
 @Singleton
 public class DroneConnectionService implements DroneListener, TowerListener {
 
-    public static final String TCP_SERVER_IP = "152.96.239.230";
-    public static final int BAUD_RATE_FOR_USB = 115200;
-    public static final int TCP_SERVER_PORT = 5760;
+    private static final String LOCAL_IP = "192.168.58.1";
+    private static final int BAUD_RATE_FOR_USB = 115200;
+    private static final int TCP_PORT = 5770;
+    private static final int UDP_PORT = 14551;
+    private static final int TAKEOFF_ALTITUDE = 10;
+    private static final double ALTITUDE_INACCURACY_RATIO = 0.95;
 
-    private ControlTower controlTower;
-    private Drone drone;
     private final Handler handler = new Handler();
-
+    private final Drone drone;
+    private RouteMissionMapper missionMapper;
+    private final ControlTower controlTower;
     private List<DroneConnectionListener> connectionListeners = new ArrayList<>();
+
+    private DroneStateMapper droneStateMapper;
     private DroneState droneState = new DroneState();
-    private boolean takeoffWhenArmed;
-    private GpsState gpsState;
-    private BatteryState batteryState;
+    private GpsState gpsState = new GpsState();
+
+    private BatteryState batteryState = new BatteryState();
     private int connectionType;
+    private boolean startMission;
+    private boolean endMissionWhenLanded;
+    private MissionListener missionListener;
+    private int servoChannel;
+    private int servoOpenPWM;
+    private int servoClosedPWM;
 
     @Inject
-    public DroneConnectionService(ControlTower controlTower, Drone drone) {
+    public DroneConnectionService(ControlTower controlTower, Drone drone, RouteMissionMapper missionMapper, DroneStateMapper droneStateMapper) {
         this.controlTower = controlTower;
         this.drone = drone;
+        this.missionMapper = missionMapper;
         this.controlTower.connect(this);
+        this.droneStateMapper = droneStateMapper;
     }
 
     public void connect() {
@@ -60,8 +81,11 @@ public class DroneConnectionService implements DroneListener, TowerListener {
         if (connectionType == ConnectionType.TYPE_USB) {
             extraParams.putInt(ConnectionType.EXTRA_USB_BAUD_RATE, BAUD_RATE_FOR_USB);
         } else if (connectionType == ConnectionType.TYPE_TCP) {
-            extraParams.putString(ConnectionType.EXTRA_TCP_SERVER_IP, TCP_SERVER_IP);
-            extraParams.putInt(ConnectionType.EXTRA_TCP_SERVER_PORT, TCP_SERVER_PORT);
+            extraParams.putString(ConnectionType.EXTRA_TCP_SERVER_IP, LOCAL_IP);
+            extraParams.putInt(ConnectionType.EXTRA_TCP_SERVER_PORT, TCP_PORT);
+        } else if (connectionType == ConnectionType.TYPE_UDP) {
+            extraParams.putString(ConnectionType.EXTRA_UDP_SERVER_PORT, LOCAL_IP);
+            extraParams.putInt(ConnectionType.EXTRA_UDP_SERVER_PORT, UDP_PORT);
         }
 
         ConnectionParameter connectionParams = new ConnectionParameter(connectionType, extraParams, null);
@@ -73,43 +97,50 @@ public class DroneConnectionService implements DroneListener, TowerListener {
         drone.disconnect();
     }
 
-    public DroneState getDroneState() {
-        return droneState;
-    }
-
-    public GpsState getGpsState() {
-        return gpsState;
-    }
-
     public void addConnectionListener(DroneConnectionListener connectionListener) {
         connectionListeners.add(connectionListener);
     }
 
-    public void triggerDroneStateChange() {
-        Log.d(getClass().getCanonicalName(), "Triggering DroneState Change with: " + connectionListeners.size());
+    public void removeConnectionListener(DroneConnectionListener connectionListener) {
+        connectionListeners.remove(connectionListener);
+    }
+
+    public void setMissionListener(MissionListener missionListener) {
+        this.missionListener = missionListener;
+    }
+
+    public void removeMissionListener() {
+        this.missionListener = null;
+    }
+
+    private void notifyDroneStateListeners() {
         for (DroneConnectionListener connectionListener : connectionListeners) {
             connectionListener.onDroneStateChange(droneState);
         }
     }
 
-    public void triggerGpsStateChange() {
-        Log.d(getClass().getCanonicalName(), "Triggering GPSState Change with: " + connectionListeners.size());
+    private void notifyGPSStateListeners() {
         for (DroneConnectionListener connectionListener : connectionListeners) {
             connectionListener.onGpsStateChange(gpsState);
         }
     }
 
-    public void triggerBatteryStateChange() {
-        Log.d(getClass().getCanonicalName(), "Triggering BatteryStateChange Change with: " + connectionListeners.size());
+    private void notifyBatteryStateListeners() {
         for (DroneConnectionListener connectionListener : connectionListeners) {
             connectionListener.onBatteryStateChange(batteryState);
         }
     }
 
+    public void sendRouteToAutopilot(RouteDto route) {
 
-    @Override
-    public void onDroneConnectionFailed(ConnectionResult result) {
+        Mission mission = missionMapper.convertToMission(route, servoChannel, servoOpenPWM);
+        MissionApi.setMission(drone, mission, true);
+    }
 
+    public void startMission() {
+        startMission = true;
+        DroneStateApi.setVehicleMode(drone, VehicleMode.COPTER_STABILIZE);
+        DroneStateApi.arm(drone, true);
     }
 
     @Override
@@ -117,87 +148,110 @@ public class DroneConnectionService implements DroneListener, TowerListener {
         switch (event) {
 
             case AttributeEvent.STATE_CONNECTED:
-                Log.d(getClass().getCanonicalName(), "STATE_CONNECTED");
-                droneState = DroneStateMapper.getDroneState(drone);
-                droneState.setIsConnected(true);
-                this.triggerDroneStateChange();
+                handleDroneConnected();
                 break;
 
             case AttributeEvent.STATE_DISCONNECTED:
-                Log.d(getClass().getCanonicalName(), "STATE_DISCONNECTED");
-                //this clears the State of the drone
-                clearDroneData();
-                this.triggerDroneStateChange();
+                handleDroneDisconnected();
                 break;
 
             case AttributeEvent.STATE_UPDATED:
-                Log.d(getClass().getCanonicalName(), "STATE_UPDATED");
-
                 break;
 
             case AttributeEvent.STATE_ARMING:
-                Log.d(getClass().getCanonicalName(), "STATE_ARMING");
-                if (takeoffWhenArmed) {
-                    GuidedApi.takeoff(drone, 10);
-                    takeoffWhenArmed = false;
+                if (startMission) {
+                    DroneStateApi.setVehicleMode(drone, VehicleMode.COPTER_GUIDED);
+                    GuidedApi.takeoff(drone, TAKEOFF_ALTITUDE);
                 }
-
                 break;
 
             case AttributeEvent.STATE_VEHICLE_MODE:
-                Log.d(getClass().getCanonicalName(), "STATE_VEHICLE_MODE");
                 break;
 
             case AttributeEvent.HOME_UPDATED:
-                Log.d(getClass().getCanonicalName(), "HOME_UPDATED");
                 break;
+
             case AttributeEvent.TYPE_UPDATED:
             case AttributeEvent.ATTITUDE_UPDATED:
             case AttributeEvent.ALTITUDE_UPDATED:
-            case AttributeEvent.SPEED_UPDATED:
-                Log.d(getClass().getCanonicalName(), "SPEED_UPDATED / ALTITUDE_UPDATED");
-                DroneState state = DroneStateMapper.getDroneState(drone);
-                triggerDroneStateChange();
+                Altitude altitude = drone.getAttribute(AttributeType.ALTITUDE);
 
+                if (startMission) {
+                    startAutoPilotWhenTakeOffFinished(altitude);
+                } else if (endMissionWhenLanded) {
+                    if (altitude != null && altitude.getAltitude() < 1) {
+                        missionListener.onMissionFinished();
+                        endMissionWhenLanded = false;
+                    }
+                }
                 break;
-
+            case AttributeEvent.SPEED_UPDATED:
+                break;
             case AttributeEvent.BATTERY_UPDATED:
-                Log.d(getClass().getCanonicalName(), "BATTERY_UPDATED");
-                Battery droneBattery = drone.getAttribute(AttributeType.BATTERY);
-                batteryState = DroneStateMapper.getBatteryState(droneBattery);
-                triggerBatteryStateChange();
+                handleBatteryStateChange();
                 break;
 
             case AttributeEvent.GPS_POSITION:
             case AttributeEvent.GPS_FIX:
             case AttributeEvent.GPS_COUNT:
             case AttributeEvent.WARNING_NO_GPS:
-                Log.d(getClass().getCanonicalName(), "GPS_POSITION / GPS_FIX / GPS_COUNT / WARNING_NO_GPS");
-
-                gpsState = DroneStateMapper.getGPSState((Gps) drone.getAttribute(AttributeType.GPS));
-                triggerGpsStateChange();
+                handleGpsStateChange();
                 break;
+            case AttributeEvent.AUTOPILOT_MESSAGE:
+                Log.i("DRONE_EVENT", extras.getString(AttributeEventExtra.EXTRA_AUTOPILOT_MESSAGE));
 
             default:
+
                 break;
         }
+    }
+
+    private void startAutoPilotWhenTakeOffFinished(Altitude altitude) {
+
+        double minAltitudeToStartMission = TAKEOFF_ALTITUDE * ALTITUDE_INACCURACY_RATIO;
+        if (altitude != null && altitude.getTargetAltitude() > minAltitudeToStartMission && minAltitudeToStartMission < altitude.getAltitude()) {
+            DroneStateApi.setVehicleMode(drone, VehicleMode.COPTER_AUTO);
+            startMission = false;
+            endMissionWhenLanded = true;
+        }
+    }
+
+    private void handleDroneConnected() {
+        droneState = droneStateMapper.getDroneState(drone);
+        droneState.setIsConnected(true);
+        this.notifyDroneStateListeners();
+    }
+
+    private void handleDroneDisconnected() {
+        clearDroneData();
+
+        notifyDroneStateListeners();
+        notifyGPSStateListeners();
+        notifyBatteryStateListeners();
+    }
+
+    private void handleBatteryStateChange() {
+        Battery droneBattery = drone.getAttribute(AttributeType.BATTERY);
+        batteryState = droneStateMapper.getBatteryState(droneBattery);
+        notifyBatteryStateListeners();
+    }
+
+    private void handleGpsStateChange() {
+        Gps gps = drone.getAttribute(AttributeType.GPS);
+        if (gps != null) {
+            gpsState = droneStateMapper.getGPSState(gps);
+            notifyGPSStateListeners();
+        }
+
+        DroneState newDroneState = droneStateMapper.getDroneState(drone);
+        newDroneState.setIsConnected(droneState.isConnected());
+        droneState = newDroneState;
     }
 
     private void clearDroneData() {
         droneState = new DroneState();
         gpsState = new GpsState();
         batteryState = new BatteryState();
-
-        triggerDroneStateChange();
-        triggerGpsStateChange();
-        triggerBatteryStateChange();
-    }
-
-
-    public void takeOff() {
-        DroneStateApi.setVehicleMode(drone, VehicleMode.COPTER_GUIDED);
-        DroneStateApi.arm(drone, true);
-        takeoffWhenArmed = true;
     }
 
     @Override
@@ -217,13 +271,54 @@ public class DroneConnectionService implements DroneListener, TowerListener {
         this.controlTower.unregisterDrone(this.drone);
     }
 
-
     public BatteryState getBatteryState() {
         return batteryState;
     }
 
+
+    public DroneState getDroneState() {
+        return droneState;
+    }
+
+    public Drone getDrone() {
+        return drone;
+    }
+
+    public GpsState getGpsState() {
+        return gpsState;
+    }
+
     public void setConnectionType(int connectionType) {
         this.connectionType = connectionType;
+    }
+
+    @Override
+    public void onDroneConnectionFailed(ConnectionResult result) {
+
+    }
+
+    public int getServoChannel() {
+        return servoChannel;
+    }
+
+    public void setServoChannel(int servoChannel) {
+        this.servoChannel = servoChannel;
+    }
+
+    public int getServoOpenPWM() {
+        return servoOpenPWM;
+    }
+
+    public void setServoOpenPWM(int servoPWM) {
+        this.servoOpenPWM = servoPWM;
+    }
+
+    public void setServoClosedPWM(int servoClosedPWM) {
+        this.servoClosedPWM = servoClosedPWM;
+    }
+
+    public int getServoClosedPWM() {
+        return servoClosedPWM;
     }
 }
 

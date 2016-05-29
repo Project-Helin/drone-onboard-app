@@ -10,9 +10,15 @@ import ch.helin.messages.dto.state.DroneState;
 import ch.helin.messages.dto.state.GpsQuality;
 import ch.helin.messages.dto.state.GpsState;
 
+import javax.inject.Inject;
+
 public class DroneStateMapper {
 
-    public static DroneState getDroneState(Drone drone) {
+    @Inject
+    public DroneStateMapper() {
+    }
+
+    public DroneState getDroneState(Drone drone) {
         DroneState droneState = new DroneState();
 
         Speed speed = drone.getAttribute(AttributeType.SPEED);
@@ -24,7 +30,7 @@ public class DroneStateMapper {
         Altitude altitude = drone.getAttribute(AttributeType.ALTITUDE);
         if (altitude != null) {
             droneState.setTargetAltitude(altitude.getTargetAltitude());
-            droneState.setTargetAltitude(altitude.getAltitude());
+            droneState.setAltitude(altitude.getAltitude());
         }
 
         Type type = drone.getAttribute(AttributeType.TYPE);
@@ -36,7 +42,7 @@ public class DroneStateMapper {
     }
 
 
-    public static GpsState getGPSState(Gps gps) {
+    public GpsState getGPSState(Gps gps) {
         GpsState gpsState = new GpsState();
 
         if (gps != null) {
@@ -44,15 +50,17 @@ public class DroneStateMapper {
 
             gpsState.setFixType(gpsQuality);
             gpsState.setSatellitesCount(gps.getSatellitesCount());
-            gpsState.setPosLon(gps.getPosition().getLongitude());
-            gpsState.setPosLat(gps.getPosition().getLatitude());
+            if (gps.getPosition() != null) {
+                gpsState.setPosLon(gps.getPosition().getLongitude());
+                gpsState.setPosLat(gps.getPosition().getLatitude());
+            }
         }
 
         return gpsState;
     }
 
 
-    public static BatteryState getBatteryState(Battery droneBattery) {
+    public BatteryState getBatteryState(Battery droneBattery) {
         BatteryState batteryState = new BatteryState();
         try {
             if (droneBattery != null) {

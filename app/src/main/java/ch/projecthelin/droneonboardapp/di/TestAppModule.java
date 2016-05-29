@@ -1,16 +1,16 @@
 package ch.projecthelin.droneonboardapp.di;
 
-import android.app.Application;
 import android.content.Context;
 import com.o3dr.android.client.ControlTower;
 import com.o3dr.android.client.Drone;
 import dagger.Module;
 import dagger.Provides;
 
-import javax.inject.Singleton;
 
-import static org.mockito.Mockito.mock;
-
+/**
+ * This class can be used to set the instances (mocks) which should
+ * be injected for testing purposes
+ */
 @Module
 public class TestAppModule {
 
@@ -29,7 +29,6 @@ public class TestAppModule {
     Drone providesDrone(Context context) {
         return drone;
     }
-
 
     public void setControlTower(ControlTower controlTower) {
         this.controlTower = controlTower;

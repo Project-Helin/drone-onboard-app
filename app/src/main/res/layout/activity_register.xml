@@ -1,4 +1,4 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -8,7 +8,7 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="ch.projecthelin.droneonboardapp.activities.RegisterActivity">
+    tools:context="ch.projecthelin.droneonboardapp.activities.RegisterDroneActivity">
 
     <ScrollView
         android:id="@+id/register_form_scroll_view"
@@ -105,4 +105,4 @@
 
         </LinearLayout>
     </ScrollView>
-</LinearLayout>
+</ScrollView>

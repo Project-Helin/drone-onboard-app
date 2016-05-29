@@ -1,6 +1,7 @@
 package ch.projecthelin.droneonboardapp.di;
 
 import ch.projecthelin.droneonboardapp.activities.MainActivity;
+import ch.projecthelin.droneonboardapp.activities.MissionActivity;
 import ch.projecthelin.droneonboardapp.activities.RegisterDroneActivity;
 import ch.projecthelin.droneonboardapp.fragments.DroneFragment;
 import ch.projecthelin.droneonboardapp.fragments.OverviewFragment;
@@ -21,5 +22,7 @@ public interface AppComponent {
     void inject(DroneFragment fragment);
 
     void inject(ServerFragment fragment);
+
+    void inject(MissionActivity activity);
 
 }

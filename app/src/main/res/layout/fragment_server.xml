@@ -5,105 +5,114 @@
     android:padding="10dp">
 
     <TextView
+        android:id="@+id/txtStatus"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Status"
-        android:id="@+id/txtStatus"
-        android:layout_alignParentTop="true"
         android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginBottom="5dp"
         android:layout_marginTop="5dp"
-        android:layout_marginBottom="5dp" />
+        android:text="Status"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
 
     <TableLayout
+        android:id="@+id/tblStatus"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
-        android:orientation="vertical"
-        android:id="@+id/tblStatus"
-        android:layout_below="@+id/txtStatus">
+        android:layout_below="@+id/txtStatus"
+        android:orientation="vertical">
 
         <TableRow
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            android:layout_marginBottom="5dp">
+            android:layout_marginBottom="5dp"
+            android:layout_marginTop="5dp">
 
             <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:text="Server IP"
                 android:id="@+id/lblIP"
-                android:layout_column="0"
-                android:layout_marginRight="10dp" />
-
-            <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:text=""
+                android:layout_column="0"
+                android:layout_marginRight="10dp"
+                android:text="Server IP"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
+
+            <TextView
                 android:id="@+id/txtIP"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_column="1"
                 android:freezesText="true"
-                android:layout_column="1" />
+                android:text=""
+                android:textAppearance="?android:attr/textAppearanceMedium" />
 
         </TableRow>
 
         <TableRow
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            android:layout_marginBottom="5dp">
+            android:layout_marginBottom="5dp"
+            android:layout_marginTop="5dp">
 
             <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:text="Connection State"
                 android:id="@+id/lblConnectionState"
-                android:layout_column="0"
-                android:layout_marginRight="10dp" />
-
-            <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:text=""
+                android:layout_column="0"
+                android:layout_marginRight="10dp"
+                android:text="Connection State"
+                android:textAppearance="?android:attr/textAppearanceMedium" />
+
+            <TextView
                 android:id="@+id/txtConnectionState"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_column="1"
                 android:freezesText="true"
-                android:layout_column="1" />
+                android:text=""
+                android:textAppearance="?android:attr/textAppearanceMedium" />
 
         </TableRow>
 
     </TableLayout>
 
     <Button
+        android:id="@+id/btnConnectToDrone"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="Connect"
-        android:id="@+id/btnConnectToDrone"
         android:layout_alignParentStart="true"
-        android:layout_below="@+id/tblStatus" />
+        android:layout_below="@+id/tblStatus"
+        android:text="Connect" />
 
     <TextView
+        android:id="@+id/lblErrorLog"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Errorlog:"
-        android:id="@+id/lblErrorLog"
-        android:layout_below="@+id/btnConnectToDrone"
         android:layout_alignStart="@+id/btnConnectToDrone"
+        android:layout_below="@+id/btnConnectToDrone"
         android:layout_marginBottom="5dp"
-        android:layout_marginTop="5dp" />
+        android:layout_marginTop="5dp"
+        android:text="Log:"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
 
     <TextView
+        android:id="@+id/txtErrorLog"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:id="@+id/txtErrorLog"
-        android:layout_below="@+id/lblErrorLog"
-        android:layout_alignParentStart="true"
+        android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="false"
-        android:layout_alignParentBottom="true" />
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/lblErrorLog"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
+
+    <Switch
+        android:id="@+id/localConnectionSwitch"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/tblStatus"
+        android:layout_alignParentStart="false"
+        android:text="Local-Mode"
+        android:layout_alignParentEnd="true" />
 
 </RelativeLayout>

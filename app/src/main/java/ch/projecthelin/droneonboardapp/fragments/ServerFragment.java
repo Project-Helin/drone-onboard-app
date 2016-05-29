@@ -6,10 +6,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CompoundButton;
+import android.widget.Switch;
 import android.widget.TextView;
-import android.widget.Toast;
 import ch.projecthelin.droneonboardapp.DroneOnboardApp;
-import ch.projecthelin.droneonboardapp.MessagingListener;
+import ch.projecthelin.droneonboardapp.listeners.MessagingConnectionListener;
 import ch.projecthelin.droneonboardapp.R;
 import ch.projecthelin.droneonboardapp.services.DroneConnectionService;
 import ch.projecthelin.droneonboardapp.services.MessagingConnectionService;
@@ -17,7 +18,7 @@ import ch.projecthelin.droneonboardapp.services.MessagingConnectionService;
 import javax.inject.Inject;
 import java.util.Calendar;
 
-public class ServerFragment extends Fragment implements MessagingListener {
+public class ServerFragment extends Fragment implements MessagingConnectionListener {
 
     @Inject
     MessagingConnectionService messagingConnectionService;
@@ -29,12 +30,13 @@ public class ServerFragment extends Fragment implements MessagingListener {
     private TextView txtErrorLog;
     private TextView txtIP;
     private Button btnConnect;
+    private Switch localConnectionSwitch;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         ((DroneOnboardApp) getActivity().getApplication()).component().inject(this);
-        messagingConnectionService.addListener(this);
+        messagingConnectionService.addConnectionListener(this);
     }
 
     @Override
@@ -43,51 +45,53 @@ public class ServerFragment extends Fragment implements MessagingListener {
 
         View view = inflater.inflate(R.layout.fragment_server, container, false);
 
-        initializeViewFields(view);
+        initializeViewComponents(view);
         initializeBtnListeners();
 
-        txtErrorLog.append(messagingConnectionService.connectionState.name() + "\n");
-        txtConnectionState.setText(messagingConnectionService.connectionState.name());
-        txtIP.setText(MessagingConnectionService.RMQ_REMOTE_SERVER_ADDR);
+        txtErrorLog.append(messagingConnectionService.getConnectionState().name() + "\n");
+        txtConnectionState.setText(messagingConnectionService.getConnectionState().name());
 
         return view;
     }
 
     @Override
     public void onDestroy() {
-        messagingConnectionService.removeListener(this);
+        super.onDestroy();
+        messagingConnectionService.removeConnectionListener(this);
     }
-
 
     private void initializeBtnListeners() {
         btnConnect.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                if (messagingConnectionService.connectionState.equals(MessagingConnectionService.ConnectionState.CONNECTED)) {
-                    messagingConnectionService.disconnect();
-                } else {
-                    messagingConnectionService.connect();
+
+                switch (messagingConnectionService.getConnectionState()) {
+                    case CONNECTED:
+                        messagingConnectionService.disconnect();
+                        break;
+                    case DISCONNECTED:
+                        messagingConnectionService.connect();
+                        break;
+                    case RECONNECTING:
+                        messagingConnectionService.disconnect();
+                        break;
                 }
             }
         });
+
+        localConnectionSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                messagingConnectionService.setIsLocalConnection(isChecked);
+            }
+        });
+
     }
 
-    private void initializeViewFields(View view) {
+    private void initializeViewComponents(View view) {
         txtConnectionState = (TextView) view.findViewById(R.id.txtConnectionState);
         txtIP = (TextView) view.findViewById(R.id.txtIP);
         txtErrorLog = (TextView) view.findViewById(R.id.txtErrorLog);
         btnConnect = (Button) view.findViewById(R.id.btnConnectToDrone);
-    }
-
-    @Override
-    public void onMessageReceived(final String message) {
-        getActivity().runOnUiThread(new Runnable() {
-
-            @Override
-            public void run() {
-                txtErrorLog.setText(getTime() + message + "\n" + txtErrorLog.getText());
-                droneConnectionService.takeOff();
-            }
-        });
+        localConnectionSwitch = (Switch) view.findViewById(R.id.localConnectionSwitch);
     }
 
     @Override
@@ -97,8 +101,9 @@ public class ServerFragment extends Fragment implements MessagingListener {
             @Override
             public void run() {
                 txtErrorLog.setText(getTime() + state.name() + "\n" + txtErrorLog.getText());
-                txtConnectionState.setText(messagingConnectionService.connectionState.name());
+                txtConnectionState.setText(messagingConnectionService.getConnectionState().name());
                 updateConnectButton();
+                txtIP.setText(messagingConnectionService.getRabbitMqServerAddress());
             }
         });
     }
@@ -106,7 +111,7 @@ public class ServerFragment extends Fragment implements MessagingListener {
     private void updateConnectButton() {
         String buttonText;
 
-        switch (messagingConnectionService.connectionState) {
+        switch (messagingConnectionService.getConnectionState()) {
             case CONNECTED:
                 buttonText = "Disconnect";
                 break;

@@ -1,90 +1,82 @@
 package ch.projecthelin.droneonboardapp.activities;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
-import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ListView;
-import android.widget.Toast;
+import android.widget.Button;
+import android.widget.TextView;
+import ch.helin.messages.dto.MissionDto;
+import ch.projecthelin.droneonboardapp.DroneOnboardApp;
 import ch.projecthelin.droneonboardapp.R;
-import ch.projecthelin.droneonboardapp.adapters.MissionProductAdapter;
-import ch.projecthelin.droneonboardapp.dto.message.Mission;
-import ch.projecthelin.droneonboardapp.dto.message.MissionProduct;
-import ch.projecthelin.droneonboardapp.dto.message.Product;
+import ch.projecthelin.droneonboardapp.services.DroneConnectionService;
+import ch.projecthelin.droneonboardapp.services.MessagingConnectionService;
+import com.o3dr.android.client.apis.drone.ExperimentalApi;
 
-import java.util.ArrayList;
+import javax.inject.Inject;
 
 public class MissionActivity extends AppCompatActivity {
 
-    private ListView listview;
+    private TextView orderProductAmountText;
+    private TextView orderProductNameText;
+    private boolean isServoOpen;
+    private Button btnServo;
+
+    @Inject
+    MessagingConnectionService messagingConnectionService;
+
+    @Inject
+    DroneConnectionService droneConnectionService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        ((DroneOnboardApp) getApplication()).component().inject(this);
         setContentView(R.layout.activity_mission);
+
+        initializeViewComponents();
 
         if (getActionBar() != null) {
             getActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
-        createListView();
+        MissionDto currentMission = messagingConnectionService.getCurrentMission();
 
+        orderProductNameText.setText(currentMission.getOrderProduct().getProduct().getName());
+        orderProductAmountText.setText(currentMission.getOrderProduct().getAmount().toString());
     }
 
-    private void createListView() {
-        listview = (ListView) findViewById(R.id.list);
-
-        getMissionProducts();
-        MissionProductAdapter adapter = new MissionProductAdapter(this, getMissionProducts());
-        listview.setAdapter(adapter);
-        setOnclickListenerForListView();
+    private void initializeViewComponents() {
+        this.orderProductNameText = (TextView) findViewById(R.id.orderProductName);
+        this.orderProductAmountText = (TextView) findViewById(R.id.orderProductAmount);
+        this.btnServo = (Button) findViewById(R.id.btnServo);
     }
 
-    private ArrayList<MissionProduct> getMissionProducts() {
-        ArrayList<MissionProduct> list = new ArrayList<>();
-
-        Mission mission = new Mission();
-
-        Product product1 = new Product();
-        product1.setName("Coca Cola 0.5L");
-        product1.setWeight(500);
-
-        list.add(new MissionProduct(mission, product1, 5));
-
-        Product product2 = new Product();
-        product2.setName("Kugelschreiber");
-        product2.setWeight(10);
-        list.add(new MissionProduct(mission, product2, 5));
-
-        return list;
+    public void loadingFinished(View view) {
+        Intent result = new Intent(this, MainActivity.class);
+        setResult(Activity.RESULT_OK, result);
+        finish();
     }
 
+    public void toggleServo(View view) {
+        int pwm;
+        String buttonText;
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                NavUtils.navigateUpFromSameTask(this);
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
+        if (isServoOpen) {
+            pwm = droneConnectionService.getServoClosedPWM();
+            isServoOpen = false;
+            buttonText = "Open Servo!";
+        } else {
+            pwm = droneConnectionService.getServoOpenPWM();
+            isServoOpen = true;
+            buttonText = "Close Servo!";
         }
+        ExperimentalApi.setServo(droneConnectionService.getDrone(), droneConnectionService.getServoChannel(), pwm);
+        btnServo.setText(buttonText);
     }
 
-    private void setOnclickListenerForListView() {
-        listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view,
-                                    int position, long id) {
-                Toast.makeText(getApplicationContext(),
-                        "Click ListItem Number " + position, Toast.LENGTH_LONG)
-                        .show();
-            }
-        });
-
+    public void cancel(View view) {
+        finish();
     }
-
-
 }

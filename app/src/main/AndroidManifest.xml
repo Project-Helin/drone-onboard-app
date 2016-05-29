@@ -12,28 +12,30 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="Drone Onboard App"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme"
+        android:theme="@style/HelinTheme"
         android:name="ch.projecthelin.droneonboardapp.DroneOnboardApp">
-        <activity android:name=".activities.MainActivity2" />
         <activity
             android:name=".activities.RegisterDroneActivity"
-            android:label="Register your drone">
+            android:label="Helin Onboard App">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
             android:name=".activities.MainActivity"
-            android:label="@string/title_activity_main"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:label="Helin Onboard App"
+            android:theme="@style/HelinTheme.NoActionBar" />
         <activity android:name=".activities.MissionActivity">
+            android:label="Loading..."
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".activities.MissionActivity" />

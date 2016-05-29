@@ -1,45 +1,53 @@
 package ch.projecthelin.droneonboardapp.activities;
 
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.location.Location;
 import android.os.Bundle;
+import android.os.CountDownTimer;
+import android.preference.PreferenceManager;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-
-import javax.inject.Inject;
-
 import ch.helin.messages.converter.JsonBasedMessageConverter;
-import ch.helin.messages.dto.message.stateMessage.BatteryStateMessage;
-import ch.helin.messages.dto.message.stateMessage.DroneStateMessage;
-import ch.helin.messages.dto.message.stateMessage.GpsStateMessage;
-import ch.helin.messages.dto.state.BatteryState;
-
-import ch.helin.messages.dto.state.DroneState;
-
-import ch.helin.messages.dto.state.GpsState;
+import ch.helin.messages.dto.DroneInfoDto;
+import ch.helin.messages.dto.MissionDto;
+import ch.helin.messages.dto.OrderProductDto;
+import ch.helin.messages.dto.message.DroneInfoMessage;
+import ch.helin.messages.dto.message.missionMessage.*;
+import ch.helin.messages.dto.way.Position;
 import ch.projecthelin.droneonboardapp.DroneOnboardApp;
+import ch.projecthelin.droneonboardapp.listeners.MessageReceiver;
 import ch.projecthelin.droneonboardapp.R;
-
 import ch.projecthelin.droneonboardapp.fragments.DroneFragment;
 import ch.projecthelin.droneonboardapp.fragments.OverviewFragment;
 import ch.projecthelin.droneonboardapp.fragments.ServerFragment;
-import ch.projecthelin.droneonboardapp.services.DroneConnectionListener;
 import ch.projecthelin.droneonboardapp.services.DroneConnectionService;
+import ch.projecthelin.droneonboardapp.services.LocationService;
 import ch.projecthelin.droneonboardapp.services.MessagingConnectionService;
+import ch.projecthelin.droneonboardapp.listeners.MissionListener;
+import com.google.android.gms.location.LocationListener;
 
-public class MainActivity extends AppCompatActivity implements DroneConnectionListener {
+import javax.inject.Inject;
+import java.util.Date;
 
-    private SectionsPagerAdapter mSectionsPagerAdapter;
+public class MainActivity extends AppCompatActivity implements LocationListener, MessageReceiver, MissionListener {
 
-    private ViewPager mViewPager;
+
+    private static final int CARGO_LOAD_REQUEST_CODE = 543;
+    public static final String CHANNEL_KEY = "channel";
+    public static final String OPEN_PWM_KEY = "open_pwm";
+    public static final String CLOSED_PWM_KEY = "closed_pwm";
+    private static final int DEFAULT_CHANNEL = 7;
+    private static final int DEFAULT_OPEN_PWM = 1800;
+    private static final int DEFAULT_CLOSED_PWM = 1000;
 
     @Inject
     MessagingConnectionService messagingConnectionService;
@@ -47,8 +55,10 @@ public class MainActivity extends AppCompatActivity implements DroneConnectionLi
     @Inject
     DroneConnectionService droneConnectionService;
 
-    private JsonBasedMessageConverter jsonBasedMessageConverter = new JsonBasedMessageConverter();
+    @Inject
+    LocationService locationService;
 
+    private JsonBasedMessageConverter jsonBasedMessageConverter = new JsonBasedMessageConverter();
 
 
     @Override
@@ -62,71 +72,192 @@ public class MainActivity extends AppCompatActivity implements DroneConnectionLi
         setSupportActionBar(toolbar);
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
-        mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
+        SectionsPagerAdapter mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
         // Set up the ViewPager with the sections adapter.
-        mViewPager = (ViewPager) findViewById(R.id.container);
+        ViewPager mViewPager = (ViewPager) findViewById(R.id.container);
         mViewPager.setAdapter(mSectionsPagerAdapter);
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
 
-        droneConnectionService.addConnectionListener(this);
-
+        initializeListenersAndData();
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    public void goToMissionScreen(View view) {
-        Intent intent = new Intent(this, MissionActivity.class);
-        startActivity(intent);
-
+    protected void onPause() {
+        super.onPause();
+        deregisterListeners();
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
+    protected void onResume() {
+        super.onResume();
+        initializeListenersAndData();
+    }
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        deregisterListeners();
+    }
+
+    private void initializeListenersAndData() {
+        messagingConnectionService.setDroneToken(loadDroneTokenFromSharedPreferences());
+        loadServoValuesFromSharedPreferences();
+
+        messagingConnectionService.addMessageReceiver(this);
+        locationService.startLocationListening(this, this);
+        droneConnectionService.setMissionListener(this);
+    }
+
+    private void deregisterListeners() {
+        locationService.stopLocationListening();
+        droneConnectionService.removeMissionListener();
+        messagingConnectionService.removeMessageReceiver(this);
+    }
+
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == CARGO_LOAD_REQUEST_CODE) {
+            // Make sure the request was successful
+            if (resultCode == RESULT_OK) {
+                startMissionCountDown();
+            }
         }
+    }
 
-        return super.onOptionsItemSelected(item);
+    private void startMissionCountDown() {
+        MissionDto currentMission = messagingConnectionService.getCurrentMission();
+        droneConnectionService.sendRouteToAutopilot(currentMission.getRoute());
+
+        final AlertDialog dialog = createMissionStartCountDownDialog();
+
+        dialog.show();
+
+        new CountDownTimer(10000, 1000) {
+            @Override
+            public void onTick(long millisUntilFinished) {
+                dialog.setMessage("Drone will start in " + (millisUntilFinished / 1000) + " seconds");
+            }
+
+            @Override
+            public void onFinish() {
+                droneConnectionService.startMission();
+                dialog.hide();
+            }
+        }.start();
+    }
+
+    private String loadDroneTokenFromSharedPreferences() {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        return sharedPreferences.getString(RegisterDroneActivity.DRONE_TOKEN_KEY, "");
+    }
+
+    private void loadServoValuesFromSharedPreferences() {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        droneConnectionService.setServoChannel(sharedPreferences.getInt(CHANNEL_KEY, DEFAULT_CHANNEL));
+        droneConnectionService.setServoOpenPWM(sharedPreferences.getInt(OPEN_PWM_KEY, DEFAULT_OPEN_PWM));
+        droneConnectionService.setServoClosedPWM(sharedPreferences.getInt(CLOSED_PWM_KEY, DEFAULT_CLOSED_PWM));
+    }
+
+    private void sendDroneInfoToServer(Location location) {
+        DroneInfoDto droneInfoDto = new DroneInfoDto();
+        droneInfoDto.setBatteryState(droneConnectionService.getBatteryState());
+        droneInfoDto.setGpsState(droneConnectionService.getGpsState());
+        droneInfoDto.setDroneState(droneConnectionService.getDroneState());
+        droneInfoDto.setPhonePosition(new Position(location.getLongitude(), location.getLatitude()));
+        droneInfoDto.setClientTime(new Date());
+
+        DroneInfoMessage droneInfoMessage = new DroneInfoMessage();
+        droneInfoMessage.setDroneInfo(droneInfoDto);
+
+        messagingConnectionService.sendMessage(jsonBasedMessageConverter.parseMessageToString(droneInfoMessage));
     }
 
     @Override
-    public void onDroneStateChange(DroneState state) {
-        DroneStateMessage droneStateMessage = new DroneStateMessage();
-        droneStateMessage.setDroneState(state);
-
+    public void onLocationChanged(Location location) {
+        sendDroneInfoToServer(location);
     }
 
     @Override
-    public void onGpsStateChange(GpsState state) {
-        GpsStateMessage gpsStateMessage = new GpsStateMessage();
-        gpsStateMessage.setGpsState(state);
-        Log.d(getClass().getCanonicalName(), "Send Message: " + gpsStateMessage.toString());
+    public void onAssignMissionMessageReceived(AssignMissionMessage message) {
+        final MissionDto mission = message.getMission();
+        runOnUiThread(new Runnable() {
 
-        messagingConnectionService.sendMessage(jsonBasedMessageConverter.parseMessageToString(gpsStateMessage));
+            @Override
+            public void run() {
+                showMissionAcceptDialog(mission);
+            }
+        });
     }
 
     @Override
-    public void onBatteryStateChange(BatteryState state) {
-        BatteryStateMessage batteryStateMessage = new BatteryStateMessage();
-        batteryStateMessage.setBatteryStage(state);
+    public void onFinalAssignMissionMessageReceived(FinalAssignMissionMessage message) {
+        Intent intent = new Intent(this, MissionActivity.class);
+        startActivityForResult(intent, CARGO_LOAD_REQUEST_CODE);
+        messagingConnectionService.setCurrentMission(message.getMission());
+    }
 
-        Log.d(getClass().getCanonicalName(), "Send Message: " + batteryStateMessage.toString());
+    private void showMissionAcceptDialog(MissionDto mission) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
-        messagingConnectionService.sendMessage(jsonBasedMessageConverter.parseMessageToString(batteryStateMessage));
+        String missionProductsText = "Do you want to accept this mission? \n";
+
+        OrderProductDto orderProduct = mission.getOrderProduct();
+
+        missionProductsText += orderProduct.getAmount();
+        missionProductsText += "   ";
+        missionProductsText += orderProduct.getProduct().getName();
+        missionProductsText += "\n";
+
+        builder.setMessage(missionProductsText)
+                .setTitle("New Mission Received");
+
+        builder.setPositiveButton("Accept", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                AcceptOrDenyAssignedMission(MissionConfirmType.ACCEPT);
+            }
+        });
+
+        builder.setNegativeButton("Reject", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                AcceptOrDenyAssignedMission(MissionConfirmType.REJECT);
+            }
+        });
+
+        builder.create().show();
+    }
+
+    private AlertDialog createMissionStartCountDownDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        builder.setTitle("Mission Start").setMessage("");
+
+        builder.setNegativeButton("Abort Start Countdown", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                //TODO handle abort of a mission
+            }
+        });
+
+        return builder.create();
+    }
+
+    private void AcceptOrDenyAssignedMission(MissionConfirmType acceptOrReject) {
+        ConfirmMissionMessage confirmMissionMessage = new ConfirmMissionMessage();
+        confirmMissionMessage.setMissionConfirmType(acceptOrReject);
+        messagingConnectionService.sendMessage(jsonBasedMessageConverter.parseMessageToString(confirmMissionMessage));
+    }
+
+    @Override
+    public void onMissionFinished() {
+        Log.d("Mission", "Mission finished");
+
+        FinishedMissionMessage message = new FinishedMissionMessage();
+        message.setFinishedType(MissionFinishedType.SUCCESSFUL);
+        messagingConnectionService.sendMessage(jsonBasedMessageConverter.parseMessageToString(message));
+        messagingConnectionService.setCurrentMission(null);
     }
 
     public class SectionsPagerAdapter extends FragmentPagerAdapter {

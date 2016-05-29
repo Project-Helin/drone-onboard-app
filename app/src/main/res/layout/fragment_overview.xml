@@ -6,7 +6,7 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="ch.projecthelin.droneonboardapp.activities.MainActivity$PlaceholderFragment">
+    tools:context="ch.projecthelin.droneonboardapp.activities.MainActivity">
 
     <TextView
         android:layout_width="wrap_content"
@@ -25,7 +25,7 @@
         android:id="@+id/txtConnection"
         android:layout_below="@+id/droneTitle"
         android:layout_alignParentStart="true"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="5dp"
         android:layout_alignParentEnd="true"
         android:background="@color/red"
         android:padding="10dp" />
@@ -74,7 +74,7 @@
         android:id="@+id/server_connection_state"
         android:layout_below="@+id/server_title"
         android:layout_alignParentStart="true"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="5dp"
         android:layout_alignParentEnd="true"
         android:background="@color/red"
         android:padding="10dp" />
@@ -82,11 +82,13 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Jump To Mission Screen"
-        android:id="@+id/button"
+        android:text="Toggle Servo"
+        android:id="@+id/setServoButton"
+        android:layout_below="@+id/server_connection_state"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="20dp"
         android:layout_alignParentBottom="true"
-        android:layout_alignParentStart="false"
-        android:onClick="goToMissionScreen"
-        android:layout_marginBottom="50dp" />
+        android:layout_marginBottom="40dp" />
 
 </RelativeLayout>
