@@ -10,9 +10,15 @@ import ch.helin.messages.dto.state.DroneState;
 import ch.helin.messages.dto.state.GpsQuality;
 import ch.helin.messages.dto.state.GpsState;
 
+import javax.inject.Inject;
+
 public class DroneStateMapper {
 
-    public static DroneState getDroneState(Drone drone) {
+    @Inject
+    public DroneStateMapper() {
+    }
+
+    public DroneState getDroneState(Drone drone) {
         DroneState droneState = new DroneState();
 
         Speed speed = drone.getAttribute(AttributeType.SPEED);
@@ -36,7 +42,7 @@ public class DroneStateMapper {
     }
 
 
-    public static GpsState getGPSState(Gps gps) {
+    public GpsState getGPSState(Gps gps) {
         GpsState gpsState = new GpsState();
 
         if (gps != null) {
@@ -54,7 +60,7 @@ public class DroneStateMapper {
     }
 
 
-    public static BatteryState getBatteryState(Battery droneBattery) {
+    public BatteryState getBatteryState(Battery droneBattery) {
         BatteryState batteryState = new BatteryState();
         try {
             if (droneBattery != null) {

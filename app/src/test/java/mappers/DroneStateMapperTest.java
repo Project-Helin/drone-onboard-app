@@ -31,7 +31,7 @@ public class DroneStateMapperTest {
         when(drone.getAttribute(AttributeType.TYPE)).thenReturn(type);
 
 
-        DroneState droneState = DroneStateMapper.getDroneState(drone);
+        DroneState droneState = new DroneStateMapper().getDroneState(drone);
 
         assertThat(droneState.getVerticalSpeed()).isEqualTo(speed.getVerticalSpeed());
         assertThat(droneState.getGroundSpeed()).isEqualTo(speed.getGroundSpeed());
@@ -46,7 +46,7 @@ public class DroneStateMapperTest {
     public void getGPSStateTest() {
         Gps gps = new Gps(47.234343, 8.341234, 4.5, 8, 3);
 
-        GpsState gpsState = DroneStateMapper.getGPSState(gps);
+        GpsState gpsState = new DroneStateMapper().getGPSState(gps);
 
         assertThat(gpsState.getPosLat()).isEqualTo(gps.getPosition().getLatitude());
         assertThat(gpsState.getPosLon()).isEqualTo(gps.getPosition().getLongitude());
@@ -58,7 +58,7 @@ public class DroneStateMapperTest {
     public void getBatteryStateTest() {
         Battery battery = new Battery(12.4, 55, 5, 2.45);
 
-        BatteryState batteryState = DroneStateMapper.getBatteryState(battery);
+        BatteryState batteryState = new DroneStateMapper().getBatteryState(battery);
 
         assertThat(batteryState.getVoltage()).isEqualTo(battery.getBatteryVoltage());
         assertThat(batteryState.getCurrent()).isEqualTo(battery.getBatteryCurrent());

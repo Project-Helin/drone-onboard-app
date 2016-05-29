@@ -49,7 +49,7 @@ public class DroneConnectionServiceTest {
 
         droneConnectionListener = mock(DroneConnectionListener.class);
         missionListener = mock(MissionListener.class);
-        service = new DroneConnectionService(tower, drone, new RouteMissionMapper());
+        service = new DroneConnectionService(tower, drone, new RouteMissionMapper(), new DroneStateMapper());
     }
 
     @Test
@@ -64,7 +64,7 @@ public class DroneConnectionServiceTest {
         service.addConnectionListener(droneConnectionListener);
         service.onDroneEvent(AttributeEvent.WARNING_NO_GPS, new Bundle());
 
-        verify(droneConnectionListener).onGpsStateChange(DroneStateMapper.getGPSState(gps));
+        verify(droneConnectionListener).onGpsStateChange(new DroneStateMapper().getGPSState(gps));
     }
 
     @Test
@@ -88,7 +88,7 @@ public class DroneConnectionServiceTest {
 
         service.onDroneEvent(AttributeEvent.STATE_CONNECTED, new Bundle());
 
-        DroneState droneState = DroneStateMapper.getDroneState(drone);
+        DroneState droneState = new DroneStateMapper().getDroneState(drone);
         droneState.setIsConnected(true);
 
         verify(droneConnectionListener).onDroneStateChange(droneState);

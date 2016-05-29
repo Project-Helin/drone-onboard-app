@@ -53,10 +53,11 @@ public class DroneConnectionService implements DroneListener, TowerListener {
     private final ControlTower controlTower;
     private List<DroneConnectionListener> connectionListeners = new ArrayList<>();
 
+    private DroneStateMapper droneStateMapper;
     private DroneState droneState = new DroneState();
     private GpsState gpsState = new GpsState();
-    private BatteryState batteryState = new BatteryState();
 
+    private BatteryState batteryState = new BatteryState();
     private int connectionType;
     private boolean startMission;
     private boolean endMissionWhenLanded;
@@ -66,11 +67,12 @@ public class DroneConnectionService implements DroneListener, TowerListener {
     private int servoClosedPWM;
 
     @Inject
-    public DroneConnectionService(ControlTower controlTower, Drone drone, RouteMissionMapper missionMapper) {
+    public DroneConnectionService(ControlTower controlTower, Drone drone, RouteMissionMapper missionMapper, DroneStateMapper droneStateMapper) {
         this.controlTower = controlTower;
         this.drone = drone;
         this.missionMapper = missionMapper;
         this.controlTower.connect(this);
+        this.droneStateMapper = droneStateMapper;
     }
 
     public void connect() {
@@ -215,7 +217,7 @@ public class DroneConnectionService implements DroneListener, TowerListener {
     }
 
     private void handleDroneConnected() {
-        droneState = DroneStateMapper.getDroneState(drone);
+        droneState = droneStateMapper.getDroneState(drone);
         droneState.setIsConnected(true);
         this.notifyDroneStateListeners();
     }
@@ -230,18 +232,18 @@ public class DroneConnectionService implements DroneListener, TowerListener {
 
     private void handleBatteryStateChange() {
         Battery droneBattery = drone.getAttribute(AttributeType.BATTERY);
-        batteryState = DroneStateMapper.getBatteryState(droneBattery);
+        batteryState = droneStateMapper.getBatteryState(droneBattery);
         notifyBatteryStateListeners();
     }
 
     private void handleGpsStateChange() {
         Gps gps = drone.getAttribute(AttributeType.GPS);
         if (gps != null) {
-            gpsState = DroneStateMapper.getGPSState(gps);
+            gpsState = droneStateMapper.getGPSState(gps);
             notifyGPSStateListeners();
         }
 
-        DroneState newDroneState = DroneStateMapper.getDroneState(drone);
+        DroneState newDroneState = droneStateMapper.getDroneState(drone);
         newDroneState.setIsConnected(droneState.isConnected());
         droneState = newDroneState;
     }
