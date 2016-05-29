@@ -31,8 +31,7 @@ public class MessagingConnectionService implements ConnectionListener {
     public static final String RMQ_LOCAL_PORT = ":5672";
     public static final String RMQ_REMOTE_PORT = ":8080";
 
-    public ConnectionState connectionState = ConnectionState.DISCONNECTED;
-
+    private ConnectionState connectionState;
     private String droneToken;
     private Channel channel;
     private Connection connection;
@@ -46,6 +45,7 @@ public class MessagingConnectionService implements ConnectionListener {
 
     @Inject
     public MessagingConnectionService() {
+        connectionState = ConnectionState.DISCONNECTED;
     }
 
     public void connect() {
@@ -241,6 +241,10 @@ public class MessagingConnectionService implements ConnectionListener {
 
     public void setDroneToken(String droneToken) {
         this.droneToken = droneToken;
+    }
+
+    public ConnectionState getConnectionState() {
+        return connectionState;
     }
 
 }

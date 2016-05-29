@@ -48,9 +48,8 @@ public class ServerFragment extends Fragment implements MessagingConnectionListe
         initializeViewComponents(view);
         initializeBtnListeners();
 
-        txtErrorLog.append(messagingConnectionService.connectionState.name() + "\n");
-        txtConnectionState.setText(messagingConnectionService.connectionState.name());
-        txtIP.setText(messagingConnectionService.getRabbitMqServerAddress());
+        txtErrorLog.append(messagingConnectionService.getConnectionState().name() + "\n");
+        txtConnectionState.setText(messagingConnectionService.getConnectionState().name());
 
         return view;
     }
@@ -61,14 +60,20 @@ public class ServerFragment extends Fragment implements MessagingConnectionListe
         messagingConnectionService.removeConnectionListener(this);
     }
 
-
     private void initializeBtnListeners() {
         btnConnect.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                if (messagingConnectionService.connectionState.equals(MessagingConnectionService.ConnectionState.CONNECTED)) {
-                    messagingConnectionService.disconnect();
-                } else {
-                    messagingConnectionService.connect();
+
+                switch (messagingConnectionService.getConnectionState()) {
+                    case CONNECTED:
+                        messagingConnectionService.disconnect();
+                        break;
+                    case DISCONNECTED:
+                        messagingConnectionService.connect();
+                        break;
+                    case RECONNECTING:
+                        messagingConnectionService.disconnect();
+                        break;
                 }
             }
         });
@@ -96,8 +101,9 @@ public class ServerFragment extends Fragment implements MessagingConnectionListe
             @Override
             public void run() {
                 txtErrorLog.setText(getTime() + state.name() + "\n" + txtErrorLog.getText());
-                txtConnectionState.setText(messagingConnectionService.connectionState.name());
+                txtConnectionState.setText(messagingConnectionService.getConnectionState().name());
                 updateConnectButton();
+                txtIP.setText(messagingConnectionService.getRabbitMqServerAddress());
             }
         });
     }
@@ -105,7 +111,7 @@ public class ServerFragment extends Fragment implements MessagingConnectionListe
     private void updateConnectButton() {
         String buttonText;
 
-        switch (messagingConnectionService.connectionState) {
+        switch (messagingConnectionService.getConnectionState()) {
             case CONNECTED:
                 buttonText = "Disconnect";
                 break;

@@ -179,7 +179,7 @@ public class OverviewFragment extends Fragment implements DroneConnectionListene
                 DroneState droneState = droneConnectionService.getDroneState();
                 GpsState gpsState = droneConnectionService.getGpsState();
                 BatteryState batteryState = droneConnectionService.getBatteryState();
-                MessagingConnectionService.ConnectionState serverConnectionState = messagingConnectionService.connectionState;
+                MessagingConnectionService.ConnectionState serverConnectionState = messagingConnectionService.getConnectionState();
 
                 if (droneState.isConnected()) {
                     txtConnection.setText("Connected");
