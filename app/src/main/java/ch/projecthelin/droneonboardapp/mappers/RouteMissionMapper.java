@@ -3,13 +3,10 @@ package ch.projecthelin.droneonboardapp.mappers;
 import ch.helin.messages.dto.Action;
 import ch.helin.messages.dto.way.Position;
 import ch.helin.messages.dto.way.RouteDto;
-import com.o3dr.services.android.lib.coordinate.LatLong;
 import com.o3dr.services.android.lib.coordinate.LatLongAlt;
 import com.o3dr.services.android.lib.drone.mission.Mission;
 import com.o3dr.services.android.lib.drone.mission.item.MissionItem;
 import com.o3dr.services.android.lib.drone.mission.item.command.SetServo;
-import com.o3dr.services.android.lib.drone.mission.item.command.Takeoff;
-import com.o3dr.services.android.lib.drone.mission.item.spatial.DoLandStart;
 import com.o3dr.services.android.lib.drone.mission.item.spatial.Land;
 import com.o3dr.services.android.lib.drone.mission.item.spatial.Waypoint;
 
@@ -46,14 +43,13 @@ public class RouteMissionMapper {
     private void AddActionToMissionIfNecessary(Mission mission, ch.helin.messages.dto.way.Waypoint waypointDto, int servoChannel, int openServoPWM) {
         MissionItem missionAction = null;
 
+        //More Action Types can be added here and
+        //translated into different MAVLink Actions
         if (waypointDto.getAction() == Action.DROP) {
             SetServo setServo = new SetServo();
             setServo.setChannel(servoChannel);
             setServo.setPwm(openServoPWM);
             missionAction = setServo;
-
-        } else if (waypointDto.getAction() == Action.LAND) {
-            missionAction = new Land();
         }
 
         if (missionAction != null) {
