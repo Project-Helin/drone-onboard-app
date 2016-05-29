@@ -59,7 +59,7 @@ public class DroneConnectionService implements DroneListener, TowerListener {
 
     private int connectionType;
     private boolean startMission;
-    private boolean endmissionWhenLanded;
+    private boolean endMissionWhenLanded;
     private MissionListener missionListener;
     private int servoChannel;
     private int servoOpenPWM;
@@ -176,10 +176,10 @@ public class DroneConnectionService implements DroneListener, TowerListener {
 
                 if (startMission) {
                     startAutoPilotWhenTakeOffFinished(altitude);
-                } else if (endmissionWhenLanded) {
+                } else if (endMissionWhenLanded) {
                     if (altitude != null && altitude.getAltitude() < 1) {
                         missionListener.onMissionFinished();
-                        endmissionWhenLanded = false;
+                        endMissionWhenLanded = false;
                     }
                 }
                 break;
@@ -210,7 +210,7 @@ public class DroneConnectionService implements DroneListener, TowerListener {
         if (altitude != null && altitude.getTargetAltitude() > minAltitudeToStartMission && minAltitudeToStartMission < altitude.getAltitude()) {
             DroneStateApi.setVehicleMode(drone, VehicleMode.COPTER_AUTO);
             startMission = false;
-            endmissionWhenLanded = true;
+            endMissionWhenLanded = true;
         }
     }
 

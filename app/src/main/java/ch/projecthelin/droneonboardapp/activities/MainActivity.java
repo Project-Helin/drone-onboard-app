@@ -49,18 +49,14 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     public static final int DEFAULT_OPEN_PWM = 1800;
     public static final int DEFAULT_CLOSED_PWM = 1000;
 
-    private SectionsPagerAdapter mSectionsPagerAdapter;
-
-    private ViewPager mViewPager;
+    @Inject
+    MessagingConnectionService messagingConnectionService;
 
     @Inject
-    public MessagingConnectionService messagingConnectionService;
+    DroneConnectionService droneConnectionService;
 
     @Inject
-    public DroneConnectionService droneConnectionService;
-
-    @Inject
-    public LocationService locationService;
+    LocationService locationService;
 
     private JsonBasedMessageConverter jsonBasedMessageConverter = new JsonBasedMessageConverter();
 
@@ -76,43 +72,52 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         setSupportActionBar(toolbar);
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
-        mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
+        SectionsPagerAdapter mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
         // Set up the ViewPager with the sections adapter.
-        mViewPager = (ViewPager) findViewById(R.id.container);
+        ViewPager mViewPager = (ViewPager) findViewById(R.id.container);
         mViewPager.setAdapter(mSectionsPagerAdapter);
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
 
-        messagingConnectionService.setDroneToken(loadDroneTokenFromSharedPreferences());
-        messagingConnectionService.addMessageReceiver(this);
-
-        locationService.startLocationListening(this, this);
-
-        droneConnectionService.setMissionListener(this);
-
-        loadServoValuesFromSharedPreferences();
+        initializeListenersAndData();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        locationService.stopLocationListening();
+        deregisterListeners();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        locationService.startLocationListening(this, this);
+        initializeListenersAndData();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        deregisterListeners();
+    }
+
+    private void initializeListenersAndData() {
+        messagingConnectionService.setDroneToken(loadDroneTokenFromSharedPreferences());
+
+        messagingConnectionService.addMessageReceiver(this);
+        locationService.startLocationListening(this, this);
+        droneConnectionService.setMissionListener(this);
+
+        loadServoValuesFromSharedPreferences();
+    }
+
+    private void deregisterListeners() {
         locationService.stopLocationListening();
+        droneConnectionService.removeMissionListener();
         messagingConnectionService.removeMessageReceiver(this);
     }
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -158,11 +163,6 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         droneConnectionService.setServoClosedPWM(sharedPreferences.getInt(CLOSED_PWM_KEY, DEFAULT_CLOSED_PWM));
     }
 
-    @Override
-    public void onLocationChanged(Location location) {
-        sendDroneInfoToServer(location);
-    }
-
     private void sendDroneInfoToServer(Location location) {
 
         DroneInfoDto droneInfoDto = new DroneInfoDto();
@@ -176,6 +176,11 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         droneInfoMessage.setDroneInfo(droneInfoDto);
 
         messagingConnectionService.sendMessage(jsonBasedMessageConverter.parseMessageToString(droneInfoMessage));
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+        sendDroneInfoToServer(location);
     }
 
     @Override
