@@ -3,9 +3,7 @@ package ch.projecthelin.droneonboardapp.activities;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -20,16 +18,16 @@ import javax.inject.Inject;
 
 public class MissionActivity extends AppCompatActivity {
 
+    private TextView orderProductAmountText;
+    private TextView orderProductNameText;
+    private boolean isServoOpen;
+    private Button btnServo;
+
     @Inject
     MessagingConnectionService messagingConnectionService;
 
     @Inject
     DroneConnectionService droneConnectionService;
-
-    private TextView orderProductAmountText;
-    private TextView orderProductNameText;
-    private boolean isServoOpen;
-    private Button btnServo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,8 +45,8 @@ public class MissionActivity extends AppCompatActivity {
 
         orderProductNameText.setText(currentMission.getOrderProduct().getProduct().getName());
         orderProductAmountText.setText(currentMission.getOrderProduct().getAmount().toString());
-
     }
+
     private void initializeViewComponents() {
         this.orderProductNameText = (TextView) findViewById(R.id.orderProductName);
         this.orderProductAmountText = (TextView) findViewById(R.id.orderProductAmount);
@@ -81,18 +79,4 @@ public class MissionActivity extends AppCompatActivity {
     public void cancel(View view) {
         finish();
     }
-
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                NavUtils.navigateUpFromSameTask(this);
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
-
-
 }

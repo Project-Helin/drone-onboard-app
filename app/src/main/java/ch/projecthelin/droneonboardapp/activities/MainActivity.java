@@ -104,12 +104,11 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 
     private void initializeListenersAndData() {
         messagingConnectionService.setDroneToken(loadDroneTokenFromSharedPreferences());
+        loadServoValuesFromSharedPreferences();
 
         messagingConnectionService.addMessageReceiver(this);
         locationService.startLocationListening(this, this);
         droneConnectionService.setMissionListener(this);
-
-        loadServoValuesFromSharedPreferences();
     }
 
     private void deregisterListeners() {
@@ -164,7 +163,6 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     }
 
     private void sendDroneInfoToServer(Location location) {
-
         DroneInfoDto droneInfoDto = new DroneInfoDto();
         droneInfoDto.setBatteryState(droneConnectionService.getBatteryState());
         droneInfoDto.setGpsState(droneConnectionService.getGpsState());
@@ -215,7 +213,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         missionProductsText += "\n";
 
         builder.setMessage(missionProductsText)
-                .setTitle("New Mission");
+                .setTitle("New Mission Received");
 
         builder.setPositiveButton("Accept", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
