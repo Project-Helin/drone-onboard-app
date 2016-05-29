@@ -57,8 +57,26 @@ public class DroneFragment extends Fragment implements DroneConnectionListener {
         initializeConnectionModeSpinner(view);
 
         initializeServoValues();
+        updateConnectButtonText(droneConnectionService.getDroneState());
 
         return view;
+    }
+
+    private void initializeViewComponents(View view) {
+        txtGps = (TextView) view.findViewById(R.id.txtGPS);
+        txtBattery = (TextView) view.findViewById(R.id.txtBattery);
+        txtAltitude = (TextView) view.findViewById(R.id.txtAltitude);
+        btnSaveServoValues = (Button) view.findViewById(R.id.btnSaveServoValues);
+        editChannel = (EditText) view.findViewById(R.id.editChannel);
+        editOpenPWM = (EditText) view.findViewById(R.id.editOpenPWM);
+        editClosedPWM = (EditText) view.findViewById(R.id.editClosedPWM);
+        btnConnect = (Button) view.findViewById(R.id.btnConnectToDrone);
+    }
+
+    private void initializeServoValues() {
+        editChannel.setText(String.valueOf(droneConnectionService.getServoChannel()));
+        editOpenPWM.setText(String.valueOf(droneConnectionService.getServoOpenPWM()));
+        editClosedPWM.setText(String.valueOf(droneConnectionService.getServoClosedPWM()));
     }
 
     private void initializeBtnListeners() {
@@ -88,29 +106,30 @@ public class DroneFragment extends Fragment implements DroneConnectionListener {
         });
     }
 
+
     private void setServoValuesToDroneConnectionService(int channel, int openPWM, int closedPWM) {
         droneConnectionService.setServoChannel(channel);
         droneConnectionService.setServoOpenPWM(openPWM);
         droneConnectionService.setServoClosedPWM(closedPWM);
     }
 
-    private void initializeViewComponents(View view) {
-        txtGps = (TextView) view.findViewById(R.id.txtGPS);
-        txtBattery = (TextView) view.findViewById(R.id.txtBattery);
-        txtAltitude = (TextView) view.findViewById(R.id.txtAltitude);
-        btnConnect = (Button) view.findViewById(R.id.btnConnectToDrone);
-        btnSaveServoValues = (Button) view.findViewById(R.id.btnSaveServoValues);
-        editChannel = (EditText) view.findViewById(R.id.editChannel);
-        editOpenPWM = (EditText) view.findViewById(R.id.editOpenPWM);
-        editClosedPWM = (EditText) view.findViewById(R.id.editClosedPWM);
+    private void saveServoValuesToSharedPreferences(int channel, int openPWM, int closedPWM) {
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putInt(MainActivity.CHANNEL_KEY, channel);
+        editor.putInt(MainActivity.OPEN_PWM_KEY, openPWM);
+        editor.putInt(MainActivity.CLOSED_PWM_KEY, closedPWM);
+        editor.apply();
     }
 
-    private void initializeServoValues() {
-        editChannel.setText(String.valueOf(droneConnectionService.getServoChannel()));
-        editOpenPWM.setText(String.valueOf(droneConnectionService.getServoOpenPWM()));
-        editClosedPWM.setText(String.valueOf(droneConnectionService.getServoClosedPWM()));
+    private void updateConnectButtonText(DroneState state) {
+        if (state.isConnected()) {
+            btnConnect.setText("Disconnect");
+        } else {
+            btnConnect.setText("Connect");
+        }
     }
-
 
     protected void initializeConnectionModeSpinner(View view) {
         String[] connectionModes = {"USB", "UDP", "TCP"};
@@ -121,7 +140,7 @@ public class DroneFragment extends Fragment implements DroneConnectionListener {
         connectionSelector.setOnItemSelectedListener(new Spinner.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                onConnectionSelected(view);
+                onConnectionTypeSelected(view);
             }
 
             @Override
@@ -131,37 +150,20 @@ public class DroneFragment extends Fragment implements DroneConnectionListener {
         });
     }
 
-    public void onConnectionSelected(View view) {
-        int connectionType = (int) connectionSelector.getSelectedItemPosition();
+    public void onConnectionTypeSelected(View view) {
+        int connectionType = connectionSelector.getSelectedItemPosition();
         droneConnectionService.setConnectionType(connectionType);
-    }
-
-    private void saveServoValuesToSharedPreferences(int channel, int openPWM, int closedPWM) {
-
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putInt(MainActivity.CHANNEL_KEY, channel);
-        editor.putInt(MainActivity.OPEN_PWM_KEY, openPWM);
-        editor.putInt(MainActivity.CLOSED_PWM_KEY, closedPWM);
-        editor.apply();
     }
 
     @Override
     public void onDroneStateChange(DroneState state) {
         try {
             txtAltitude.setText((int) state.getAltitude() + " / " + (int) state.getTargetAltitude());
-
-            if (state.isConnected()) {
-                btnConnect.setText("Disconnect");
-            } else {
-                btnConnect.setText("Connect");
-            }
+            updateConnectButtonText(state);
         } catch (Exception e) {
             Log.d("Error", "Problem in onDroneStateChange");
         }
     }
-
 
     @Override
     public void onGpsStateChange(GpsState state) {
@@ -183,4 +185,5 @@ public class DroneFragment extends Fragment implements DroneConnectionListener {
 
 
     }
+
 }

@@ -38,13 +38,13 @@ import java.util.ArrayList;
 
 public class OverviewFragment extends Fragment implements DroneConnectionListener, MessagingConnectionListener {
 
-    private static final int BATTERY_LOW = 10;
-
     @Inject
     DroneConnectionService droneConnectionService;
 
     @Inject
     MessagingConnectionService messagingConnectionService;
+
+    private static final int BATTERY_LOW = 10;
 
     private TextView txtConnection;
     private TextView txtGPS;
@@ -73,6 +73,14 @@ public class OverviewFragment extends Fragment implements DroneConnectionListene
         updateStatusColorsAndTexts();
 
         return view;
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        droneConnectionService.removeConnectionListener(this);
+        messagingConnectionService.removeConnectionListener(this);
+
     }
 
     private void initializeViewComponents(View view) {
@@ -163,14 +171,6 @@ public class OverviewFragment extends Fragment implements DroneConnectionListene
         setServoButton.setText(buttonText);
     }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        droneConnectionService.removeConnectionListener(this);
-        messagingConnectionService.removeConnectionListener(this);
-
-    }
-
     private void updateStatusColorsAndTexts() {
         getActivity().runOnUiThread(new Runnable() {
 
@@ -215,7 +215,6 @@ public class OverviewFragment extends Fragment implements DroneConnectionListene
                     txtServerConnectionState.setText("Disconnected");
                     txtServerConnectionState.setBackgroundResource(R.color.red);
                 }
-
             }
         });
 
