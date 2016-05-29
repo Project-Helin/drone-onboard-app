@@ -10,7 +10,7 @@ import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.TextView;
 import ch.projecthelin.droneonboardapp.DroneOnboardApp;
-import ch.projecthelin.droneonboardapp.MessagingConnectionListener;
+import ch.projecthelin.droneonboardapp.listeners.MessagingConnectionListener;
 import ch.projecthelin.droneonboardapp.R;
 import ch.projecthelin.droneonboardapp.services.DroneConnectionService;
 import ch.projecthelin.droneonboardapp.services.MessagingConnectionService;

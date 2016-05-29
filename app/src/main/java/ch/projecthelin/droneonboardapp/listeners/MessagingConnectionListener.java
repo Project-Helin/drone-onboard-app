@@ -1,4 +1,4 @@
-package ch.projecthelin.droneonboardapp;
+package ch.projecthelin.droneonboardapp.listeners;
 
 import ch.projecthelin.droneonboardapp.services.MessagingConnectionService;
 

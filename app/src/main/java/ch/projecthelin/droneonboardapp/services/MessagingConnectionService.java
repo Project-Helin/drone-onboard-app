@@ -1,6 +1,5 @@
 package ch.projecthelin.droneonboardapp.services;
 
-import android.text.Editable;
 import android.util.Log;
 import ch.helin.commons.ConnectionUtils;
 import ch.helin.messages.converter.JsonBasedMessageConverter;
@@ -8,8 +7,8 @@ import ch.helin.messages.dto.MissionDto;
 import ch.helin.messages.dto.message.Message;
 import ch.helin.messages.dto.message.missionMessage.AssignMissionMessage;
 import ch.helin.messages.dto.message.missionMessage.FinalAssignMissionMessage;
-import ch.projecthelin.droneonboardapp.MessagingConnectionListener;
-import ch.projecthelin.droneonboardapp.MessageReceiver;
+import ch.projecthelin.droneonboardapp.listeners.MessagingConnectionListener;
+import ch.projecthelin.droneonboardapp.listeners.MessageReceiver;
 import com.rabbitmq.client.*;
 import net.jodah.lyra.ConnectionOptions;
 import net.jodah.lyra.Connections;
@@ -45,16 +44,8 @@ public class MessagingConnectionService implements ConnectionListener {
     private String rabbitMqServerAddress;
     private boolean localConnection;
 
-    public String getRabbitMqServerAddress() {
-        return rabbitMqServerAddress;
-    }
-
     @Inject
     public MessagingConnectionService() {
-    }
-
-    public void setDroneToken(String droneToken) {
-        this.droneToken = droneToken;
     }
 
     public void connect() {
@@ -101,65 +92,11 @@ public class MessagingConnectionService implements ConnectionListener {
         }
     }
 
-    public void addConnectionListener(MessagingConnectionListener listener) {
-        connectionListeners.add(listener);
-    }
-
-    public void removeConnectionListener(MessagingConnectionListener listener) {
-        connectionListeners.remove(listener);
-    }
-
-    public void notifyConnectionListeners(ConnectionState state) {
-        for (MessagingConnectionListener listener : connectionListeners) {
-            listener.onConnectionStateChanged(state);
-        }
-    }
-
-    public void addMessageReceiver(MessageReceiver listener) {
-        messageReceivers.add(listener);
-    }
-
-    public void removeMessageReceiver(MessageReceiver listener) {
-        messageReceivers.remove(listener);
-    }
-
-    public void notifyMessageReceivers(String messageAsString) {
-        JsonBasedMessageConverter messageConverter = new JsonBasedMessageConverter();
-        Message message = messageConverter.parseStringToMessage(messageAsString);
-
-        for (MessageReceiver receiver : messageReceivers) {
-            switch(message.getPayloadType()) {
-                case AssignMission:
-                    receiver.onAssignMissionMessageReceived((AssignMissionMessage) message);
-                    break;
-                case FinalAssignMission:
-                    receiver.onFinalAssignMissionMessageReceived((FinalAssignMissionMessage) message);
-                    break;
-            }
-        }
-    }
-
     public void disconnect() {
         disconnect(connection);
         closeChannel(channel);
         connectionState = ConnectionState.DISCONNECTED;
         notifyConnectionListeners(ConnectionState.DISCONNECTED);
-    }
-
-    public void sendMessage(String message) {
-        messagesToSend.add(message);
-        try {
-            if (connection.isOpen()) {
-                while (messagesToSend.peek() != null) {
-                    String messageToSend = messagesToSend.peek();
-                    Log.d("Send Message", messageToSend);
-                    channel.basicPublish("", ConnectionUtils.getDroneSideProducerQueueName(droneToken), null, messageToSend.getBytes());
-                    messagesToSend.remove();
-                }
-            }
-        } catch (Exception e) {
-            Log.d(getClass().getCanonicalName(), "Message sent failed!");
-        }
     }
 
     private void disconnect(Connection connection) {
@@ -182,7 +119,61 @@ public class MessagingConnectionService implements ConnectionListener {
         }
     }
 
-    public Consumer createConsumer() {
+    public void addConnectionListener(MessagingConnectionListener listener) {
+        connectionListeners.add(listener);
+    }
+
+    public void removeConnectionListener(MessagingConnectionListener listener) {
+        connectionListeners.remove(listener);
+    }
+
+    private void notifyConnectionListeners(ConnectionState state) {
+        for (MessagingConnectionListener listener : connectionListeners) {
+            listener.onConnectionStateChanged(state);
+        }
+    }
+
+    public void addMessageReceiver(MessageReceiver listener) {
+        messageReceivers.add(listener);
+    }
+
+    public void removeMessageReceiver(MessageReceiver listener) {
+        messageReceivers.remove(listener);
+    }
+
+    private void notifyMessageReceivers(String messageAsString) {
+        JsonBasedMessageConverter messageConverter = new JsonBasedMessageConverter();
+        Message message = messageConverter.parseStringToMessage(messageAsString);
+
+        for (MessageReceiver receiver : messageReceivers) {
+            switch(message.getPayloadType()) {
+                case AssignMission:
+                    receiver.onAssignMissionMessageReceived((AssignMissionMessage) message);
+                    break;
+                case FinalAssignMission:
+                    receiver.onFinalAssignMissionMessageReceived((FinalAssignMissionMessage) message);
+                    break;
+            }
+        }
+    }
+
+    public void sendMessage(String message) {
+        messagesToSend.add(message);
+        try {
+            if (connection.isOpen()) {
+                while (messagesToSend.peek() != null) {
+                    String messageToSend = messagesToSend.peek();
+                    Log.d("Send Message", messageToSend);
+                    channel.basicPublish("", ConnectionUtils.getDroneSideProducerQueueName(droneToken), null, messageToSend.getBytes());
+                    messagesToSend.remove();
+                }
+            }
+        } catch (Exception e) {
+            Log.d(getClass().getCanonicalName(), "Message sent failed!");
+        }
+    }
+
+    private Consumer createConsumer() {
         return new DefaultConsumer(channel) {
             @Override
             public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body)
@@ -192,15 +183,6 @@ public class MessagingConnectionService implements ConnectionListener {
                 notifyMessageReceivers(messageAsString);
             }
         };
-
-    }
-
-    public void setCurrentMission(MissionDto currentMission) {
-        this.currentMission = currentMission;
-    }
-
-    public MissionDto getCurrentMission() {
-        return currentMission;
     }
 
     @Override
@@ -245,5 +227,20 @@ public class MessagingConnectionService implements ConnectionListener {
         DISCONNECTED, CONNECTED, RECONNECTING
     }
 
+    public MissionDto getCurrentMission() {
+        return currentMission;
+    }
+
+    public void setCurrentMission(MissionDto currentMission) {
+        this.currentMission = currentMission;
+    }
+
+    public String getRabbitMqServerAddress() {
+        return rabbitMqServerAddress;
+    }
+
+    public void setDroneToken(String droneToken) {
+        this.droneToken = droneToken;
+    }
 
 }

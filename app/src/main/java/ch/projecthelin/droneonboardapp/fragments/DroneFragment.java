@@ -18,7 +18,7 @@ import ch.projecthelin.droneonboardapp.DroneOnboardApp;
 import ch.projecthelin.droneonboardapp.R;
 
 import ch.projecthelin.droneonboardapp.activities.MainActivity;
-import ch.projecthelin.droneonboardapp.services.DroneConnectionListener;
+import ch.projecthelin.droneonboardapp.listeners.DroneConnectionListener;
 import ch.projecthelin.droneonboardapp.services.DroneConnectionService;
 
 import javax.inject.Inject;

@@ -12,7 +12,6 @@ import ch.helin.messages.dto.Action;
 import ch.helin.messages.dto.MissionDto;
 import ch.helin.messages.dto.OrderProductDto;
 import ch.helin.messages.dto.ProductDto;
-import ch.helin.messages.dto.message.missionMessage.AssignMissionMessage;
 import ch.helin.messages.dto.message.missionMessage.FinalAssignMissionMessage;
 import ch.helin.messages.dto.state.BatteryState;
 import ch.helin.messages.dto.state.DroneState;
@@ -23,20 +22,18 @@ import ch.helin.messages.dto.way.Position;
 import ch.helin.messages.dto.way.RouteDto;
 import ch.helin.messages.dto.way.Waypoint;
 import ch.projecthelin.droneonboardapp.DroneOnboardApp;
-import ch.projecthelin.droneonboardapp.MessageReceiver;
-import ch.projecthelin.droneonboardapp.MessagingConnectionListener;
+import ch.projecthelin.droneonboardapp.listeners.MessagingConnectionListener;
 import ch.projecthelin.droneonboardapp.R;
 
 
 import ch.projecthelin.droneonboardapp.activities.MainActivity;
-import ch.projecthelin.droneonboardapp.services.DroneConnectionListener;
+import ch.projecthelin.droneonboardapp.listeners.DroneConnectionListener;
 import ch.projecthelin.droneonboardapp.services.DroneConnectionService;
 import ch.projecthelin.droneonboardapp.services.MessagingConnectionService;
 import com.o3dr.android.client.apis.drone.ExperimentalApi;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
-import java.util.List;
 
 
 public class OverviewFragment extends Fragment implements DroneConnectionListener, MessagingConnectionListener {

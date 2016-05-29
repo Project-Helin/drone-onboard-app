@@ -1,4 +1,4 @@
-package ch.projecthelin.droneonboardapp.services;
+package ch.projecthelin.droneonboardapp.listeners;
 
 public interface MissionListener {
     void onMissionStarted();

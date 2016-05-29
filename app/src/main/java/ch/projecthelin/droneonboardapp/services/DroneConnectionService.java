@@ -9,6 +9,8 @@ import ch.helin.messages.dto.state.DroneState;
 
 import ch.helin.messages.dto.state.GpsState;
 import ch.helin.messages.dto.way.RouteDto;
+import ch.projecthelin.droneonboardapp.listeners.DroneConnectionListener;
+import ch.projecthelin.droneonboardapp.listeners.MissionListener;
 import ch.projecthelin.droneonboardapp.mappers.DroneStateMapper;
 import ch.projecthelin.droneonboardapp.mappers.RouteMissionMapper;
 import com.o3dr.android.client.ControlTower;

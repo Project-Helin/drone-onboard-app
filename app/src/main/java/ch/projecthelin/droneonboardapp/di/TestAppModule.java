@@ -1,12 +1,16 @@
 package ch.projecthelin.droneonboardapp.di;
 
 import android.content.Context;
-import ch.helin.messages.converter.JsonBasedMessageConverter;
 import com.o3dr.android.client.ControlTower;
 import com.o3dr.android.client.Drone;
 import dagger.Module;
 import dagger.Provides;
 
+
+/**
+ * This class can be used to set the instances (mocks) which should
+ * be injected for testing purposes
+ */
 @Module
 public class TestAppModule {
 

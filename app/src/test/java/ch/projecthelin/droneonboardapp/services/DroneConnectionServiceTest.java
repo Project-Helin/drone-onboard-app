@@ -5,6 +5,7 @@ import ch.helin.messages.dto.state.DroneState;
 import ch.projecthelin.droneonboardapp.di.DaggerTestAppComponent;
 import ch.projecthelin.droneonboardapp.di.TestAppComponent;
 import ch.projecthelin.droneonboardapp.di.TestAppModule;
+import ch.projecthelin.droneonboardapp.listeners.DroneConnectionListener;
 import ch.projecthelin.droneonboardapp.mappers.DroneStateMapper;
 import ch.projecthelin.droneonboardapp.mappers.RouteMissionMapper;
 import com.o3dr.android.client.ControlTower;

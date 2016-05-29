@@ -13,7 +13,7 @@ public class DroneOnboardApp extends Application {
     public void onCreate() {
         super.onCreate();
 
-        //Here we need the generated Dagger{{myComponentName}} class
+        //Here we use the generated Dagger{{myComponentName}} class
         appComponent = DaggerAppComponent.builder()
                 .appModule(new AppModule(this))
                 .build();
@@ -21,10 +21,6 @@ public class DroneOnboardApp extends Application {
 
     public AppComponent component() {
         return appComponent;
-    }
-
-    public void setComponent (AppComponent component) {
-        appComponent = component;
     }
 
 }
