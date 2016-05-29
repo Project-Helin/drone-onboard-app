@@ -4,19 +4,15 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.*;
-
 import ch.helin.messages.dto.state.BatteryState;
 import ch.helin.messages.dto.state.DroneState;
-
 import ch.helin.messages.dto.state.GpsState;
 import ch.projecthelin.droneonboardapp.DroneOnboardApp;
 import ch.projecthelin.droneonboardapp.R;
-
 import ch.projecthelin.droneonboardapp.activities.MainActivity;
 import ch.projecthelin.droneonboardapp.listeners.DroneConnectionListener;
 import ch.projecthelin.droneonboardapp.services.DroneConnectionService;
@@ -157,11 +153,15 @@ public class DroneFragment extends Fragment implements DroneConnectionListener {
 
     @Override
     public void onDroneStateChange(DroneState state) {
-        try {
-            txtAltitude.setText((int) state.getAltitude() + " / " + (int) state.getTargetAltitude());
-            updateConnectButtonText(state);
-        } catch (Exception e) {
-            Log.d("Error", "Problem in onDroneStateChange");
+        if (state.getAltitude() > 0.1) {
+            try {
+                txtAltitude.setText((int) state.getAltitude() + " / " + (int) state.getTargetAltitude());
+                updateConnectButtonText(state);
+            } catch (Exception e) {
+                txtAltitude.setText("");
+            }
+        } else {
+            txtAltitude.setText("");
         }
     }
 
@@ -171,16 +171,20 @@ public class DroneFragment extends Fragment implements DroneConnectionListener {
             txtGps.setText(state.getFixType().getDescription() + " - Satellites: "
                     + state.getSatellitesCount());
         } catch (Exception e) {
-           Log.d("Error", "Problem in onGpsStateChange");
+           txtGps.setText("");
         }
     }
 
     @Override
     public void onBatteryStateChange(BatteryState state) {
-        try {
-            txtBattery.setText(state.getRemain() + "% - " + state.getVoltage() + "V, " + state.getCurrent() + "A");
-        } catch (Exception e) {
-            Log.d("Error", "Problem in onBatteryStateChange");
+        if(state.getVoltage() > 0.1) {
+            try {
+                txtBattery.setText(state.getRemain() + "% - " + state.getVoltage() + "V, " + state.getCurrent() + "A");
+            } catch (Exception e) {
+                txtBattery.setText("");
+            }
+        } else {
+            txtBattery.setText("");
         }
 
 

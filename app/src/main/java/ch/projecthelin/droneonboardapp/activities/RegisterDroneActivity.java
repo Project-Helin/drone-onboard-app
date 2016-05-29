@@ -40,9 +40,6 @@ public class RegisterDroneActivity extends AppCompatActivity {
     private EditText payloadTextField;
     private EditText ipTextField;
     private EditText portTextField;
-    private Button registerButton;
-    private String droneName;
-    private String droneToken;
     private String serverIP;
 
     @Override
@@ -62,8 +59,8 @@ public class RegisterDroneActivity extends AppCompatActivity {
 
     private boolean loadDroneNameAndTokenFromSharedPreferences() {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        droneName = sharedPreferences.getString(RegisterDroneActivity.DRONE_NAME_KEY, null);
-        droneToken = sharedPreferences.getString(RegisterDroneActivity.DRONE_TOKEN_KEY, null);
+        String droneName = sharedPreferences.getString(RegisterDroneActivity.DRONE_NAME_KEY, null);
+        String droneToken = sharedPreferences.getString(RegisterDroneActivity.DRONE_TOKEN_KEY, null);
         serverIP = sharedPreferences.getString(RegisterDroneActivity.SERVER_IP_KEY, null);
 
         return droneName != null && droneToken != null && serverIP != null;
@@ -75,7 +72,6 @@ public class RegisterDroneActivity extends AppCompatActivity {
         this.payloadTextField = (EditText) findViewById(R.id.payload);
         this.ipTextField = (EditText) findViewById(R.id.ip);
         this.portTextField = (EditText) findViewById(R.id.port);
-        this.registerButton = (Button) findViewById(R.id.register_button);
 
         //Set port and IP to default
         this.ipTextField.setText(DEFAULT_IP_ADDRESS);
@@ -83,15 +79,12 @@ public class RegisterDroneActivity extends AppCompatActivity {
     }
 
     public void onRegisterButtonClick(View view) {
-
         String ip = this.ipTextField.getText().toString();
         String port = this.portTextField.getText().toString();
         String url = "http://" + ip + ":" + port + "/api/drones/";
 
         JSONObject requestData = createRegisterRequestDataFromInputValues();
-
         sendRegisterRequest(url, requestData);
-
     }
 
     private JSONObject createRegisterRequestDataFromInputValues() {
@@ -116,7 +109,6 @@ public class RegisterDroneActivity extends AppCompatActivity {
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
-
                         saveDroneNameAndTokenToSharedPreferences(response);
                         messagingConnectionService.setServerIP(ipTextField.getText().toString());
                         goToMainActivity();

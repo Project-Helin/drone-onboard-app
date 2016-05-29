@@ -222,8 +222,10 @@ public class DroneConnectionService implements DroneListener, TowerListener {
 
     private void handleDroneDisconnected() {
         clearDroneData();
-        droneState = DroneStateMapper.getDroneState(drone);
-        this.notifyDroneStateListeners();
+
+        notifyDroneStateListeners();
+        notifyGPSStateListeners();
+        notifyBatteryStateListeners();
     }
 
     private void handleBatteryStateChange() {
@@ -248,10 +250,6 @@ public class DroneConnectionService implements DroneListener, TowerListener {
         droneState = new DroneState();
         gpsState = new GpsState();
         batteryState = new BatteryState();
-
-        notifyDroneStateListeners();
-        notifyGPSStateListeners();
-        notifyBatteryStateListeners();
     }
 
     @Override
