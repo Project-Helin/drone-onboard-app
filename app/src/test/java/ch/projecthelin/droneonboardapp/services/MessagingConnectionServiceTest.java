@@ -17,7 +17,6 @@ import static org.mockito.Mockito.verify;
 public class MessagingConnectionServiceTest {
 
     private MessageReceiver messageReceiver;
-    private MessagingConnectionListener messagingConnectionListener;
     private MessagingConnectionService service;
     private JsonBasedMessageConverter messageConverter = new JsonBasedMessageConverter();
 
@@ -31,7 +30,7 @@ public class MessagingConnectionServiceTest {
                 .build();
 
         messageReceiver = mock(MessageReceiver.class);
-        messagingConnectionListener = mock(MessagingConnectionListener.class);
+        MessagingConnectionListener messagingConnectionListener = mock(MessagingConnectionListener.class);
         service = new MessagingConnectionService();
         service.addConnectionListener(messagingConnectionListener);
         service.addMessageReceiver(messageReceiver);

@@ -58,7 +58,7 @@ public class LocationService implements GoogleApiClient.ConnectionCallbacks, Loc
         if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             //Will show a toast if the TargetFramework is set to 23 because of the new Permission Concept of Android 6
             Context applicationContext = context.getApplicationContext();
-            Toast.makeText(applicationContext, "Not Enough Permissions for Locationupdates", Toast.LENGTH_LONG).show();
+            Toast.makeText(applicationContext, "Not Enough Permissions for Location-Updates", Toast.LENGTH_LONG).show();
             return;
         }
 

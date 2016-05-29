@@ -45,9 +45,9 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     public static final String CHANNEL_KEY = "channel";
     public static final String OPEN_PWM_KEY = "open_pwm";
     public static final String CLOSED_PWM_KEY = "closed_pwm";
-    public static final int DEFAULT_CHANNEL = 7;
-    public static final int DEFAULT_OPEN_PWM = 1800;
-    public static final int DEFAULT_CLOSED_PWM = 1000;
+    private static final int DEFAULT_CHANNEL = 7;
+    private static final int DEFAULT_OPEN_PWM = 1800;
+    private static final int DEFAULT_CLOSED_PWM = 1000;
 
     @Inject
     MessagingConnectionService messagingConnectionService;

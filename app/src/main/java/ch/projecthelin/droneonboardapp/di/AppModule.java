@@ -2,7 +2,6 @@ package ch.projecthelin.droneonboardapp.di;
 
 import android.app.Application;
 import android.content.Context;
-import ch.helin.messages.converter.JsonBasedMessageConverter;
 import com.o3dr.android.client.ControlTower;
 import com.o3dr.android.client.Drone;
 import dagger.Module;
@@ -13,7 +12,7 @@ import javax.inject.Singleton;
 @Module
 public class AppModule {
 
-    Application application;
+    private Application application;
 
     public AppModule(Application application) {
         this.application = application;

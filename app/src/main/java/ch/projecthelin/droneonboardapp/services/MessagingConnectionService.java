@@ -28,8 +28,8 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 @Singleton
 public class MessagingConnectionService implements ConnectionListener {
 
-    public static final String RMQ_LOCAL_PORT = ":5672";
-    public static final String RMQ_REMOTE_PORT = ":8080";
+    private static final String RMQ_LOCAL_PORT = ":5672";
+    private static final String RMQ_REMOTE_PORT = ":8080";
 
     private ConnectionState connectionState;
     private String droneToken;
@@ -141,19 +141,25 @@ public class MessagingConnectionService implements ConnectionListener {
         messageReceivers.remove(listener);
     }
 
-    protected void notifyMessageReceivers(String messageAsString) {
+    void notifyMessageReceivers(String messageAsString) {
         JsonBasedMessageConverter messageConverter = new JsonBasedMessageConverter();
         Message message = messageConverter.parseStringToMessage(messageAsString);
 
-        for (MessageReceiver receiver : messageReceivers) {
-            switch(message.getPayloadType()) {
-                case AssignMission:
-                    receiver.onAssignMissionMessageReceived((AssignMissionMessage) message);
-                    break;
-                case FinalAssignMission:
-                    receiver.onFinalAssignMissionMessageReceived((FinalAssignMissionMessage) message);
-                    break;
+        try {
+
+
+            for (MessageReceiver receiver : messageReceivers) {
+                switch (message.getPayloadType()) {
+                    case AssignMission:
+                        receiver.onAssignMissionMessageReceived((AssignMissionMessage) message);
+                        break;
+                    case FinalAssignMission:
+                        receiver.onFinalAssignMissionMessageReceived((FinalAssignMissionMessage) message);
+                        break;
+                }
             }
+        } catch (ClassCastException e) {
+          Log.d("Error", "Could not cast to" + message.getPayloadType(), e);
         }
     }
 

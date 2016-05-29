@@ -18,7 +18,7 @@
             android:layout_weight="1"
             android:gravity="center"
             android:padding="10dp"
-            android:textStyle="bold" android:textSize="35dp" />
+            android:textStyle="bold" android:textSize="35sp" />
 
     </LinearLayout>
 
@@ -35,17 +35,17 @@
             android:text="25"
             android:gravity="center"
             android:padding="10dp"
-            android:textStyle="bold" android:textSize="30dp" />
+            android:textStyle="bold" android:textSize="30sp" />
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="fill_parent"
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:id="@+id/orderProductName"
             android:layout_weight="4"
             android:gravity="left|center"
-            android:text="Coca Cola 40L dasfasd dsfasadf"
+            android:text="Coca Cola 40L"
             android:padding="10dp"
-            android:textStyle="bold" android:textSize="30dp" android:textIsSelectable="true" />
+            android:textStyle="bold" android:textSize="30sp" android:textIsSelectable="true" />
 
 
     </LinearLayout>

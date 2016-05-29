@@ -32,8 +32,8 @@ public class DroneConnectionServiceTest {
     private DroneConnectionListener droneConnectionListener;
     private MissionListener missionListener;
 
-    ControlTower tower;
-    Drone drone;
+    private ControlTower tower;
+    private Drone drone;
 
     @Before
     public void setupServiceAndListener() {

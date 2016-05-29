@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import ch.helin.messages.dto.message.DroneDto;
 import ch.projecthelin.droneonboardapp.DroneOnboardApp;
@@ -26,8 +25,8 @@ import java.util.Map;
 
 public class RegisterDroneActivity extends AppCompatActivity {
 
-    public static final String DRONE_NAME_KEY = "drone_name_key";
     public static final String DRONE_TOKEN_KEY = "drone_token_key";
+    private static final String DRONE_NAME_KEY = "drone_name_key";
     private static final String SERVER_IP_KEY = "server_ip_key";
     private static final String DEFAULT_IP_ADDRESS = "152.96.238.18";
     private static final String PORT = "9000";

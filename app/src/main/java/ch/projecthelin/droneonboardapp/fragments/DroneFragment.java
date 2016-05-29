@@ -97,7 +97,7 @@ public class DroneFragment extends Fragment implements DroneConnectionListener {
                 saveServoValuesToSharedPreferences(channel, openPWM, closedPWM);
                 setServoValuesToDroneConnectionService(channel, openPWM, closedPWM);
 
-                Toast.makeText(getContext(), "Servovalues saved!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Servo-Values saved!", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -146,7 +146,7 @@ public class DroneFragment extends Fragment implements DroneConnectionListener {
         });
     }
 
-    public void onConnectionTypeSelected(View view) {
+    private void onConnectionTypeSelected(View view) {
         int connectionType = connectionSelector.getSelectedItemPosition();
         droneConnectionService.setConnectionType(connectionType);
     }

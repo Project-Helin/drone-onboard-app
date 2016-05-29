@@ -40,12 +40,12 @@ import java.util.List;
 @Singleton
 public class DroneConnectionService implements DroneListener, TowerListener {
 
-    public static final String LOCAL_IP = "192.168.58.1";
-    public static final int BAUD_RATE_FOR_USB = 115200;
-    public static final int TCP_PORT = 5770;
-    public static final int UDP_PORT = 14551;
-    public static final int TAKEOFF_ALTITUDE = 10;
-    public static final double ALTITUDE_INACCURACY_RATIO = 0.95;
+    private static final String LOCAL_IP = "192.168.58.1";
+    private static final int BAUD_RATE_FOR_USB = 115200;
+    private static final int TCP_PORT = 5770;
+    private static final int UDP_PORT = 14551;
+    private static final int TAKEOFF_ALTITUDE = 10;
+    private static final double ALTITUDE_INACCURACY_RATIO = 0.95;
 
     private final Handler handler = new Handler();
     private final Drone drone;
@@ -113,19 +113,19 @@ public class DroneConnectionService implements DroneListener, TowerListener {
         this.missionListener = null;
     }
 
-    public void notifyDroneStateListeners() {
+    private void notifyDroneStateListeners() {
         for (DroneConnectionListener connectionListener : connectionListeners) {
             connectionListener.onDroneStateChange(droneState);
         }
     }
 
-    public void notifyGPSStateListeners() {
+    private void notifyGPSStateListeners() {
         for (DroneConnectionListener connectionListener : connectionListeners) {
             connectionListener.onGpsStateChange(gpsState);
         }
     }
 
-    public void notifyBatteryStateListeners() {
+    private void notifyBatteryStateListeners() {
         for (DroneConnectionListener connectionListener : connectionListeners) {
             connectionListener.onBatteryStateChange(batteryState);
         }

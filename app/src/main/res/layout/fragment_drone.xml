@@ -12,7 +12,7 @@
         android:weightSum="1">
 
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginBottom="5dp"
             android:layout_marginTop="5dp"
@@ -152,7 +152,8 @@
                 android:layout_weight="1"
                 android:freezesText="true"
                 android:text="Channel"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:labelFor="@+id/editChannel"/>
 
             <EditText
                 android:id="@+id/editChannel"
@@ -179,7 +180,8 @@
                 android:layout_weight="1"
                 android:freezesText="true"
                 android:text="Open PWM Value"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:labelFor="@+id/editOpenPWM"/>
 
             <EditText
                 android:id="@+id/editOpenPWM"
@@ -205,7 +207,8 @@
                 android:layout_weight="1"
                 android:freezesText="true"
                 android:text="Close PWM Value"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:labelFor="@+id/editClosedPWM"/>
 
             <EditText
                 android:id="@+id/editClosedPWM"
