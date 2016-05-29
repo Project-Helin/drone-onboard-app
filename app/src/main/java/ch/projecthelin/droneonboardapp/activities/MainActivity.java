@@ -232,7 +232,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     private AlertDialog createMissionStartCountDownDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
-        builder.setTitle("Mission Start");
+        builder.setTitle("Mission Start").setMessage("");
 
         builder.setNegativeButton("Abort Start Countdown", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
