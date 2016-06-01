@@ -7,6 +7,8 @@ import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.Toast;
+
 import ch.helin.messages.dto.message.DroneDto;
 import ch.projecthelin.droneonboardapp.DroneOnboardApp;
 import ch.projecthelin.droneonboardapp.R;
@@ -20,6 +22,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import javax.inject.Inject;
+
+import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -116,6 +120,7 @@ public class RegisterDroneActivity extends AppCompatActivity {
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
+                        displayExceptionMessage(error);
                         error.printStackTrace();
                     }
                 }) {
@@ -130,6 +135,25 @@ public class RegisterDroneActivity extends AppCompatActivity {
         };
 
         queue.add(postRequest);
+    }
+
+    public void displayExceptionMessage(VolleyError error){
+        String message = "unexpected Error";
+
+        NetworkResponse response = error.networkResponse;
+
+        if(response != null && response.data != null){
+            switch(response.statusCode){
+                case 404:
+                    message = "Error 404 - Server not found!";
+                    break;
+
+                case 500:
+                    message = "Error 500 - unexpected Error!";
+                    break;
+            }
+        }
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
 
     private void saveDroneNameAndTokenToSharedPreferences(JSONObject response) {

@@ -79,16 +79,4 @@
         android:background="@color/red"
         android:padding="10dp" />
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Toggle Servo"
-        android:id="@+id/setServoButton"
-        android:layout_below="@+id/server_connection_state"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentStart="true"
-        android:layout_marginTop="20dp"
-        android:layout_alignParentBottom="true"
-        android:layout_marginBottom="40dp" />
-
 </RelativeLayout>

@@ -143,11 +143,11 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/lblServo"
             android:orientation="horizontal"
-            android:weightSum="3">
+            android:weightSum="2">
 
             <TextView
                 android:id="@+id/lblChannel"
-                android:layout_width="wrap_content"
+                android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:freezesText="true"
@@ -157,13 +157,15 @@
 
             <EditText
                 android:id="@+id/editChannel"
-                android:layout_width="wrap_content"
+                android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="2"
+                android:layout_weight="1"
                 android:ems="2"
                 android:inputType="number"
-                android:singleLine="true" />
+                android:singleLine="true"
+                android:textAlignment="textEnd" />
         </LinearLayout>
+
 
         <LinearLayout
             android:id="@+id/layoutOpenPWM"
@@ -171,11 +173,11 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/layoutChannel"
             android:orientation="horizontal"
-            android:weightSum="3">
+            android:weightSum="2">
 
             <TextView
                 android:id="@+id/lblPWM"
-                android:layout_width="wrap_content"
+                android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:freezesText="true"
@@ -185,10 +187,11 @@
 
             <EditText
                 android:id="@+id/editOpenPWM"
-                android:layout_width="wrap_content"
+                android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="2"
-                android:inputType="number" />
+                android:layout_weight="1"
+                android:inputType="number"
+                android:textAlignment="textEnd" />
 
         </LinearLayout>
 
@@ -198,11 +201,11 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/layoutOpenPWM"
             android:orientation="horizontal"
-            android:weightSum="3">
+            android:weightSum="2">
 
             <TextView
                 android:id="@+id/lblClosedPWM"
-                android:layout_width="wrap_content"
+                android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:freezesText="true"
@@ -212,18 +215,38 @@
 
             <EditText
                 android:id="@+id/editClosedPWM"
-                android:layout_width="wrap_content"
+                android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="2"
-                android:inputType="number" />
+                android:layout_weight="1"
+                android:inputType="number"
+                android:textAlignment="textEnd" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/layoutServoButtons"
+            android:orientation="horizontal"
+            android:layout_below="@+id/layoutClosedPWM"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:weightSum="2">
+
+            <Button
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="Toggle Servo"
+                android:id="@+id/btnSetServo"
+                android:layout_alignParentStart="true"
+                android:layout_weight="1" />
+
+            <Button
+                android:id="@+id/btnSaveServoValues"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:text="Save Values"
+                android:layout_weight="1" />
+
         </LinearLayout>
     </RelativeLayout>
 
-    <Button
-        android:id="@+id/btnSaveServoValues"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
-        android:layout_below="@+id/servoLayout"
-        android:text="Save Servo" />
 </RelativeLayout>

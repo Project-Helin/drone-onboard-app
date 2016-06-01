@@ -36,9 +36,8 @@ public class OverviewFragment extends Fragment implements DroneConnectionListene
     private TextView txtGPS;
     private TextView txtBattery;
     private TextView txtServerConnectionState;
-    private boolean isServoOpen;
-    private Button button;
-    private Button setServoButton;
+
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -54,7 +53,6 @@ public class OverviewFragment extends Fragment implements DroneConnectionListene
         View view = inflater.inflate(R.layout.fragment_overview, container, false);
 
         initializeViewComponents(view);
-        initializeButtonListeners();
 
         updateStatusColorsAndTexts();
 
@@ -74,34 +72,9 @@ public class OverviewFragment extends Fragment implements DroneConnectionListene
         txtGPS = (TextView) view.findViewById(R.id.txtGPS);
         txtBattery = (TextView) view.findViewById(R.id.txtBattery);
         txtServerConnectionState = (TextView) view.findViewById(R.id.server_connection_state);
-        setServoButton = (Button) view.findViewById(R.id.setServoButton);
     }
 
-    private void initializeButtonListeners() {
-        setServoButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                toggleServo();
-            }
-        });
-    }
 
-    private void toggleServo() {
-        int pwm;
-        String buttonText;
-
-        if (isServoOpen) {
-            pwm = droneConnectionService.getServoClosedPWM();
-            isServoOpen = false;
-            buttonText = "Open Servo!";
-        } else {
-            pwm = droneConnectionService.getServoOpenPWM();
-            isServoOpen = true;
-            buttonText = "Close Servo!";
-        }
-        ExperimentalApi.setServo(droneConnectionService.getDrone(), droneConnectionService.getServoChannel(), pwm);
-        setServoButton.setText(buttonText);
-    }
 
     private void updateStatusColorsAndTexts() {
         getActivity().runOnUiThread(new Runnable() {

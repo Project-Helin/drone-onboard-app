@@ -8,6 +8,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.*;
+
+import com.o3dr.android.client.apis.drone.ExperimentalApi;
+
 import ch.helin.messages.dto.state.BatteryState;
 import ch.helin.messages.dto.state.DroneState;
 import ch.helin.messages.dto.state.GpsState;
@@ -34,6 +37,9 @@ public class DroneFragment extends Fragment implements DroneConnectionListener {
     private Button btnSaveServoValues;
     private EditText editOpenPWM;
     private EditText editClosedPWM;
+    private Button btnSetServo;
+
+    private boolean isServoOpen;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -67,6 +73,7 @@ public class DroneFragment extends Fragment implements DroneConnectionListener {
         editOpenPWM = (EditText) view.findViewById(R.id.editOpenPWM);
         editClosedPWM = (EditText) view.findViewById(R.id.editClosedPWM);
         btnConnect = (Button) view.findViewById(R.id.btnConnectToDrone);
+        btnSetServo = (Button) view.findViewById(R.id.btnSetServo);
     }
 
     private void initializeServoValues() {
@@ -75,7 +82,32 @@ public class DroneFragment extends Fragment implements DroneConnectionListener {
         editClosedPWM.setText(String.valueOf(droneConnectionService.getServoClosedPWM()));
     }
 
+
+    private void toggleServo() {
+        int pwm;
+        String buttonText;
+
+        if (isServoOpen) {
+            pwm = droneConnectionService.getServoClosedPWM();
+            isServoOpen = false;
+            buttonText = "Open Servo!";
+        } else {
+            pwm = droneConnectionService.getServoOpenPWM();
+            isServoOpen = true;
+            buttonText = "Close Servo!";
+        }
+        ExperimentalApi.setServo(droneConnectionService.getDrone(), droneConnectionService.getServoChannel(), pwm);
+        btnSetServo.setText(buttonText);
+    }
+
     private void initializeBtnListeners() {
+        btnSetServo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                toggleServo();
+            }
+        });
+
         btnConnect.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
