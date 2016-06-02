@@ -18,12 +18,6 @@ public class DroneAttributeService {
 
     private List<DroneAttributeUpdateReceiver> attributesUpdateListenerList = new ArrayList<>();
 
-    private static final String DRONE_ACTIVE = "drone_active";
-    private static final Boolean DRONE_ACTIVE_DEFAULT = true;
-    private static final String DRONE_NAME = "drone_name";
-    private static final String DRONE_NAME_DEFAULT = "John Drone";
-    private static final String DRONE_PAYLOAD = "drone_payload";
-    private static final int DRONE_PAYLOAD_DEFAULT = 0;
 
     private DroneDto droneDto;
 
@@ -37,16 +31,7 @@ public class DroneAttributeService {
     public void updateDroneAttributes(Context context, DroneDto droneDto) {
         this.droneDto = droneDto;
 
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
 
-
-        Boolean droneActiveState = droneDto.isActive();
-        editor.putBoolean(DRONE_ACTIVE, droneActiveState);
-
-        droneDto.getName();
-        droneDto.getPayload();
-        droneDto.isActive();
 
 
     }

@@ -1,9 +1,14 @@
 package ch.projecthelin.droneonboardapp.services;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 
+import android.preference.PreferenceManager;
 import android.util.Log;
+
+import ch.helin.messages.dto.message.DroneDto;
 import ch.helin.messages.dto.state.BatteryState;
 import ch.helin.messages.dto.state.DroneState;
 
@@ -63,6 +68,10 @@ public class DroneConnectionService implements DroneListener, TowerListener {
     private boolean endMissionWhenLanded;
     private MissionListener missionListener;
 
+    private String droneName;
+    private boolean isActive;
+    private int payload;
+
     private int servoChannel;
     private int servoOpenPWM;
     private int servoClosedPWM;
@@ -75,6 +84,7 @@ public class DroneConnectionService implements DroneListener, TowerListener {
         this.controlTower.connect(this);
         this.droneStateMapper = droneStateMapper;
     }
+
 
     public void connect() {
         Bundle extraParams = new Bundle();
@@ -321,6 +331,31 @@ public class DroneConnectionService implements DroneListener, TowerListener {
     public int getServoClosedPWM() {
         return servoClosedPWM;
     }
+
+    public String getDroneName() {
+        return droneName;
+    }
+
+    public void setDroneName(String droneName) {
+        this.droneName = droneName;
+    }
+
+    public boolean isActive() {
+        return isActive;
+    }
+
+    public void setIsActive(boolean isActive) {
+        this.isActive = isActive;
+    }
+
+    public int getPayload() {
+        return payload;
+    }
+
+    public void setPayload(int payload) {
+        this.payload = payload;
+    }
+
 
 }
 

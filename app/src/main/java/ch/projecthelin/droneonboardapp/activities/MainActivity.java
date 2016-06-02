@@ -20,7 +20,6 @@ import ch.helin.messages.converter.JsonBasedMessageConverter;
 import ch.helin.messages.dto.DroneInfoDto;
 import ch.helin.messages.dto.MissionDto;
 import ch.helin.messages.dto.OrderProductDto;
-import ch.helin.messages.dto.message.DroneDtoMessage;
 import ch.helin.messages.dto.message.DroneInfoMessage;
 import ch.helin.messages.dto.message.missionMessage.*;
 import ch.helin.messages.dto.way.Position;
@@ -49,8 +48,12 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     private static final int DEFAULT_OPEN_PWM = 1800;
     private static final int DEFAULT_CLOSED_PWM = 1000;
 
-    public static final String DRONE_ACTIVE = "drone_active";
+    private static final String DRONE_ACTIVE = "drone_active";
     private static final Boolean DRONE_ACTIVE_DEFAULT = true;
+    private static final String DRONE_NAME = "drone_name";
+    private static final String DRONE_NAME_DEFAULT = "John Drone";
+    private static final String DRONE_PAYLOAD = "drone_payload";
+    private static final int DRONE_PAYLOAD_DEFAULT = 0;
 
 
     @Inject
@@ -109,6 +112,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     private void initializeListenersAndData() {
         messagingConnectionService.setDroneToken(loadDroneTokenFromSharedPreferences());
         loadServoValuesFromSharedPreferences();
+        loadDroneStateFromSharedPreferences();
 
         messagingConnectionService.addMissionMessageReceiver(this);
         locationService.startLocationListening(this, this);
@@ -164,6 +168,14 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         droneConnectionService.setServoChannel(sharedPreferences.getInt(CHANNEL_KEY, DEFAULT_CHANNEL));
         droneConnectionService.setServoOpenPWM(sharedPreferences.getInt(OPEN_PWM_KEY, DEFAULT_OPEN_PWM));
         droneConnectionService.setServoClosedPWM(sharedPreferences.getInt(CLOSED_PWM_KEY, DEFAULT_CLOSED_PWM));
+    }
+
+    private void loadDroneStateFromSharedPreferences(){
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+
+        droneConnectionService.setIsActive(sharedPreferences.getBoolean(DRONE_ACTIVE, DRONE_ACTIVE_DEFAULT));
+        droneConnectionService.setDroneName(sharedPreferences.getString(DRONE_NAME, DRONE_NAME_DEFAULT));
+        droneConnectionService.setPayload(sharedPreferences.getInt(DRONE_PAYLOAD, DRONE_PAYLOAD_DEFAULT));
     }
 
     private void sendDroneInfoToServer(Location location) {

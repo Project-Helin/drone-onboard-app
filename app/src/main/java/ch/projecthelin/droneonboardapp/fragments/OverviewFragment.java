@@ -94,6 +94,10 @@ public class OverviewFragment extends Fragment implements DroneConnectionListene
                 BatteryState batteryState = droneConnectionService.getBatteryState();
                 MessagingConnectionService.ConnectionState serverConnectionState = messagingConnectionService.getConnectionState();
 
+                String droneName = droneConnectionService.getDroneName();
+                int dronePayload = droneConnectionService.getPayload();
+                Boolean isActive = droneConnectionService.isActive();
+
                 if (droneState.isConnected()) {
                     txtConnection.setText("Connected");
                     txtConnection.setBackgroundResource(R.color.green);
@@ -129,20 +133,18 @@ public class OverviewFragment extends Fragment implements DroneConnectionListene
                     txtServerConnectionState.setBackgroundResource(R.color.red);
                 }
 
-//                if (droneDto.isActive()){
-//                    txtActiveState.setText("Active");
-//                    txtActiveState.setBackgroundResource(R.color.green);
-//                } else{
-//                    txtActiveState.setText("Inactive");
-//                    txtActiveState.setBackgroundResource(R.color.red);
-//                }
+                if (isActive){
+                    txtActiveState.setText("Active");
+                    txtActiveState.setBackgroundResource(R.color.green);
+                } else{
+                    txtActiveState.setText("Inactive");
+                    txtActiveState.setBackgroundResource(R.color.red);
+                }
 
-                //txtName.setText(droneDto.getName());
+                txtName.setText(droneName);
                 //txtPayload.setText(droneDto.getPayload());
-
             }
         });
-
 
     }
 
@@ -168,6 +170,12 @@ public class OverviewFragment extends Fragment implements DroneConnectionListene
 
     @Override
     public void onDroneAttributeUpdate(DroneDtoMessage droneDtoMessage) {
+        DroneDto droneDto = droneDtoMessage.getDroneDto();
+
+        droneConnectionService.setPayload(droneDto.getPayload());
+        droneConnectionService.setDroneName(droneDto.getName());
+        droneConnectionService.setIsActive(droneDto.isActive());
+
         updateStatusColorsAndTexts();
     }
 }

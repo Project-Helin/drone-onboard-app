@@ -4,6 +4,7 @@ import android.util.Log;
 import ch.helin.commons.ConnectionUtils;
 import ch.helin.messages.converter.JsonBasedMessageConverter;
 import ch.helin.messages.dto.MissionDto;
+import ch.helin.messages.dto.message.DroneDto;
 import ch.helin.messages.dto.message.DroneDtoMessage;
 import ch.helin.messages.dto.message.Message;
 import ch.helin.messages.dto.message.missionMessage.AssignMissionMessage;
