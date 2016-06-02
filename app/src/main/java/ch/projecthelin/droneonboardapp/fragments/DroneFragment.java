@@ -15,6 +15,7 @@ import ch.helin.messages.converter.JsonBasedMessageConverter;
 import ch.helin.messages.dto.message.DroneActiveState;
 import ch.helin.messages.dto.message.DroneActiveStateMessage;
 import ch.helin.messages.dto.message.DroneDto;
+import ch.helin.messages.dto.message.DroneDtoMessage;
 import ch.helin.messages.dto.state.BatteryState;
 import ch.helin.messages.dto.state.DroneState;
 import ch.helin.messages.dto.state.GpsState;
@@ -249,7 +250,7 @@ public class DroneFragment extends Fragment implements DroneConnectionListener, 
     }
 
     @Override
-    public void onDroneAttributeUpdate(DroneDto droneDto) {
-        switchDroneActive.setChecked(droneDto.isActive());
+    public void onDroneAttributeUpdate(DroneDtoMessage droneDtoMessage) {
+
     }
 }

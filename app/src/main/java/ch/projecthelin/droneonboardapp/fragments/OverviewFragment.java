@@ -18,7 +18,6 @@ import ch.projecthelin.droneonboardapp.R;
 import ch.projecthelin.droneonboardapp.listeners.DroneAttributeUpdateReceiver;
 import ch.projecthelin.droneonboardapp.listeners.DroneConnectionListener;
 import ch.projecthelin.droneonboardapp.listeners.MessagingConnectionListener;
-import ch.projecthelin.droneonboardapp.services.DroneAttributeService;
 import ch.projecthelin.droneonboardapp.services.DroneConnectionService;
 import ch.projecthelin.droneonboardapp.services.MessagingConnectionService;
 
@@ -32,9 +31,6 @@ public class OverviewFragment extends Fragment implements DroneConnectionListene
 
     @Inject
     MessagingConnectionService messagingConnectionService;
-
-    @Inject
-    DroneAttributeService droneAttributeService;
 
     private static final int BATTERY_LOW = 10;
 
@@ -97,7 +93,6 @@ public class OverviewFragment extends Fragment implements DroneConnectionListene
                 GpsState gpsState = droneConnectionService.getGpsState();
                 BatteryState batteryState = droneConnectionService.getBatteryState();
                 MessagingConnectionService.ConnectionState serverConnectionState = messagingConnectionService.getConnectionState();
-                DroneDto droneDto = droneAttributeService.getDroneDto();
 
                 if (droneState.isConnected()) {
                     txtConnection.setText("Connected");
@@ -134,16 +129,16 @@ public class OverviewFragment extends Fragment implements DroneConnectionListene
                     txtServerConnectionState.setBackgroundResource(R.color.red);
                 }
 
-                if (droneDto.isActive()){
-                    txtActiveState.setText("Active");
-                    txtActiveState.setBackgroundResource(R.color.green);
-                } else{
-                    txtActiveState.setText("Inactive");
-                    txtActiveState.setBackgroundResource(R.color.red);
-                }
+//                if (droneDto.isActive()){
+//                    txtActiveState.setText("Active");
+//                    txtActiveState.setBackgroundResource(R.color.green);
+//                } else{
+//                    txtActiveState.setText("Inactive");
+//                    txtActiveState.setBackgroundResource(R.color.red);
+//                }
 
-                txtName.setText(droneDto.getName());
-                txtPayload.setText(droneDto.getPayload());
+                //txtName.setText(droneDto.getName());
+                //txtPayload.setText(droneDto.getPayload());
 
             }
         });

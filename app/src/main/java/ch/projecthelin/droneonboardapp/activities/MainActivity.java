@@ -30,7 +30,6 @@ import ch.projecthelin.droneonboardapp.R;
 import ch.projecthelin.droneonboardapp.fragments.DroneFragment;
 import ch.projecthelin.droneonboardapp.fragments.OverviewFragment;
 import ch.projecthelin.droneonboardapp.fragments.ServerFragment;
-import ch.projecthelin.droneonboardapp.services.DroneAttributeService;
 import ch.projecthelin.droneonboardapp.services.DroneConnectionService;
 import ch.projecthelin.droneonboardapp.services.LocationService;
 import ch.projecthelin.droneonboardapp.services.MessagingConnectionService;
@@ -59,9 +58,6 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 
     @Inject
     DroneConnectionService droneConnectionService;
-
-    @Inject
-    DroneAttributeService droneAttributeService;
 
     @Inject
     LocationService locationService;
