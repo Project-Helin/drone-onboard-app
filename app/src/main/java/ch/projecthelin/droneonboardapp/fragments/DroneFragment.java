@@ -11,21 +11,30 @@ import android.widget.*;
 
 import com.o3dr.android.client.apis.drone.ExperimentalApi;
 
+import ch.helin.messages.converter.JsonBasedMessageConverter;
+import ch.helin.messages.dto.message.DroneActiveState;
+import ch.helin.messages.dto.message.DroneActiveStateMessage;
+import ch.helin.messages.dto.message.DroneDto;
 import ch.helin.messages.dto.state.BatteryState;
 import ch.helin.messages.dto.state.DroneState;
 import ch.helin.messages.dto.state.GpsState;
 import ch.projecthelin.droneonboardapp.DroneOnboardApp;
 import ch.projecthelin.droneonboardapp.R;
 import ch.projecthelin.droneonboardapp.activities.MainActivity;
+import ch.projecthelin.droneonboardapp.listeners.DroneAttributeUpdateReceiver;
 import ch.projecthelin.droneonboardapp.listeners.DroneConnectionListener;
 import ch.projecthelin.droneonboardapp.services.DroneConnectionService;
+import ch.projecthelin.droneonboardapp.services.MessagingConnectionService;
 
 import javax.inject.Inject;
 
-public class DroneFragment extends Fragment implements DroneConnectionListener {
+public class DroneFragment extends Fragment implements DroneConnectionListener, DroneAttributeUpdateReceiver {
 
     @Inject
     DroneConnectionService droneConnectionService;
+
+    @Inject
+    MessagingConnectionService messagingConnectionService;
 
     private TextView txtGps;
     private TextView txtBattery;
@@ -39,7 +48,11 @@ public class DroneFragment extends Fragment implements DroneConnectionListener {
     private EditText editClosedPWM;
     private Button btnSetServo;
 
+    private Switch switchDroneActive;
+
     private boolean isServoOpen;
+
+    private JsonBasedMessageConverter jsonBasedMessageConverter = new JsonBasedMessageConverter();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -74,6 +87,7 @@ public class DroneFragment extends Fragment implements DroneConnectionListener {
         editClosedPWM = (EditText) view.findViewById(R.id.editClosedPWM);
         btnConnect = (Button) view.findViewById(R.id.btnConnectToDrone);
         btnSetServo = (Button) view.findViewById(R.id.btnSetServo);
+        switchDroneActive = (Switch) view.findViewById(R.id.swtchActive);
     }
 
     private void initializeServoValues() {
@@ -90,11 +104,11 @@ public class DroneFragment extends Fragment implements DroneConnectionListener {
         if (isServoOpen) {
             pwm = droneConnectionService.getServoClosedPWM();
             isServoOpen = false;
-            buttonText = "Open Servo!";
+            buttonText = "Open Servo";
         } else {
             pwm = droneConnectionService.getServoOpenPWM();
             isServoOpen = true;
-            buttonText = "Close Servo!";
+            buttonText = "Close Servo";
         }
         ExperimentalApi.setServo(droneConnectionService.getDrone(), droneConnectionService.getServoChannel(), pwm);
         btnSetServo.setText(buttonText);
@@ -130,6 +144,18 @@ public class DroneFragment extends Fragment implements DroneConnectionListener {
                 setServoValuesToDroneConnectionService(channel, openPWM, closedPWM);
 
                 Toast.makeText(getContext(), "Servo-Values saved!", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        switchDroneActive.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                DroneActiveState droneActiveState = new DroneActiveState();
+                droneActiveState.setActive(isChecked);
+
+                DroneActiveStateMessage droneActiveStateMessage = new DroneActiveStateMessage();
+                droneActiveStateMessage.setDroneActiveState(droneActiveState);
+
+                messagingConnectionService.sendMessage(jsonBasedMessageConverter.parseMessageToString(droneActiveStateMessage));
             }
         });
     }
@@ -222,4 +248,8 @@ public class DroneFragment extends Fragment implements DroneConnectionListener {
 
     }
 
+    @Override
+    public void onDroneAttributeUpdate(DroneDto droneDto) {
+        switchDroneActive.setChecked(droneDto.isActive());
+    }
 }

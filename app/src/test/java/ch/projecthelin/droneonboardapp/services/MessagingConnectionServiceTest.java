@@ -20,7 +20,6 @@ public class MessagingConnectionServiceTest {
     private MessagingConnectionService service;
     private JsonBasedMessageConverter messageConverter = new JsonBasedMessageConverter();
 
-
     @Before
     public void setupServiceAndListener() {
         TestAppModule module = new TestAppModule();
@@ -33,7 +32,7 @@ public class MessagingConnectionServiceTest {
         MessagingConnectionListener messagingConnectionListener = mock(MessagingConnectionListener.class);
         service = new MessagingConnectionService();
         service.addConnectionListener(messagingConnectionListener);
-        service.addMessageReceiver(messageReceiver);
+        service.addMissionMessageReceiver(messageReceiver);
     }
 
     @Test
@@ -43,7 +42,7 @@ public class MessagingConnectionServiceTest {
         assignMissionMessage.setMission(mission);
 
         String message = messageConverter.parseMessageToString(assignMissionMessage);
-        service.notifyMessageReceivers(message);
+        service.notifyMissionMessageReceivers(message);
 
         verify(messageReceiver).onAssignMissionMessageReceived(assignMissionMessage);
     }
@@ -55,7 +54,7 @@ public class MessagingConnectionServiceTest {
         finalAssignMissionMessage.setMission(mission);
 
         String message = messageConverter.parseMessageToString(finalAssignMissionMessage);
-        service.notifyMessageReceivers(message);
+        service.notifyMissionMessageReceivers(message);
 
         verify(messageReceiver).onFinalAssignMissionMessageReceived(finalAssignMissionMessage);
     }

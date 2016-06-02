@@ -1,5 +1,6 @@
 package ch.projecthelin.droneonboardapp.listeners;
 
+import ch.helin.messages.dto.message.DroneDtoMessage;
 import ch.helin.messages.dto.message.missionMessage.AssignMissionMessage;
 import ch.helin.messages.dto.message.missionMessage.FinalAssignMissionMessage;
 

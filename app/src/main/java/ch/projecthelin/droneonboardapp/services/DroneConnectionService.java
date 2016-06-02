@@ -62,6 +62,7 @@ public class DroneConnectionService implements DroneListener, TowerListener {
     private boolean startMission;
     private boolean endMissionWhenLanded;
     private MissionListener missionListener;
+
     private int servoChannel;
     private int servoOpenPWM;
     private int servoClosedPWM;
@@ -320,5 +321,6 @@ public class DroneConnectionService implements DroneListener, TowerListener {
     public int getServoClosedPWM() {
         return servoClosedPWM;
     }
+
 }
 

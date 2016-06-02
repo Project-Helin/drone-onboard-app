@@ -4,9 +4,11 @@ import android.util.Log;
 import ch.helin.commons.ConnectionUtils;
 import ch.helin.messages.converter.JsonBasedMessageConverter;
 import ch.helin.messages.dto.MissionDto;
+import ch.helin.messages.dto.message.DroneDtoMessage;
 import ch.helin.messages.dto.message.Message;
 import ch.helin.messages.dto.message.missionMessage.AssignMissionMessage;
 import ch.helin.messages.dto.message.missionMessage.FinalAssignMissionMessage;
+import ch.projecthelin.droneonboardapp.listeners.DroneAttributeUpdateReceiver;
 import ch.projecthelin.droneonboardapp.listeners.MessagingConnectionListener;
 import ch.projecthelin.droneonboardapp.listeners.MessageReceiver;
 import com.rabbitmq.client.*;
@@ -36,7 +38,8 @@ public class MessagingConnectionService implements ConnectionListener {
     private Channel channel;
     private Connection connection;
     private List<MessagingConnectionListener> connectionListeners = new ArrayList<>();
-    private List<MessageReceiver> messageReceivers = new ArrayList<>();
+    private List<MessageReceiver> missionMessageReceivers = new ArrayList<>();
+    private List<DroneAttributeUpdateReceiver> droneAttributeUpdateReceivers = new ArrayList<>();
     private Queue<String> messagesToSend = new ConcurrentLinkedQueue<>();
     private MissionDto currentMission;
     private String serverIP;
@@ -133,22 +136,25 @@ public class MessagingConnectionService implements ConnectionListener {
         }
     }
 
-    public void addMessageReceiver(MessageReceiver listener) {
-        messageReceivers.add(listener);
+    public void addMissionMessageReceiver(MessageReceiver listener) {
+        missionMessageReceivers.add(listener);
     }
 
-    public void removeMessageReceiver(MessageReceiver listener) {
-        messageReceivers.remove(listener);
+    public void removeMissionMessageReceiver(MessageReceiver listener) {
+        missionMessageReceivers.remove(listener);
     }
 
-    void notifyMessageReceivers(String messageAsString) {
-        JsonBasedMessageConverter messageConverter = new JsonBasedMessageConverter();
-        Message message = messageConverter.parseStringToMessage(messageAsString);
+    public void addDroneAttributeUpdateReceiver(DroneAttributeUpdateReceiver droneAttributesUpdateListener){
+        droneAttributeUpdateReceivers.add(droneAttributesUpdateListener);
+    }
 
+    public void removeDroneAttributeUpdateReceiver(DroneAttributeUpdateReceiver droneAttributesUpdateListener){
+        droneAttributeUpdateReceivers.remove(droneAttributesUpdateListener);
+    }
+
+    public void notifyMissionMessageReceivers(Message message) {
         try {
-
-
-            for (MessageReceiver receiver : messageReceivers) {
+            for (MessageReceiver receiver : missionMessageReceivers) {
                 switch (message.getPayloadType()) {
                     case AssignMission:
                         receiver.onAssignMissionMessageReceived((AssignMissionMessage) message);
@@ -160,6 +166,16 @@ public class MessagingConnectionService implements ConnectionListener {
             }
         } catch (ClassCastException e) {
           Log.d("Error", "Could not cast to" + message.getPayloadType(), e);
+        }
+    }
+
+    public void notifyDroneAttributeMessageReceivers(Message message){
+        try {
+            for (DroneAttributeUpdateReceiver droneAttributeUpdateReceiver : droneAttributeUpdateReceivers) {
+                droneAttributeUpdateReceiver.onDroneAttributeUpdate((DroneDtoMessage) message);
+            }
+        } catch (ClassCastException e) {
+            Log.d("Error", "Could not cast to" + message.getPayloadType(), e);
         }
     }
 
@@ -186,7 +202,20 @@ public class MessagingConnectionService implements ConnectionListener {
                     throws IOException {
                 String messageAsString = new String(body, "UTF-8");
 
-                notifyMessageReceivers(messageAsString);
+                JsonBasedMessageConverter messageConverter = new JsonBasedMessageConverter();
+                Message message = messageConverter.parseStringToMessage(messageAsString);
+
+                switch (message.getPayloadType()){
+                    case AssignMission:
+                    case FinalAssignMission:
+                        notifyMissionMessageReceivers(message);
+                        break;
+                    case DroneDto:
+                        notifyDroneAttributeMessageReceivers(message);
+                        break;
+                    default:
+                        Log.d(getClass().getCanonicalName(), "Message Type is neighter Mission nor DroneAttribute Type");
+                }
             }
         };
     }

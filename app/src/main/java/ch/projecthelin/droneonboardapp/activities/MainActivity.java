@@ -20,6 +20,7 @@ import ch.helin.messages.converter.JsonBasedMessageConverter;
 import ch.helin.messages.dto.DroneInfoDto;
 import ch.helin.messages.dto.MissionDto;
 import ch.helin.messages.dto.OrderProductDto;
+import ch.helin.messages.dto.message.DroneDtoMessage;
 import ch.helin.messages.dto.message.DroneInfoMessage;
 import ch.helin.messages.dto.message.missionMessage.*;
 import ch.helin.messages.dto.way.Position;
@@ -29,6 +30,7 @@ import ch.projecthelin.droneonboardapp.R;
 import ch.projecthelin.droneonboardapp.fragments.DroneFragment;
 import ch.projecthelin.droneonboardapp.fragments.OverviewFragment;
 import ch.projecthelin.droneonboardapp.fragments.ServerFragment;
+import ch.projecthelin.droneonboardapp.services.DroneAttributeService;
 import ch.projecthelin.droneonboardapp.services.DroneConnectionService;
 import ch.projecthelin.droneonboardapp.services.LocationService;
 import ch.projecthelin.droneonboardapp.services.MessagingConnectionService;
@@ -40,7 +42,6 @@ import java.util.Date;
 
 public class MainActivity extends AppCompatActivity implements LocationListener, MessageReceiver, MissionListener {
 
-
     private static final int CARGO_LOAD_REQUEST_CODE = 543;
     public static final String CHANNEL_KEY = "channel";
     public static final String OPEN_PWM_KEY = "open_pwm";
@@ -49,11 +50,18 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     private static final int DEFAULT_OPEN_PWM = 1800;
     private static final int DEFAULT_CLOSED_PWM = 1000;
 
+    public static final String DRONE_ACTIVE = "drone_active";
+    private static final Boolean DRONE_ACTIVE_DEFAULT = true;
+
+
     @Inject
     MessagingConnectionService messagingConnectionService;
 
     @Inject
     DroneConnectionService droneConnectionService;
+
+    @Inject
+    DroneAttributeService droneAttributeService;
 
     @Inject
     LocationService locationService;
@@ -106,7 +114,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         messagingConnectionService.setDroneToken(loadDroneTokenFromSharedPreferences());
         loadServoValuesFromSharedPreferences();
 
-        messagingConnectionService.addMessageReceiver(this);
+        messagingConnectionService.addMissionMessageReceiver(this);
         locationService.startLocationListening(this, this);
         droneConnectionService.setMissionListener(this);
     }
@@ -114,7 +122,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     private void deregisterListeners() {
         locationService.stopLocationListening();
         droneConnectionService.removeMissionListener();
-        messagingConnectionService.removeMessageReceiver(this);
+        messagingConnectionService.removeMissionMessageReceiver(this);
     }
 
 
@@ -247,6 +255,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     private void AcceptOrDenyAssignedMission(MissionConfirmType acceptOrReject) {
         ConfirmMissionMessage confirmMissionMessage = new ConfirmMissionMessage();
         confirmMissionMessage.setMissionConfirmType(acceptOrReject);
+
         messagingConnectionService.sendMessage(jsonBasedMessageConverter.parseMessageToString(confirmMissionMessage));
     }
 
@@ -302,4 +311,5 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
             return null;
         }
     }
+
 }
