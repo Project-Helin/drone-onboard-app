@@ -34,6 +34,8 @@ public class OverviewFragment extends Fragment implements DroneConnectionListene
 
     private static final int BATTERY_LOW = 10;
 
+    private static final String PAYLOAD_STRING = "g Payload";
+
     private TextView txtConnection;
     private TextView txtGPS;
     private TextView txtBattery;
@@ -60,6 +62,7 @@ public class OverviewFragment extends Fragment implements DroneConnectionListene
         initializeViewComponents(view);
 
         updateStatusColorsAndTexts();
+        initializeDroneStateValues();
 
         return view;
     }
@@ -82,6 +85,22 @@ public class OverviewFragment extends Fragment implements DroneConnectionListene
         txtPayload = (TextView) view.findViewById(R.id.txtPayload);
     }
 
+    private void initializeDroneStateValues(){
+        String droneName = droneConnectionService.getDroneName();
+        int dronePayload = droneConnectionService.getPayload();
+        Boolean isActive = droneConnectionService.isActive();
+
+        if (isActive){
+            txtActiveState.setText("Active");
+            txtActiveState.setBackgroundResource(R.color.green);
+        } else{
+            txtActiveState.setText("Inactive");
+            txtActiveState.setBackgroundResource(R.color.red);
+        }
+
+        txtName.setText(droneName);
+        txtPayload.setText(String.valueOf(dronePayload) + PAYLOAD_STRING);
+    }
 
     private void updateStatusColorsAndTexts() {
         getActivity().runOnUiThread(new Runnable() {
@@ -142,7 +161,7 @@ public class OverviewFragment extends Fragment implements DroneConnectionListene
                 }
 
                 txtName.setText(droneName);
-                //txtPayload.setText(droneDto.getPayload());
+                txtPayload.setText(String.valueOf(dronePayload) + PAYLOAD_STRING);
             }
         });
 

@@ -20,10 +20,13 @@ import ch.helin.messages.converter.JsonBasedMessageConverter;
 import ch.helin.messages.dto.DroneInfoDto;
 import ch.helin.messages.dto.MissionDto;
 import ch.helin.messages.dto.OrderProductDto;
+import ch.helin.messages.dto.message.DroneDto;
+import ch.helin.messages.dto.message.DroneDtoMessage;
 import ch.helin.messages.dto.message.DroneInfoMessage;
 import ch.helin.messages.dto.message.missionMessage.*;
 import ch.helin.messages.dto.way.Position;
 import ch.projecthelin.droneonboardapp.DroneOnboardApp;
+import ch.projecthelin.droneonboardapp.listeners.DroneAttributeUpdateReceiver;
 import ch.projecthelin.droneonboardapp.listeners.MessageReceiver;
 import ch.projecthelin.droneonboardapp.R;
 import ch.projecthelin.droneonboardapp.fragments.DroneFragment;
@@ -38,7 +41,7 @@ import com.google.android.gms.location.LocationListener;
 import javax.inject.Inject;
 import java.util.Date;
 
-public class MainActivity extends AppCompatActivity implements LocationListener, MessageReceiver, MissionListener {
+public class MainActivity extends AppCompatActivity implements LocationListener, MessageReceiver, MissionListener, DroneAttributeUpdateReceiver {
 
     private static final int CARGO_LOAD_REQUEST_CODE = 543;
     public static final String CHANNEL_KEY = "channel";
@@ -174,8 +177,30 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 
         droneConnectionService.setIsActive(sharedPreferences.getBoolean(DRONE_ACTIVE, DRONE_ACTIVE_DEFAULT));
-        droneConnectionService.setDroneName(sharedPreferences.getString(DRONE_NAME, DRONE_NAME_DEFAULT));
+        droneConnectionService.setDroneName(sharedPreferences.getString(DRONE_ACTIVE, DRONE_NAME_DEFAULT));
         droneConnectionService.setPayload(sharedPreferences.getInt(DRONE_PAYLOAD, DRONE_PAYLOAD_DEFAULT));
+    }
+
+    private void saveDroneStateFromSharedPreferences(){
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(DRONE_NAME, droneConnectionService.getDroneName());
+        editor.putBoolean(DRONE_ACTIVE, droneConnectionService.isActive());
+        editor.putInt(DRONE_PAYLOAD, droneConnectionService.getPayload());
+        editor.commit();
+    }
+
+    @Override
+    public void onDroneAttributeUpdate(DroneDtoMessage droneDtoMessage) {
+        DroneDto droneDto = droneDtoMessage.getDroneDto();
+
+        droneConnectionService.setPayload(droneDto.getPayload());
+        droneConnectionService.setDroneName(droneDto.getName());
+        droneConnectionService.setIsActive(droneDto.isActive());
+
+        saveDroneStateFromSharedPreferences();
+
     }
 
     private void sendDroneInfoToServer(Location location) {
