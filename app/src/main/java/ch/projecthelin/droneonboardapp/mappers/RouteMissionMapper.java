@@ -25,7 +25,7 @@ public class RouteMissionMapper {
 
         for (ch.helin.messages.dto.way.Waypoint waypointDto : route.getWayPoints()) {
             addWayPointToMission(mission, waypointDto);
-            AddActionToMissionIfNecessary(mission, waypointDto, servoChannel, openServoPWM);
+            addActionToMissionIfNecessary(mission, waypointDto, servoChannel, openServoPWM);
             lastPosition = waypointDto.getPosition();
         }
 
@@ -40,7 +40,7 @@ public class RouteMissionMapper {
         mission.addMissionItem(land);
     }
 
-    private void AddActionToMissionIfNecessary(Mission mission, ch.helin.messages.dto.way.Waypoint waypointDto, int servoChannel, int openServoPWM) {
+    private void addActionToMissionIfNecessary(Mission mission, ch.helin.messages.dto.way.Waypoint waypointDto, int servoChannel, int openServoPWM) {
         MissionItem missionAction = null;
 
         //More Action Types can be added here and

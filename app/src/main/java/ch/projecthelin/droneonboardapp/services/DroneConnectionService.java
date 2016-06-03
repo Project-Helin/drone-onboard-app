@@ -1,17 +1,10 @@
 package ch.projecthelin.droneonboardapp.services;
 
-import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
-
-import android.preference.PreferenceManager;
 import android.util.Log;
-
-import ch.helin.messages.dto.message.DroneDto;
 import ch.helin.messages.dto.state.BatteryState;
 import ch.helin.messages.dto.state.DroneState;
-
 import ch.helin.messages.dto.state.GpsState;
 import ch.helin.messages.dto.way.RouteDto;
 import ch.projecthelin.droneonboardapp.listeners.DroneConnectionListener;

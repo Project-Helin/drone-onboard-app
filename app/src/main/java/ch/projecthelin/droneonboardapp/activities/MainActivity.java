@@ -139,6 +139,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 
         dialog.show();
 
+        //add timer in order to have time to move away from the drone before it starts
         new CountDownTimer(10000, 1000) {
             @Override
             public void onTick(long millisUntilFinished) {
@@ -250,13 +251,13 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 
         builder.setPositiveButton("Accept", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
-                AcceptOrDenyAssignedMission(MissionConfirmType.ACCEPT);
+                acceptOrDenyAssignedMission(MissionConfirmType.ACCEPT);
             }
         });
 
         builder.setNegativeButton("Reject", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
-                AcceptOrDenyAssignedMission(MissionConfirmType.REJECT);
+                acceptOrDenyAssignedMission(MissionConfirmType.REJECT);
             }
         });
 
@@ -277,7 +278,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         return builder.create();
     }
 
-    private void AcceptOrDenyAssignedMission(MissionConfirmType acceptOrReject) {
+    private void acceptOrDenyAssignedMission(MissionConfirmType acceptOrReject) {
         ConfirmMissionMessage confirmMissionMessage = new ConfirmMissionMessage();
         confirmMissionMessage.setMissionConfirmType(acceptOrReject);
 

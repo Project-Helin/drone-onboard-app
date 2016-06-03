@@ -32,7 +32,7 @@ public class OverviewFragment extends Fragment implements DroneConnectionListene
     @Inject
     MessagingConnectionService messagingConnectionService;
 
-    private static final int BATTERY_LOW = 10;
+    private static final int BATTERY_LOW_THRESHOLD_IN_PERCENT = 10;
 
     private static final String PAYLOAD_STRING = "g Payload";
 
@@ -129,7 +129,7 @@ public class OverviewFragment extends Fragment implements DroneConnectionListene
 
                 if (batteryState != null) {
                     txtBattery.setText("Battery: " + batteryState.getRemain() + "% - " + batteryState.getVoltage() + "V");
-                    if (batteryState.getRemain() < BATTERY_LOW) {
+                    if (batteryState.getRemain() < BATTERY_LOW_THRESHOLD_IN_PERCENT) {
                         txtBattery.setBackgroundResource(R.color.red);
                     } else {
                         txtBattery.setBackgroundResource(R.color.green);

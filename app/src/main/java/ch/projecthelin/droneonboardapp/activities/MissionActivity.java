@@ -18,8 +18,8 @@ import javax.inject.Inject;
 
 public class MissionActivity extends AppCompatActivity {
 
-    private TextView orderProductAmountText;
-    private TextView orderProductNameText;
+    private TextView txtOrderProductAmount;
+    private TextView txtOrderProductName;
     private boolean isServoOpen;
     private Button btnServo;
 
@@ -43,13 +43,13 @@ public class MissionActivity extends AppCompatActivity {
 
         MissionDto currentMission = messagingConnectionService.getCurrentMission();
 
-        orderProductNameText.setText(currentMission.getOrderProduct().getProduct().getName());
-        orderProductAmountText.setText(currentMission.getOrderProduct().getAmount().toString());
+        txtOrderProductName.setText(currentMission.getOrderProduct().getProduct().getName());
+        txtOrderProductAmount.setText(currentMission.getOrderProduct().getAmount().toString());
     }
 
     private void initializeViewComponents() {
-        this.orderProductNameText = (TextView) findViewById(R.id.orderProductName);
-        this.orderProductAmountText = (TextView) findViewById(R.id.orderProductAmount);
+        this.txtOrderProductName = (TextView) findViewById(R.id.orderProductName);
+        this.txtOrderProductAmount = (TextView) findViewById(R.id.orderProductAmount);
         this.btnServo = (Button) findViewById(R.id.btnServo);
     }
 

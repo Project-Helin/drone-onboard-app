@@ -81,6 +81,7 @@ public class RegisterDroneActivity extends AppCompatActivity {
     public void onRegisterButtonClick(View view) {
         String ip = this.ipTextField.getText().toString();
         String port = this.portTextField.getText().toString();
+        //TODO change to https
         String url = "http://" + ip + ":" + port + "/api/drones/";
 
         JSONObject requestData = createRegisterRequestDataFromInputValues();
@@ -126,6 +127,7 @@ public class RegisterDroneActivity extends AppCompatActivity {
             public Map<String, String> getHeaders() throws AuthFailureError {
                 HashMap<String, String> headers = new HashMap<>();
                 headers.put("Content-Type", "application/json; charset=utf-8");
+                //set correct User-Agent for request
                 headers.put("User-agent", System.getProperty("http.agent"));
                 return headers;
             }
