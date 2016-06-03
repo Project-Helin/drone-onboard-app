@@ -4,14 +4,13 @@ import android.util.Log;
 import ch.helin.commons.ConnectionUtils;
 import ch.helin.messages.converter.JsonBasedMessageConverter;
 import ch.helin.messages.dto.MissionDto;
-import ch.helin.messages.dto.message.DroneDto;
 import ch.helin.messages.dto.message.DroneDtoMessage;
 import ch.helin.messages.dto.message.Message;
 import ch.helin.messages.dto.message.missionMessage.AssignMissionMessage;
 import ch.helin.messages.dto.message.missionMessage.FinalAssignMissionMessage;
 import ch.projecthelin.droneonboardapp.listeners.DroneAttributeUpdateReceiver;
-import ch.projecthelin.droneonboardapp.listeners.MessagingConnectionListener;
 import ch.projecthelin.droneonboardapp.listeners.MessageReceiver;
+import ch.projecthelin.droneonboardapp.listeners.MessagingConnectionListener;
 import com.rabbitmq.client.*;
 import net.jodah.lyra.ConnectionOptions;
 import net.jodah.lyra.Connections;
@@ -27,6 +26,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 @Singleton
 public class MessagingConnectionService implements ConnectionListener {
@@ -36,8 +38,8 @@ public class MessagingConnectionService implements ConnectionListener {
 
     private ConnectionState connectionState;
     private String droneToken;
-    private Channel channel;
-    private Connection connection;
+    private volatile Channel channel;
+    private volatile Connection connection;
     private List<MessagingConnectionListener> connectionListeners = new ArrayList<>();
     private List<MessageReceiver> missionMessageReceivers = new ArrayList<>();
     private List<DroneAttributeUpdateReceiver> droneAttributeUpdateReceivers = new ArrayList<>();
@@ -47,14 +49,20 @@ public class MessagingConnectionService implements ConnectionListener {
     private String rabbitMqServerAddress;
     private boolean localConnection;
 
+    private static final int NUMBER_OF_CORES =
+            Runtime.getRuntime().availableProcessors();
+    private LinkedBlockingQueue<Runnable> queue = new LinkedBlockingQueue<>();
+    private ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(NUMBER_OF_CORES, NUMBER_OF_CORES, 10, TimeUnit.SECONDS, queue);
+
     @Inject
     public MessagingConnectionService() {
         connectionState = ConnectionState.DISCONNECTED;
     }
 
     public void connect() {
+
         try {
-            final Runnable r = new Runnable() {
+            Runnable createConnectionTask = new Runnable() {
                 public void run() {
                     try {
                         Config config = new Config()
@@ -88,7 +96,9 @@ public class MessagingConnectionService implements ConnectionListener {
 
                 }
             };
-            new Thread(r).start();
+
+            threadPoolExecutor.execute(createConnectionTask);
+
 
         } catch (Exception e) {
             disconnect();
@@ -145,11 +155,11 @@ public class MessagingConnectionService implements ConnectionListener {
         missionMessageReceivers.remove(listener);
     }
 
-    public void addDroneAttributeUpdateReceiver(DroneAttributeUpdateReceiver droneAttributesUpdateListener){
+    public void addDroneAttributeUpdateReceiver(DroneAttributeUpdateReceiver droneAttributesUpdateListener) {
         droneAttributeUpdateReceivers.add(droneAttributesUpdateListener);
     }
 
-    public void removeDroneAttributeUpdateReceiver(DroneAttributeUpdateReceiver droneAttributesUpdateListener){
+    public void removeDroneAttributeUpdateReceiver(DroneAttributeUpdateReceiver droneAttributesUpdateListener) {
         droneAttributeUpdateReceivers.remove(droneAttributesUpdateListener);
     }
 
@@ -166,11 +176,11 @@ public class MessagingConnectionService implements ConnectionListener {
                 }
             }
         } catch (ClassCastException e) {
-          Log.d("Error", "Could not cast to" + message.getPayloadType(), e);
+            Log.d("Error", "Could not cast to" + message.getPayloadType(), e);
         }
     }
 
-    public void notifyDroneAttributeMessageReceivers(Message message){
+    public void notifyDroneAttributeMessageReceivers(Message message) {
         try {
             for (DroneAttributeUpdateReceiver droneAttributeUpdateReceiver : droneAttributeUpdateReceivers) {
                 droneAttributeUpdateReceiver.onDroneAttributeUpdate((DroneDtoMessage) message);
@@ -182,18 +192,29 @@ public class MessagingConnectionService implements ConnectionListener {
 
     public void sendMessage(String message) {
         messagesToSend.add(message);
-        try {
-            if (connection.isOpen()) {
-                while (messagesToSend.peek() != null) {
-                    String messageToSend = messagesToSend.peek();
-                    Log.d("Send Message", messageToSend);
-                    channel.basicPublish("", ConnectionUtils.getDroneSideProducerQueueName(droneToken), null, messageToSend.getBytes());
-                    messagesToSend.remove();
+
+        //sending messages can block and therefore it should
+        //run in its own thread. MessagesToSend uses Concurrent
+        //Queue so it is save to spawn multiple threads
+        Runnable sendMessagesTask = new Runnable() {
+            public void run() {
+                try {
+                    if (connection.isOpen()) {
+                        while (messagesToSend.peek() != null) {
+                            String messageToSend = messagesToSend.peek();
+                            Log.d("Send Message", messageToSend);
+                            channel.basicPublish("", ConnectionUtils.getDroneSideProducerQueueName(droneToken), null, messageToSend.getBytes());
+                            messagesToSend.remove();
+                        }
+                    }
+                } catch (Exception e) {
+                    Log.d(getClass().getCanonicalName(), "Message sent failed!");
                 }
             }
-        } catch (Exception e) {
-            Log.d(getClass().getCanonicalName(), "Message sent failed!");
-        }
+
+        };
+
+        threadPoolExecutor.execute(sendMessagesTask);
     }
 
     private Consumer createConsumer() {
@@ -206,7 +227,7 @@ public class MessagingConnectionService implements ConnectionListener {
                 JsonBasedMessageConverter messageConverter = new JsonBasedMessageConverter();
                 Message message = messageConverter.parseStringToMessage(messageAsString);
 
-                switch (message.getPayloadType()){
+                switch (message.getPayloadType()) {
                     case AssignMission:
                     case FinalAssignMission:
                         notifyMissionMessageReceivers(message);
