@@ -90,8 +90,6 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
-
-        initializeListenersAndData();
     }
 
     @Override
@@ -104,12 +102,6 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     protected void onResume() {
         super.onResume();
         initializeListenersAndData();
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        deregisterListeners();
     }
 
     private void initializeListenersAndData() {

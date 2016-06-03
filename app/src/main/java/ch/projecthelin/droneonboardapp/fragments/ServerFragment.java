@@ -2,6 +2,7 @@ package ch.projecthelin.droneonboardapp.fragments;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -52,12 +53,6 @@ public class ServerFragment extends Fragment implements MessagingConnectionListe
         txtConnectionState.setText(messagingConnectionService.getConnectionState().name());
 
         return view;
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        messagingConnectionService.removeConnectionListener(this);
     }
 
     private void initializeBtnListeners() {

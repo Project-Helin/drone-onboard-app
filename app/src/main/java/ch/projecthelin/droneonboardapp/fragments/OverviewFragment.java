@@ -67,14 +67,6 @@ public class OverviewFragment extends Fragment implements DroneConnectionListene
         return view;
     }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        droneConnectionService.removeConnectionListener(this);
-        messagingConnectionService.removeConnectionListener(this);
-
-    }
-
     private void initializeViewComponents(View view) {
         txtConnection = (TextView) view.findViewById(R.id.txtConnection);
         txtGPS = (TextView) view.findViewById(R.id.txtGPS);

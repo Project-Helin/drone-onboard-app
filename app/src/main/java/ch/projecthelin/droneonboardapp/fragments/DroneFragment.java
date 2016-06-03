@@ -8,13 +8,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.*;
-
-import com.o3dr.android.client.apis.drone.ExperimentalApi;
-
 import ch.helin.messages.converter.JsonBasedMessageConverter;
 import ch.helin.messages.dto.message.DroneActiveState;
 import ch.helin.messages.dto.message.DroneActiveStateMessage;
-import ch.helin.messages.dto.message.DroneDto;
 import ch.helin.messages.dto.message.DroneDtoMessage;
 import ch.helin.messages.dto.state.BatteryState;
 import ch.helin.messages.dto.state.DroneState;
@@ -26,6 +22,7 @@ import ch.projecthelin.droneonboardapp.listeners.DroneAttributeUpdateReceiver;
 import ch.projecthelin.droneonboardapp.listeners.DroneConnectionListener;
 import ch.projecthelin.droneonboardapp.services.DroneConnectionService;
 import ch.projecthelin.droneonboardapp.services.MessagingConnectionService;
+import com.o3dr.android.client.apis.drone.ExperimentalApi;
 
 import javax.inject.Inject;
 
