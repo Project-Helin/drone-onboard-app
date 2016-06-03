@@ -2,6 +2,7 @@ package ch.projecthelin.droneonboardapp.services;
 
 import ch.helin.messages.converter.JsonBasedMessageConverter;
 import ch.helin.messages.dto.MissionDto;
+import ch.helin.messages.dto.message.Message;
 import ch.helin.messages.dto.message.missionMessage.AssignMissionMessage;
 import ch.helin.messages.dto.message.missionMessage.FinalAssignMissionMessage;
 import ch.projecthelin.droneonboardapp.di.DaggerTestAppComponent;
@@ -41,7 +42,11 @@ public class MessagingConnectionServiceTest {
         MissionDto mission = new MissionDto();
         assignMissionMessage.setMission(mission);
 
-        String message = messageConverter.parseMessageToString(assignMissionMessage);
+        String messageStr = messageConverter.parseMessageToString(assignMissionMessage);
+
+        JsonBasedMessageConverter jsonBasedMessageConverter = new JsonBasedMessageConverter();
+        Message message = jsonBasedMessageConverter.parseStringToMessage(messageStr);
+
         service.notifyMissionMessageReceivers(message);
 
         verify(messageReceiver).onAssignMissionMessageReceived(assignMissionMessage);
@@ -53,7 +58,11 @@ public class MessagingConnectionServiceTest {
         MissionDto mission = new MissionDto();
         finalAssignMissionMessage.setMission(mission);
 
-        String message = messageConverter.parseMessageToString(finalAssignMissionMessage);
+        String messageStr = messageConverter.parseMessageToString(finalAssignMissionMessage);
+
+        JsonBasedMessageConverter jsonBasedMessageConverter = new JsonBasedMessageConverter();
+        Message message = jsonBasedMessageConverter.parseStringToMessage(messageStr);
+
         service.notifyMissionMessageReceivers(message);
 
         verify(messageReceiver).onFinalAssignMissionMessageReceived(finalAssignMissionMessage);
