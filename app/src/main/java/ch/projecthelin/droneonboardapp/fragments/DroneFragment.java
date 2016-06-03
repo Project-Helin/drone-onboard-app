@@ -212,13 +212,9 @@ public class DroneFragment extends Fragment implements DroneConnectionListener, 
 
     @Override
     public void onDroneStateChange(DroneState state) {
-        if (state.getAltitude() > 0.1) {
-            try {
-                txtAltitude.setText((int) state.getAltitude() + " / " + (int) state.getTargetAltitude());
-                updateConnectButtonText(state);
-            } catch (Exception e) {
-                txtAltitude.setText("");
-            }
+        if (state != null && state.getAltitude() > 0.1) {
+            txtAltitude.setText((int) state.getAltitude() + " / " + (int) state.getTargetAltitude());
+            updateConnectButtonText(state);
         } else {
             txtAltitude.setText("");
         }
@@ -226,23 +222,19 @@ public class DroneFragment extends Fragment implements DroneConnectionListener, 
 
     @Override
     public void onGpsStateChange(GpsState state) {
-        try {
+        if (state.getFixType() != null) {
             txtGps.setText(state.getFixType().getDescription() + " - Satellites: "
                     + state.getSatellitesCount());
-        } catch (Exception e) {
-           txtGps.setText("");
+        } else {
+            txtGps.setText("");
         }
     }
 
     @Override
     public void onBatteryStateChange(BatteryState state) {
-        if(state.getVoltage() > 0.1) {
-            try {
-                txtBattery.setText(state.getRemain() + "% - " + state.getVoltage() + "V, " + state.getCurrent() + "A");
-            } catch (Exception e) {
-                txtBattery.setText("");
-            }
-        } else {
+        if (state != null && state.getVoltage() > 0.1){
+            txtBattery.setText(state.getRemain() + "% - " + state.getVoltage() + "V, " + state.getCurrent() + "A");
+        }else{
             txtBattery.setText("");
         }
 
