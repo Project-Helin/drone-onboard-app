@@ -60,6 +60,18 @@ public class DroneFragment extends Fragment implements DroneConnectionListener, 
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        droneConnectionService.addConnectionListener(this);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        droneConnectionService.removeConnectionListener(this);
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 

@@ -49,9 +49,7 @@ public class OverviewFragment extends Fragment implements DroneConnectionListene
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         ((DroneOnboardApp) getActivity().getApplication()).component().inject(this);
-        droneConnectionService.addConnectionListener(this);
-        messagingConnectionService.addConnectionListener(this);
-        messagingConnectionService.addDroneAttributeUpdateReceiver(this);
+
     }
 
     @Override
@@ -65,6 +63,22 @@ public class OverviewFragment extends Fragment implements DroneConnectionListene
         initializeDroneStateValues();
 
         return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        droneConnectionService.addConnectionListener(this);
+        messagingConnectionService.addConnectionListener(this);
+        messagingConnectionService.addDroneAttributeUpdateReceiver(this);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        droneConnectionService.removeConnectionListener(this);
+        messagingConnectionService.removeConnectionListener(this);
+        messagingConnectionService.removeDroneAttributeUpdateReceiver(this);
     }
 
     private void initializeViewComponents(View view) {

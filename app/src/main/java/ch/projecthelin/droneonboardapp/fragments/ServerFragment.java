@@ -36,7 +36,19 @@ public class ServerFragment extends Fragment implements MessagingConnectionListe
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         ((DroneOnboardApp) getActivity().getApplication()).component().inject(this);
+    }
+
+
+    @Override
+    public void onResume() {
+        super.onResume();
         messagingConnectionService.addConnectionListener(this);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        messagingConnectionService.removeConnectionListener(this);
     }
 
     @Override
