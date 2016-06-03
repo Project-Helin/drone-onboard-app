@@ -2,7 +2,6 @@ package ch.projecthelin.droneonboardapp.fragments;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,7 +30,7 @@ public class ServerFragment extends Fragment implements MessagingConnectionListe
     private TextView txtErrorLog;
     private TextView txtIP;
     private Button btnConnect;
-    private Switch localConnectionSwitch;
+    private Switch switchLocalConnection;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -73,7 +72,7 @@ public class ServerFragment extends Fragment implements MessagingConnectionListe
             }
         });
 
-        localConnectionSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        switchLocalConnection.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 messagingConnectionService.setIsLocalConnection(isChecked);
             }
@@ -86,7 +85,7 @@ public class ServerFragment extends Fragment implements MessagingConnectionListe
         txtIP = (TextView) view.findViewById(R.id.txtIP);
         txtErrorLog = (TextView) view.findViewById(R.id.txtErrorLog);
         btnConnect = (Button) view.findViewById(R.id.btnConnectToDrone);
-        localConnectionSwitch = (Switch) view.findViewById(R.id.localConnectionSwitch);
+        switchLocalConnection = (Switch) view.findViewById(R.id.localConnectionSwitch);
     }
 
     @Override
