@@ -51,12 +51,9 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     private static final int DEFAULT_OPEN_PWM = 1800;
     private static final int DEFAULT_CLOSED_PWM = 1000;
 
-    private static final String DRONE_ACTIVE = "drone_active";
-    private static final Boolean DRONE_ACTIVE_DEFAULT = true;
-    private static final String DRONE_NAME = "drone_name";
     private static final String DRONE_NAME_DEFAULT = "John Drone";
-    private static final String DRONE_PAYLOAD = "drone_payload";
     private static final int DRONE_PAYLOAD_DEFAULT = 0;
+    private static final Boolean DRONE_ACTIVE_DEFAULT = true;
 
 
     @Inject
@@ -110,6 +107,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         loadDroneStateFromSharedPreferences();
 
         messagingConnectionService.addMissionMessageReceiver(this);
+        messagingConnectionService.addDroneAttributeUpdateReceiver(this);
         locationService.startLocationListening(this, this);
         droneConnectionService.setMissionListener(this);
     }
@@ -118,6 +116,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         locationService.stopLocationListening();
         droneConnectionService.removeMissionListener();
         messagingConnectionService.removeMissionMessageReceiver(this);
+        messagingConnectionService.removeDroneAttributeUpdateReceiver(this);
     }
 
 
@@ -169,31 +168,25 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     private void loadDroneStateFromSharedPreferences(){
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 
-        droneConnectionService.setIsActive(sharedPreferences.getBoolean(DRONE_ACTIVE, DRONE_ACTIVE_DEFAULT));
-        droneConnectionService.setDroneName(sharedPreferences.getString(DRONE_ACTIVE, DRONE_NAME_DEFAULT));
-        droneConnectionService.setPayload(sharedPreferences.getInt(DRONE_PAYLOAD, DRONE_PAYLOAD_DEFAULT));
+        droneConnectionService.setIsActive(sharedPreferences.getBoolean(RegisterDroneActivity.DRONE_ACTIVE_KEY, DRONE_ACTIVE_DEFAULT));
+        droneConnectionService.setDroneName(sharedPreferences.getString(RegisterDroneActivity.DRONE_NAME_KEY, DRONE_NAME_DEFAULT));
+        droneConnectionService.setPayload(sharedPreferences.getInt(RegisterDroneActivity.DRONE_PAYLOAD_KEY, DRONE_PAYLOAD_DEFAULT));
     }
 
-    private void saveDroneStateFromSharedPreferences(){
+    private void saveDroneStateToSharedPreferences(DroneDto droneDto){
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 
         SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString(DRONE_NAME, droneConnectionService.getDroneName());
-        editor.putBoolean(DRONE_ACTIVE, droneConnectionService.isActive());
-        editor.putInt(DRONE_PAYLOAD, droneConnectionService.getPayload());
-        editor.commit();
+        editor.putString(RegisterDroneActivity.DRONE_NAME_KEY, droneDto.getName());
+        editor.putInt(RegisterDroneActivity.DRONE_PAYLOAD_KEY, droneDto.getPayload());
+        editor.putBoolean(RegisterDroneActivity.DRONE_ACTIVE_KEY, droneDto.isActive());
+        editor.apply();
     }
 
     @Override
     public void onDroneAttributeUpdate(DroneDtoMessage droneDtoMessage) {
         DroneDto droneDto = droneDtoMessage.getDroneDto();
-
-        droneConnectionService.setPayload(droneDto.getPayload());
-        droneConnectionService.setDroneName(droneDto.getName());
-        droneConnectionService.setIsActive(droneDto.isActive());
-
-        saveDroneStateFromSharedPreferences();
-
+        saveDroneStateToSharedPreferences(droneDto);
     }
 
     private void sendDroneInfoToServer(Location location) {
