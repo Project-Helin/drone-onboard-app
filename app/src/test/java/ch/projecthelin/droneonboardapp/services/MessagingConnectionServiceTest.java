@@ -68,5 +68,10 @@ public class MessagingConnectionServiceTest {
         verify(messageReceiver).onFinalAssignMissionMessageReceived(finalAssignMissionMessage);
     }
 
+    @Test
+    public void droneAttributeUpdateTest(){
+        
+    }
+
 
 }

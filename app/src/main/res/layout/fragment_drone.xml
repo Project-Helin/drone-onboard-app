@@ -37,38 +37,10 @@
         </LinearLayout>
 
         <LinearLayout
-            android:id="@+id/layoutActive"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/layoutStatusTitle"
-            android:orientation="horizontal"
-            android:weightSum="2">
-
-            <TextView
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:layout_column="0"
-                android:text="Drone Availabilty:"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:layout_weight="1" />
-
-            <Switch
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:textOff="Inactive"
-                android:textOn="Active"
-                android:text=""
-                android:id="@+id/swtchActive"
-                android:layout_weight="1" />
-
-
-        </LinearLayout>
-
-        <LinearLayout
             android:id="@+id/layoutGPS"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/layoutActive"
+            android:layout_below="@+id/layoutStatusTitle"
             android:weightSum="2">
 
             <TextView
@@ -145,21 +117,41 @@
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:layout_weight="1" />
         </LinearLayout>
-    </RelativeLayout>
 
-    <Button
-        android:id="@+id/btnConnectToDrone"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
-        android:layout_below="@+id/tblStatus"
-        android:text="Connect" />
+        <LinearLayout
+            android:id="@+id/layoutButton"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/layoutBattery"
+            android:orientation="horizontal"
+            android:weightSum="2">
+
+
+            <Button
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="Activate Drone"
+                android:id="@+id/btnActivateDrone"
+                android:layout_weight="1"
+                android:enabled="false" />
+
+            <Button
+                android:id="@+id/btnConnectToDrone"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_below="@+id/layoutButton"
+                android:text="Connect"
+                android:layout_weight="1" />
+
+        </LinearLayout>
+    </RelativeLayout>
 
     <RelativeLayout
         android:id="@+id/servoLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/btnConnectToDrone"
+        android:layout_below="@+id/tblStatus"
         android:weightSum="1">
 
         <TextView

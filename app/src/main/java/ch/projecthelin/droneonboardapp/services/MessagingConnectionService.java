@@ -110,7 +110,7 @@ public class MessagingConnectionService implements ConnectionListener {
         disconnect(connection);
         closeChannel(channel);
         connectionState = ConnectionState.DISCONNECTED;
-        notifyConnectionListeners(ConnectionState.DISCONNECTED);
+        notifyConnectionListeners(connectionState);
     }
 
     private void disconnect(Connection connection) {
@@ -142,6 +142,8 @@ public class MessagingConnectionService implements ConnectionListener {
     }
 
     private void notifyConnectionListeners(ConnectionState state) {
+        Log.d("ConnectionListeners", String.valueOf(connectionListeners.size()));
+
         for (MessagingConnectionListener listener : connectionListeners) {
             listener.onConnectionStateChanged(state);
         }
