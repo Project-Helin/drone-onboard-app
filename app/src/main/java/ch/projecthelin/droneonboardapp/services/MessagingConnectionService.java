@@ -83,6 +83,9 @@ public class MessagingConnectionService implements ConnectionListener {
                                 .withUsername("admin")
                                 .withPassword("helin");
 
+                        if(!localConnection){
+                            options.withSsl();
+                        }
                         connection = Connections.create(options, config);
                         channel = connection.createChannel(1);
 
