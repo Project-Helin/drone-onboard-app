@@ -33,8 +33,8 @@ public class RegisterDroneActivity extends AppCompatActivity {
     public static final String DRONE_ACTIVE_KEY = "drone_active_key";
     public static final String DRONE_PAYLOAD_KEY = "drone_payload_key";
 
-    private static final String DEFAULT_IP_ADDRESS = "152.96.238.18";
-    private static final String PORT = "9000";
+    private static final String DEFAULT_IP_ADDRESS = "my.helin.ch";
+    private static final String PORT = "80";
 
     @Inject
     MessagingConnectionService messagingConnectionService;
@@ -85,8 +85,7 @@ public class RegisterDroneActivity extends AppCompatActivity {
     public void onRegisterButtonClick(View view) {
         String ip = this.ipTextField.getText().toString();
         String port = this.portTextField.getText().toString();
-        //TODO change to https
-        String url = "http://" + ip + ":" + port + "/api/drones/";
+        String url = "https://" + ip + ":" + port + "/api/drones/";
 
         JSONObject requestData = createRegisterRequestDataFromInputValues();
         sendRegisterRequest(url, requestData);
