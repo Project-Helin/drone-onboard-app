@@ -64,7 +64,12 @@ public class DroneStateMapper {
         if (droneBattery != null) {
             batteryState.setVoltage(droneBattery.getBatteryVoltage());
             batteryState.setCurrent(droneBattery.getBatteryCurrent());
-            batteryState.setDischarge(droneBattery.getBatteryDischarge());
+
+            // because the batteryDischarge is of type Double but
+            // all the other values are primitive (no idea why)
+            Double discharge = droneBattery.getBatteryDischarge();
+            batteryState.setDischarge(discharge == null ? 0 : discharge.doubleValue());
+
             batteryState.setRemain(droneBattery.getBatteryRemain());
         }
 
