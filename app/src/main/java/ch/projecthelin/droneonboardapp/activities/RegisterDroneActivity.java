@@ -34,7 +34,7 @@ public class RegisterDroneActivity extends AppCompatActivity {
     public static final String DRONE_PAYLOAD_KEY = "drone_payload_key";
 
     private static final String DEFAULT_IP_ADDRESS = "my.helin.ch";
-    private static final String PORT = "80";
+    private static final String PORT = "443";
 
     @Inject
     MessagingConnectionService messagingConnectionService;
