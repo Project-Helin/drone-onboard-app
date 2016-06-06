@@ -20,10 +20,13 @@ import ch.helin.messages.converter.JsonBasedMessageConverter;
 import ch.helin.messages.dto.DroneInfoDto;
 import ch.helin.messages.dto.MissionDto;
 import ch.helin.messages.dto.OrderProductDto;
+import ch.helin.messages.dto.message.DroneDto;
+import ch.helin.messages.dto.message.DroneDtoMessage;
 import ch.helin.messages.dto.message.DroneInfoMessage;
 import ch.helin.messages.dto.message.missionMessage.*;
 import ch.helin.messages.dto.way.Position;
 import ch.projecthelin.droneonboardapp.DroneOnboardApp;
+import ch.projecthelin.droneonboardapp.listeners.DroneAttributeUpdateReceiver;
 import ch.projecthelin.droneonboardapp.listeners.MessageReceiver;
 import ch.projecthelin.droneonboardapp.R;
 import ch.projecthelin.droneonboardapp.fragments.DroneFragment;
@@ -38,8 +41,7 @@ import com.google.android.gms.location.LocationListener;
 import javax.inject.Inject;
 import java.util.Date;
 
-public class MainActivity extends AppCompatActivity implements LocationListener, MessageReceiver, MissionListener {
-
+public class MainActivity extends AppCompatActivity implements LocationListener, MessageReceiver, MissionListener, DroneAttributeUpdateReceiver {
 
     private static final int CARGO_LOAD_REQUEST_CODE = 543;
     public static final String CHANNEL_KEY = "channel";
@@ -48,6 +50,11 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     private static final int DEFAULT_CHANNEL = 7;
     private static final int DEFAULT_OPEN_PWM = 1800;
     private static final int DEFAULT_CLOSED_PWM = 1000;
+
+    private static final String DRONE_NAME_DEFAULT = "John Drone";
+    private static final int DRONE_PAYLOAD_DEFAULT = 0;
+    private static final Boolean DRONE_ACTIVE_DEFAULT = true;
+
 
     @Inject
     MessagingConnectionService messagingConnectionService;
@@ -80,8 +87,6 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
-
-        initializeListenersAndData();
     }
 
     @Override
@@ -96,17 +101,13 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         initializeListenersAndData();
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        deregisterListeners();
-    }
-
     private void initializeListenersAndData() {
         messagingConnectionService.setDroneToken(loadDroneTokenFromSharedPreferences());
         loadServoValuesFromSharedPreferences();
+        loadDroneStateFromSharedPreferences();
 
-        messagingConnectionService.addMessageReceiver(this);
+        messagingConnectionService.addMissionMessageReceiver(this);
+        messagingConnectionService.addDroneAttributeUpdateReceiver(this);
         locationService.startLocationListening(this, this);
         droneConnectionService.setMissionListener(this);
     }
@@ -114,7 +115,8 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
     private void deregisterListeners() {
         locationService.stopLocationListening();
         droneConnectionService.removeMissionListener();
-        messagingConnectionService.removeMessageReceiver(this);
+        messagingConnectionService.removeMissionMessageReceiver(this);
+        messagingConnectionService.removeDroneAttributeUpdateReceiver(this);
     }
 
 
@@ -136,6 +138,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 
         dialog.show();
 
+        //add timer in order to have time to move away from the drone before it starts
         new CountDownTimer(10000, 1000) {
             @Override
             public void onTick(long millisUntilFinished) {
@@ -160,6 +163,30 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         droneConnectionService.setServoChannel(sharedPreferences.getInt(CHANNEL_KEY, DEFAULT_CHANNEL));
         droneConnectionService.setServoOpenPWM(sharedPreferences.getInt(OPEN_PWM_KEY, DEFAULT_OPEN_PWM));
         droneConnectionService.setServoClosedPWM(sharedPreferences.getInt(CLOSED_PWM_KEY, DEFAULT_CLOSED_PWM));
+    }
+
+    private void loadDroneStateFromSharedPreferences(){
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+
+        droneConnectionService.setIsActive(sharedPreferences.getBoolean(RegisterDroneActivity.DRONE_ACTIVE_KEY, DRONE_ACTIVE_DEFAULT));
+        droneConnectionService.setDroneName(sharedPreferences.getString(RegisterDroneActivity.DRONE_NAME_KEY, DRONE_NAME_DEFAULT));
+        droneConnectionService.setPayload(sharedPreferences.getInt(RegisterDroneActivity.DRONE_PAYLOAD_KEY, DRONE_PAYLOAD_DEFAULT));
+    }
+
+    private void saveDroneStateToSharedPreferences(DroneDto droneDto){
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString(RegisterDroneActivity.DRONE_NAME_KEY, droneDto.getName());
+        editor.putInt(RegisterDroneActivity.DRONE_PAYLOAD_KEY, droneDto.getPayload());
+        editor.putBoolean(RegisterDroneActivity.DRONE_ACTIVE_KEY, droneDto.isActive());
+        editor.apply();
+    }
+
+    @Override
+    public void onDroneAttributeUpdate(DroneDtoMessage droneDtoMessage) {
+        DroneDto droneDto = droneDtoMessage.getDroneDto();
+        saveDroneStateToSharedPreferences(droneDto);
     }
 
     private void sendDroneInfoToServer(Location location) {
@@ -217,13 +244,13 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
 
         builder.setPositiveButton("Accept", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
-                AcceptOrDenyAssignedMission(MissionConfirmType.ACCEPT);
+                acceptOrDenyAssignedMission(MissionConfirmType.ACCEPT);
             }
         });
 
         builder.setNegativeButton("Reject", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
-                AcceptOrDenyAssignedMission(MissionConfirmType.REJECT);
+                acceptOrDenyAssignedMission(MissionConfirmType.REJECT);
             }
         });
 
@@ -244,9 +271,10 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         return builder.create();
     }
 
-    private void AcceptOrDenyAssignedMission(MissionConfirmType acceptOrReject) {
+    private void acceptOrDenyAssignedMission(MissionConfirmType acceptOrReject) {
         ConfirmMissionMessage confirmMissionMessage = new ConfirmMissionMessage();
         confirmMissionMessage.setMissionConfirmType(acceptOrReject);
+
         messagingConnectionService.sendMessage(jsonBasedMessageConverter.parseMessageToString(confirmMissionMessage));
     }
 
@@ -302,4 +330,5 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
             return null;
         }
     }
+
 }

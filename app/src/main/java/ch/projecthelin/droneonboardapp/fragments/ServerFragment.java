@@ -30,13 +30,25 @@ public class ServerFragment extends Fragment implements MessagingConnectionListe
     private TextView txtErrorLog;
     private TextView txtIP;
     private Button btnConnect;
-    private Switch localConnectionSwitch;
+    private Switch switchLocalConnection;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         ((DroneOnboardApp) getActivity().getApplication()).component().inject(this);
+    }
+
+
+    @Override
+    public void onResume() {
+        super.onResume();
         messagingConnectionService.addConnectionListener(this);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        messagingConnectionService.removeConnectionListener(this);
     }
 
     @Override
@@ -52,12 +64,6 @@ public class ServerFragment extends Fragment implements MessagingConnectionListe
         txtConnectionState.setText(messagingConnectionService.getConnectionState().name());
 
         return view;
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        messagingConnectionService.removeConnectionListener(this);
     }
 
     private void initializeBtnListeners() {
@@ -78,7 +84,7 @@ public class ServerFragment extends Fragment implements MessagingConnectionListe
             }
         });
 
-        localConnectionSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        switchLocalConnection.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 messagingConnectionService.setIsLocalConnection(isChecked);
             }
@@ -91,7 +97,7 @@ public class ServerFragment extends Fragment implements MessagingConnectionListe
         txtIP = (TextView) view.findViewById(R.id.txtIP);
         txtErrorLog = (TextView) view.findViewById(R.id.txtErrorLog);
         btnConnect = (Button) view.findViewById(R.id.btnConnectToDrone);
-        localConnectionSwitch = (Switch) view.findViewById(R.id.localConnectionSwitch);
+        switchLocalConnection = (Switch) view.findViewById(R.id.localConnectionSwitch);
     }
 
     @Override

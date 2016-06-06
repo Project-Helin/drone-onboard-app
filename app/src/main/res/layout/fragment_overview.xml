@@ -8,14 +8,53 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="ch.projecthelin.droneonboardapp.activities.MainActivity">
 
-    <TextView
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Drone"
-        android:id="@+id/droneTitle"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentStart="true" />
+        android:weightSum="2"
+        android:id="@+id/layoutName">
+
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="Drone:"
+            android:id="@+id/lblDrone"
+            android:layout_weight="1" />
+
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="Medium Text"
+            android:id="@+id/txtName"
+            android:layout_weight="1" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/layoutName"
+        android:weightSum="2"
+        android:id="@+id/layoutPayload">
+
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:id="@+id/lblPayload"
+            android:layout_weight="1" />
+
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="Medium Text"
+            android:id="@+id/txtPayload"
+            android:layout_weight="1" />
+    </LinearLayout>
 
     <TextView
         android:layout_width="wrap_content"
@@ -23,25 +62,38 @@
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:text="Connection"
         android:id="@+id/txtConnection"
-        android:layout_below="@+id/droneTitle"
+        android:layout_below="@+id/layoutPayload"
         android:layout_alignParentStart="true"
         android:layout_marginTop="5dp"
         android:layout_alignParentEnd="true"
         android:background="@color/red"
-        android:padding="10dp" />
+        android:padding="9dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Inactive"
+        android:id="@+id/txtActive"
+        android:layout_below="@+id/txtConnection"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="20dp"
+        android:layout_alignParentEnd="true"
+        android:background="@color/red"
+        android:padding="9dp" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="GPS"
         android:id="@+id/txtGPS"
-        android:layout_below="@+id/txtConnection"
+        android:layout_below="@+id/txtActive"
         android:layout_alignParentStart="true"
         android:background="@color/red"
         android:layout_marginTop="20dp"
         android:layout_alignParentEnd="true"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:padding="10dp" />
+        android:padding="9dp" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -54,13 +106,13 @@
         android:layout_marginTop="20dp"
         android:layout_alignParentEnd="true"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:padding="10dp" />
+        android:padding="9dp" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Server"
+        android:text="Server:"
         android:id="@+id/server_title"
         android:layout_below="@+id/txtBattery"
         android:layout_alignParentStart="true"
@@ -77,18 +129,6 @@
         android:layout_marginTop="5dp"
         android:layout_alignParentEnd="true"
         android:background="@color/red"
-        android:padding="10dp" />
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Toggle Servo"
-        android:id="@+id/setServoButton"
-        android:layout_below="@+id/server_connection_state"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentStart="true"
-        android:layout_marginTop="20dp"
-        android:layout_alignParentBottom="true"
-        android:layout_marginBottom="40dp" />
+        android:padding="9dp" />
 
 </RelativeLayout>

@@ -4,25 +4,41 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.*;
+import ch.helin.messages.converter.JsonBasedMessageConverter;
+import ch.helin.messages.dto.message.DroneActiveState;
+import ch.helin.messages.dto.message.DroneActiveStateMessage;
+import ch.helin.messages.dto.message.DroneDto;
+import ch.helin.messages.dto.message.DroneDtoMessage;
 import ch.helin.messages.dto.state.BatteryState;
 import ch.helin.messages.dto.state.DroneState;
 import ch.helin.messages.dto.state.GpsState;
 import ch.projecthelin.droneonboardapp.DroneOnboardApp;
 import ch.projecthelin.droneonboardapp.R;
 import ch.projecthelin.droneonboardapp.activities.MainActivity;
+import ch.projecthelin.droneonboardapp.listeners.DroneAttributeUpdateReceiver;
 import ch.projecthelin.droneonboardapp.listeners.DroneConnectionListener;
+import ch.projecthelin.droneonboardapp.listeners.MessagingConnectionListener;
 import ch.projecthelin.droneonboardapp.services.DroneConnectionService;
+import ch.projecthelin.droneonboardapp.services.MessagingConnectionService;
+import com.o3dr.android.client.apis.drone.ExperimentalApi;
 
 import javax.inject.Inject;
 
-public class DroneFragment extends Fragment implements DroneConnectionListener {
+public class DroneFragment extends Fragment implements DroneConnectionListener, DroneAttributeUpdateReceiver, MessagingConnectionListener {
 
     @Inject
     DroneConnectionService droneConnectionService;
+
+    @Inject
+    MessagingConnectionService messagingConnectionService;
+
+    private static final String ACTIVATE_DRONE = "Activate Drone";
+    private static final String DEACTIVATE_DRONE = "Deactivate Drone";
 
     private TextView txtGps;
     private TextView txtBattery;
@@ -34,12 +50,35 @@ public class DroneFragment extends Fragment implements DroneConnectionListener {
     private Button btnSaveServoValues;
     private EditText editOpenPWM;
     private EditText editClosedPWM;
+    private Button btnSetServo;
+    private Button btnActivateDrone;
+
+    private boolean isServoOpen;
+
+    private JsonBasedMessageConverter jsonBasedMessageConverter = new JsonBasedMessageConverter();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         ((DroneOnboardApp) getActivity().getApplication()).component().inject(this);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
         droneConnectionService.addConnectionListener(this);
+        messagingConnectionService.addDroneAttributeUpdateReceiver(this);
+        messagingConnectionService.addConnectionListener(this);
+
+        updateBtnActivateDrone();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        droneConnectionService.removeConnectionListener(this);
+        messagingConnectionService.removeDroneAttributeUpdateReceiver(this);
+        messagingConnectionService.removeConnectionListener(this);
     }
 
     @Override
@@ -67,6 +106,8 @@ public class DroneFragment extends Fragment implements DroneConnectionListener {
         editOpenPWM = (EditText) view.findViewById(R.id.editOpenPWM);
         editClosedPWM = (EditText) view.findViewById(R.id.editClosedPWM);
         btnConnect = (Button) view.findViewById(R.id.btnConnectToDrone);
+        btnSetServo = (Button) view.findViewById(R.id.btnSetServo);
+        btnActivateDrone = (Button) view.findViewById(R.id.btnActivateDrone);
     }
 
     private void initializeServoValues() {
@@ -75,7 +116,32 @@ public class DroneFragment extends Fragment implements DroneConnectionListener {
         editClosedPWM.setText(String.valueOf(droneConnectionService.getServoClosedPWM()));
     }
 
+
+    private void toggleServo() {
+        int pwm;
+        String buttonText;
+
+        if (isServoOpen) {
+            pwm = droneConnectionService.getServoClosedPWM();
+            isServoOpen = false;
+            buttonText = "Open Servo";
+        } else {
+            pwm = droneConnectionService.getServoOpenPWM();
+            isServoOpen = true;
+            buttonText = "Close Servo";
+        }
+        ExperimentalApi.setServo(droneConnectionService.getDrone(), droneConnectionService.getServoChannel(), pwm);
+        btnSetServo.setText(buttonText);
+    }
+
     private void initializeBtnListeners() {
+        btnSetServo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                toggleServo();
+            }
+        });
+
         btnConnect.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -98,6 +164,29 @@ public class DroneFragment extends Fragment implements DroneConnectionListener {
                 setServoValuesToDroneConnectionService(channel, openPWM, closedPWM);
 
                 Toast.makeText(getContext(), "Servo-Values saved!", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        btnActivateDrone.setOnClickListener(new View.OnClickListener(){
+
+            @Override
+            public void onClick(View v) {
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        btnActivateDrone.setEnabled(false);
+                        btnActivateDrone.setClickable(false);
+                        btnActivateDrone.setText("Updating State...");
+                    }
+                });
+                DroneActiveState droneActiveState = new DroneActiveState();
+                boolean toogleState = !droneConnectionService.isActive();
+                droneActiveState.setActive(toogleState);
+
+                DroneActiveStateMessage droneActiveStateMessage = new DroneActiveStateMessage();
+                droneActiveStateMessage.setDroneActiveState(droneActiveState);
+
+                messagingConnectionService.sendMessage(jsonBasedMessageConverter.parseMessageToString(droneActiveStateMessage));
             }
         });
     }
@@ -153,13 +242,9 @@ public class DroneFragment extends Fragment implements DroneConnectionListener {
 
     @Override
     public void onDroneStateChange(DroneState state) {
-        if (state.getAltitude() > 0.1) {
-            try {
-                txtAltitude.setText((int) state.getAltitude() + " / " + (int) state.getTargetAltitude());
-                updateConnectButtonText(state);
-            } catch (Exception e) {
-                txtAltitude.setText("");
-            }
+        if (state != null && state.getAltitude() > 0.1) {
+            txtAltitude.setText((int) state.getAltitude() + " / " + (int) state.getTargetAltitude());
+            updateConnectButtonText(state);
         } else {
             txtAltitude.setText("");
         }
@@ -167,27 +252,65 @@ public class DroneFragment extends Fragment implements DroneConnectionListener {
 
     @Override
     public void onGpsStateChange(GpsState state) {
-        try {
+        if (state.getFixType() != null) {
             txtGps.setText(state.getFixType().getDescription() + " - Satellites: "
                     + state.getSatellitesCount());
-        } catch (Exception e) {
-           txtGps.setText("");
+        } else {
+            txtGps.setText("");
         }
     }
 
     @Override
     public void onBatteryStateChange(BatteryState state) {
-        if(state.getVoltage() > 0.1) {
-            try {
-                txtBattery.setText(state.getRemain() + "% - " + state.getVoltage() + "V, " + state.getCurrent() + "A");
-            } catch (Exception e) {
-                txtBattery.setText("");
-            }
-        } else {
+        if (state != null && state.getVoltage() > 0.1){
+            txtBattery.setText(state.getRemain() + "% - " + state.getVoltage() + "V, " + state.getCurrent() + "A");
+        }else{
             txtBattery.setText("");
         }
 
 
     }
 
+    @Override
+    public void onDroneAttributeUpdate(DroneDtoMessage droneDtoMessage) {
+        DroneDto droneDto = droneDtoMessage.getDroneDto();
+
+        droneConnectionService.setPayload(droneDto.getPayload());
+        droneConnectionService.setDroneName(droneDto.getName());
+        droneConnectionService.setIsActive(droneDto.isActive());
+
+        updateBtnActivateDrone();
+    }
+
+    @Override
+    public void onConnectionStateChanged(MessagingConnectionService.ConnectionState state) {
+        updateBtnActivateDrone();
+    }
+
+    private void updateBtnActivateDrone(){
+
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+
+
+                if (droneConnectionService.isActive()) {
+                    btnActivateDrone.setText(DEACTIVATE_DRONE);
+                } else {
+                    btnActivateDrone.setText(ACTIVATE_DRONE);
+                }
+
+                switch (messagingConnectionService.getConnectionState()) {
+                    case CONNECTED:
+                        btnActivateDrone.setEnabled(true);
+                        btnActivateDrone.setClickable(true);
+                        break;
+                    default:
+                        btnActivateDrone.setEnabled(false);
+                        btnActivateDrone.setClickable(false);
+                        break;
+                }
+            }
+        });
+    }
 }
