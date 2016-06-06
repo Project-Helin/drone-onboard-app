@@ -120,7 +120,7 @@ public class MessagingConnectionService implements ConnectionListener {
         if (connection != null && channel.isOpen()) {
             try {
                 connection.close();
-            } catch (IOException e1) {
+            } catch (Exception e1) {
                 e1.printStackTrace();
             }
         }
@@ -228,7 +228,6 @@ public class MessagingConnectionService implements ConnectionListener {
             public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body)
                     throws IOException {
                 String messageAsString = new String(body, "UTF-8");
-
                 JsonBasedMessageConverter messageConverter = new JsonBasedMessageConverter();
                 Message message = messageConverter.parseStringToMessage(messageAsString);
 
