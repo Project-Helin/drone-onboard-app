@@ -32,9 +32,11 @@ public class RegisterDroneActivity extends AppCompatActivity {
     public static final String SERVER_IP_KEY = "server_ip_key";
     public static final String DRONE_ACTIVE_KEY = "drone_active_key";
     public static final String DRONE_PAYLOAD_KEY = "drone_payload_key";
+    public static final String DRONE_RABBITMQ_USER_KEY = "drone_rabbitmq_user_key";
+    public static final String DRONE_RABBITMQ_PW_KEY = "drone_rabbitmq_pw_key";
 
     private static final String DEFAULT_IP_ADDRESS = "my.helin.ch";
-    private static final String PORT = "80";
+    private static final String PORT = "443";
 
     @Inject
     MessagingConnectionService messagingConnectionService;
@@ -85,7 +87,7 @@ public class RegisterDroneActivity extends AppCompatActivity {
     public void onRegisterButtonClick(View view) {
         String ip = this.ipTextField.getText().toString();
         String port = this.portTextField.getText().toString();
-        String url = "https://" + ip + ":" + port + "/api/drones/";
+        String url = "http://" + ip + ":" + port + "/api/drones/";
 
         JSONObject requestData = createRegisterRequestDataFromInputValues();
         sendRegisterRequest(url, requestData);
@@ -178,6 +180,10 @@ public class RegisterDroneActivity extends AppCompatActivity {
         editor.putBoolean(RegisterDroneActivity.DRONE_ACTIVE_KEY, droneDto.isActive());
         editor.putInt(RegisterDroneActivity.DRONE_PAYLOAD_KEY, droneDto.getPayload());
         editor.putString(RegisterDroneActivity.SERVER_IP_KEY, ipTextField.getText().toString());
+
+        editor.putString(RegisterDroneActivity.DRONE_RABBITMQ_USER_KEY, droneDto.getRabbitMqInformation().getUsername());
+        editor.putString(RegisterDroneActivity.DRONE_RABBITMQ_PW_KEY, droneDto.getRabbitMqInformation().getPassword());
+
         editor.apply();
     }
 
