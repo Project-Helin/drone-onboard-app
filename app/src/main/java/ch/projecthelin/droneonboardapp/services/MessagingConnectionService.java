@@ -40,6 +40,10 @@ public class MessagingConnectionService implements ConnectionListener {
     private String droneToken;
     private volatile Channel channel;
     private volatile Connection connection;
+    private volatile String rabbitMqUser;
+    private volatile String rabbitMqPassword;
+
+
     private List<MessagingConnectionListener> connectionListeners = new ArrayList<>();
     private List<MessageReceiver> missionMessageReceivers = new ArrayList<>();
     private List<DroneAttributeUpdateReceiver> droneAttributeUpdateReceivers = new ArrayList<>();
@@ -80,8 +84,8 @@ public class MessagingConnectionService implements ConnectionListener {
 
                         ConnectionOptions options = new ConnectionOptions()
                                 .withAddresses(rabbitMqServerAddress)
-                                .withUsername("admin")
-                                .withPassword("helin");
+                                .withUsername(rabbitMqUser)
+                                .withPassword(rabbitMqPassword);
 
                         if(!localConnection){
                             options.withSsl();
@@ -282,6 +286,14 @@ public class MessagingConnectionService implements ConnectionListener {
 
     public void setIsLocalConnection(boolean localConnection) {
         this.localConnection = localConnection;
+    }
+
+    public void setRabbitMqUser(String rabbitMqUser) {
+        this.rabbitMqUser = rabbitMqUser;
+    }
+
+    public void setRabbitMqPassword(String rabbitMqPassword) {
+        this.rabbitMqPassword = rabbitMqPassword;
     }
 
     public enum ConnectionState {

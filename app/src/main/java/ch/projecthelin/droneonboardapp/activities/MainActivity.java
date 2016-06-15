@@ -105,6 +105,7 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         messagingConnectionService.setDroneToken(loadDroneTokenFromSharedPreferences());
         loadServoValuesFromSharedPreferences();
         loadDroneStateFromSharedPreferences();
+        loadRabbitMqFromSharedPreferences();
 
         messagingConnectionService.addMissionMessageReceiver(this);
         messagingConnectionService.addDroneAttributeUpdateReceiver(this);
@@ -171,6 +172,16 @@ public class MainActivity extends AppCompatActivity implements LocationListener,
         droneConnectionService.setIsActive(sharedPreferences.getBoolean(RegisterDroneActivity.DRONE_ACTIVE_KEY, DRONE_ACTIVE_DEFAULT));
         droneConnectionService.setDroneName(sharedPreferences.getString(RegisterDroneActivity.DRONE_NAME_KEY, DRONE_NAME_DEFAULT));
         droneConnectionService.setPayload(sharedPreferences.getInt(RegisterDroneActivity.DRONE_PAYLOAD_KEY, DRONE_PAYLOAD_DEFAULT));
+
+    }
+
+    private void loadRabbitMqFromSharedPreferences(){
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+
+        String user = sharedPreferences.getString(RegisterDroneActivity.DRONE_RABBITMQ_USER_KEY, "");
+        String password = sharedPreferences.getString(RegisterDroneActivity.DRONE_RABBITMQ_PW_KEY, "");
+        messagingConnectionService.setRabbitMqUser(user);
+        messagingConnectionService.setRabbitMqPassword(password);
     }
 
     private void saveDroneStateToSharedPreferences(DroneDto droneDto){
